@@ -8,8 +8,8 @@
     <ProjectGuid>{3209AF1D-4762-4960-9DE5-13E90E77EE96}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BDInfo</RootNamespace>
-    <AssemblyName>BDInfo</AssemblyName>
+    <RootNamespace>BDInfoLib</RootNamespace>
+    <AssemblyName>BDInfoLib</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>

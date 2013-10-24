@@ -17,15 +17,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-
-namespace BDInfo
+namespace BDInfoLib.BDROM
 {
+    using System;
+    using System.Collections.Specialized;
+    using System.IO;
+
     public class TSStreamBuffer
     {
         private MemoryStream Stream = new MemoryStream();

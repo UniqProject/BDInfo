@@ -18,14 +18,12 @@
 //=============================================================================
 
 #undef DEBUG
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-
-namespace BDInfo
+namespace BDInfoLib.BDROM
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
     public class TSStreamState
     {
         public ulong TransferCount = 0;
