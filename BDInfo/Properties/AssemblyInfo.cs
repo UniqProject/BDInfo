@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BDInfo")]
-[assembly: AssemblyDescription("Blu-ray Video and Audio Specifications Collection Tool")]
+[assembly: AssemblyDescription("Blu-ray Video and Audio Specifications Collection Library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Cinema Squid")]
 [assembly: AssemblyProduct("BDInfo")]

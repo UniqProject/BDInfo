@@ -27,7 +27,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="FilterShortPlaylistsValue" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">20</Value>
+      <Value Profile="(Default)">300</Value>
     </Setting>
     <Setting Name="UseImagePrefix" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
