@@ -83,7 +83,7 @@ namespace BDInfoLib.BDROM
             
             if (DirectoryBDMV == null)
             {
-                throw new Exception("Unable to locate BD structure.");
+                throw new DirectoryNotFoundException("Unable to locate BD structure.");
             }
 
             DirectoryRoot = 
@@ -104,7 +104,7 @@ namespace BDInfoLib.BDROM
             if (DirectoryCLIPINF == null
                 || DirectoryPLAYLIST == null)
             {
-                throw new Exception("Unable to locate BD structure.");
+                throw new DirectoryNotFoundException("Unable to locate BD structure.");
             }
 
             //
