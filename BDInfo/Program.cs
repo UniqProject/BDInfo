@@ -17,23 +17,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
 namespace BDInfo
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main(string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormMain(args));
-        }
     }
 }
