@@ -1,5 +1,7 @@
-BDInfo (http://www.cinemasquid.com/blu-ray/tools/bdinfo)
+BDInfo
 ======
+
+(source origin: http://www.cinemasquid.com/blu-ray/tools/bdinfo)
 
 The BDInfo tool was designed to collect video and audio technical specifications from Blu-ray movie discs, including:
 
