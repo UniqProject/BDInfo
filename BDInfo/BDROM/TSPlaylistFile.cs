@@ -37,6 +37,8 @@ namespace BDInfoLib.BDROM
         public bool HasLoops = false;
         public bool IsCustom = false;
 
+        public bool MVCBaseViewR = false;
+
         public List<double> Chapters = new List<double>();
 
         public Dictionary<ushort, TSStream> Streams = 
@@ -249,6 +251,30 @@ namespace BDInfoLib.BDROM
                 int playlistOffset = ReadInt32(data, ref pos);
                 int chaptersOffset = ReadInt32(data, ref pos);
                 int extensionsOffset = ReadInt32(data, ref pos);
+
+                if (extensionsOffset > 0)
+                {
+                    pos = extensionsOffset;
+                    int extensionLength = ReadInt32(data, ref pos);
+                    int firstExtensionPos = ReadInt32(data, ref pos);
+                    int extCount = ReadInt32(data, ref pos);
+                    int id1;
+                    int id2;
+                    int extRead = 0;
+                    do
+                    {
+                        id1 = ReadInt16(data, ref pos);
+                        id2 = ReadInt16(data, ref pos);
+                        int startData = ReadInt32(data, ref pos);
+                        int extLength = ReadInt32(data, ref pos);
+                        if (id1 == 2 && id2 == 1) // STN extension
+                        {
+                            pos = extensionsOffset + startData + 6;
+                            MVCBaseViewR = Convert.ToBoolean(ReadByte(data, ref pos));
+                        }
+                        extRead++;
+                    } while ((id1 != 2 && id2 != 1) && extRead < extCount);
+                }
 
                 pos = playlistOffset;
 
