@@ -333,6 +333,7 @@ namespace BDInfo
                                 (videoStream.StreamType == TSStreamType.MVC_VIDEO && !playlistFile.MVCBaseViewR))
                                 videoStream.BaseView = true;
                             else
+                                if (videoStream.StreamType == TSStreamType.AVC_VIDEO || videoStream.StreamType == TSStreamType.MVC_VIDEO)
                                 videoStream.BaseView = false;
                         }
 
