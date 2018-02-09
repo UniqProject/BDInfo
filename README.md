@@ -14,9 +14,9 @@ The BDInfo tool was designed to collect video and audio technical specifications
 Requirements
 ======
 <ul>
-<li>Windows XP, Windows Vista or Windows 7 Operating System</li>
+<li>Windows Vista, Windows 7 or higher Operating System</li>
 <li>Blu-ray BD-ROM Drive</li>
-<li>.NET Framework 2.0 or Higher</li>
+<li>.NET Framework 4.5 or Higher</li>
 <li>Source Code</li>
 </ul>
 
