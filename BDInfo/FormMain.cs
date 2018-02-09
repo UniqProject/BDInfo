@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace BDInfo
 {
@@ -104,16 +105,17 @@ namespace BDInfo
             string path = null;
             try
             {
-                FolderBrowserDialog dialog = new FolderBrowserDialog();
-                dialog.Description = "Select a Blu-ray BDMV Folder:";
-                dialog.ShowNewFolderButton = false;
+                CommonOpenFileDialog openDialog = new CommonOpenFileDialog();
+                openDialog.IsFolderPicker = true;
+                openDialog.Title = "Select a Blu - ray BDMV Folder:";
+
                 if (!string.IsNullOrEmpty(textBoxSource.Text))
                 {
-                    dialog.SelectedPath = textBoxSource.Text;
+                    openDialog.InitialDirectory = textBoxSource.Text;
                 }
-                if (dialog.ShowDialog() == DialogResult.OK)
+                if (openDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    path = dialog.SelectedPath;
+                    path = openDialog.FileName;
                     textBoxSource.Text = path;
                     InitBDROM(path);
                 }
