@@ -30,6 +30,7 @@ namespace BDInfo
         MPEG2_VIDEO = 0x02,
         AVC_VIDEO = 0x1b,
         MVC_VIDEO = 0x20,
+        HEVC_VIDEO = 0x24,
         VC1_VIDEO = 0xea,
         MPEG1_AUDIO = 0x03,
         MPEG2_AUDIO = 0x04,
@@ -57,6 +58,7 @@ namespace BDInfo
         VIDEOFORMAT_720p = 5,
         VIDEOFORMAT_1080p = 6,
         VIDEOFORMAT_576p = 7,
+        VIDEOFORMAT_2160p = 8,
     }
 
     public enum TSFrameRate : byte
@@ -176,6 +178,7 @@ namespace BDInfo
                     case TSStreamType.AVC_VIDEO:
                     case TSStreamType.MVC_VIDEO:
                     case TSStreamType.VC1_VIDEO:
+                    case TSStreamType.HEVC_VIDEO:
                         return true;
 
                     default:
@@ -254,6 +257,8 @@ namespace BDInfo
                         return "MPEG-4 AVC Video";
                     case TSStreamType.MVC_VIDEO:
                         return "MPEG-4 MVC Video";
+                    case TSStreamType.HEVC_VIDEO:
+                        return "HEVC Video";
                     case TSStreamType.VC1_VIDEO:
                         return "VC-1 Video";
                     case TSStreamType.MPEG1_AUDIO:
@@ -309,6 +314,8 @@ namespace BDInfo
                         return "AVC";
                     case TSStreamType.MVC_VIDEO:
                         return "MVC";
+                    case TSStreamType.HEVC_VIDEO:
+                        return "HEVC";
                     case TSStreamType.VC1_VIDEO:
                         return "VC-1";
                     case TSStreamType.MPEG1_AUDIO:
@@ -358,6 +365,8 @@ namespace BDInfo
                         return "AVC";
                     case TSStreamType.MVC_VIDEO:
                         return "MVC";
+                    case TSStreamType.HEVC_VIDEO:
+                        return "HEVC";
                     case TSStreamType.VC1_VIDEO:
                         return "VC-1";
                     case TSStreamType.MPEG1_AUDIO:
@@ -480,6 +489,10 @@ namespace BDInfo
                         break;
                     case TSVideoFormat.VIDEOFORMAT_1080p:
                         Height = 1080;
+                        IsInterlaced = false;
+                        break;
+                    case TSVideoFormat.VIDEOFORMAT_2160p:
+                        Height = 2160;
                         IsInterlaced = false;
                         break;
                 }

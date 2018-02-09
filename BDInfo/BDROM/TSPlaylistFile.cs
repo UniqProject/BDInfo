@@ -579,6 +579,7 @@ namespace BDInfo
                     // TODO
                     break;
 
+                case TSStreamType.HEVC_VIDEO:
                 case TSStreamType.AVC_VIDEO:
                 case TSStreamType.MPEG1_VIDEO:
                 case TSStreamType.MPEG2_VIDEO:
@@ -1209,6 +1210,8 @@ namespace BDInfo
                     return 4;
                 case TSStreamType.MVC_VIDEO:
                     return 5;
+                case TSStreamType.HEVC_VIDEO:
+                    return 6;
 
                 case TSStreamType.MPEG1_AUDIO:
                     return 1;

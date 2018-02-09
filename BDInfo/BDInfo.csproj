@@ -55,6 +55,7 @@
     <Compile Include="BDROM\BDROM.cs" />
     <Compile Include="BDROM\TSCodecDTS.cs" />
     <Compile Include="BDROM\TSCodecDTSHD.cs" />
+    <Compile Include="BDROM\TSCodecHEVC.cs" />
     <Compile Include="BDROM\TSCodecLPCM.cs" />
     <Compile Include="BDROM\TSCodecMPEG2.cs" />
     <Compile Include="BDROM\TSCodecMVC.cs" />

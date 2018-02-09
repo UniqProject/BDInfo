@@ -234,6 +234,11 @@ namespace BDInfo
                         (TSVideoStream)stream, buffer, ref streamState.StreamTag);
                     break;
 
+                case TSStreamType.HEVC_VIDEO:
+                    TSCodecHEVC.Scan(
+                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                    break;
+
                 case TSStreamType.VC1_VIDEO:
                     TSCodecVC1.Scan(
                         (TSVideoStream)stream, buffer, ref streamState.StreamTag);
@@ -1490,6 +1495,7 @@ namespace BDInfo
             {
                 case TSStreamType.MVC_VIDEO:
                 case TSStreamType.AVC_VIDEO:
+                case TSStreamType.HEVC_VIDEO:
                 case TSStreamType.MPEG1_VIDEO:
                 case TSStreamType.MPEG2_VIDEO:
                 case TSStreamType.VC1_VIDEO:
