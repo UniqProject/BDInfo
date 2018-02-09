@@ -37,6 +37,8 @@ namespace BDInfo
         public bool HasLoops = false;
         public bool IsCustom = false;
 
+         public bool MVCBaseViewR = false;
+
         public List<double> Chapters = new List<double>();
 
         public Dictionary<ushort, TSStream> Streams = 
@@ -249,6 +251,13 @@ namespace BDInfo
                 int playlistOffset = ReadInt32(data, ref pos);
                 int chaptersOffset = ReadInt32(data, ref pos);
                 int extensionsOffset = ReadInt32(data, ref pos);
+
+                // misc flags
+                pos = 0x38;
+                byte miscFlags = ReadByte(data, ref pos);
+                
+                // MVC_Base_view_R_flag is stored in 4th bit
+                MVCBaseViewR = (miscFlags & 0x10) != 0;
 
                 pos = playlistOffset;
 
