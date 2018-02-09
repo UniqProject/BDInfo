@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace BDInfo
@@ -163,6 +164,29 @@ namespace BDInfo
             else
             {
                 stream.BitDepth = 16;
+            }
+
+            int numSubStreams = buffer.ReadBits(4);
+            int aTemp   = buffer.ReadBits(16);
+            aTemp       = buffer.ReadBits(16);
+            aTemp       = buffer.ReadBits(16);
+            aTemp       = buffer.ReadBits(16);
+            aTemp       = buffer.ReadBits(11);
+
+            bool hasExtensions = Convert.ToBoolean(buffer.ReadBits(1));
+            int numExtensions = (buffer.ReadBits(4)*2) + 1;
+            bool hasContent = Convert.ToBoolean(buffer.ReadBits(4));
+
+            if (hasExtensions)
+            {
+                for (int idx = 0; idx < numExtensions; ++idx)
+                {
+                    if (Convert.ToBoolean(buffer.ReadBits(8)))
+                        hasContent = true;
+                }
+
+                if (hasContent)
+                    stream.HasExtensions = true;
             }
 
 #if DEBUG

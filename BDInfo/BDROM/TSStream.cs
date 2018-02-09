@@ -278,7 +278,10 @@ namespace BDInfo
                     case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
                         return "Dolby Digital Plus Audio";
                     case TSStreamType.AC3_TRUE_HD_AUDIO:
-                        return "Dolby TrueHD Audio";
+                        if (((TSAudioStream) this).HasExtensions)
+                            return "Dolby TrueHD + Atmos";
+                        else
+                            return "Dolby TrueHD Audio";
                     case TSStreamType.DTS_AUDIO:
                         if (((TSAudioStream)this).AudioMode == TSAudioMode.Extended)
                             return "DTS-ES Audio";
@@ -428,6 +431,7 @@ namespace BDInfo
             stream.BitRate = BitRate;
             stream.IsInitialized = IsInitialized;
             stream.LanguageCode = _LanguageCode;
+
             if (Descriptors != null)
             {
                 stream.Descriptors = new List<TSDescriptor>();
@@ -636,6 +640,9 @@ namespace BDInfo
         public int BitDepth;
         public int LFE;
         public int DialNorm;
+
+        public bool HasExtensions = false;
+
         public TSAudioMode AudioMode;
         public TSAudioStream CoreStream;
         public TSChannelLayout ChannelLayout;
@@ -783,6 +790,7 @@ namespace BDInfo
             stream.LFE = LFE;
             stream.DialNorm = DialNorm;
             stream.AudioMode = AudioMode;
+
             if (CoreStream != null)
             {
                 stream.CoreStream = (TSAudioStream)CoreStream.Clone();

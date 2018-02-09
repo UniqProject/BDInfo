@@ -844,6 +844,10 @@ namespace BDInfo
                             {
                                 audioStream.AudioMode = clipAudioStream.AudioMode;
                             }
+                            if (clipAudioStream.HasExtensions != audioStream.HasExtensions)
+                            {
+                                audioStream.HasExtensions = clipAudioStream.HasExtensions;
+                            }
                             if (clipAudioStream.CoreStream != null &&
                                 audioStream.CoreStream == null)
                             {
