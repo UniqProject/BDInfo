@@ -84,9 +84,11 @@ namespace BDInfo
             this.columnHeaderBitrate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderDescription = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.buttonRescan = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerOuter)).BeginInit();
             this.splitContainerOuter.Panel1.SuspendLayout();
             this.splitContainerOuter.Panel2.SuspendLayout();
             this.splitContainerOuter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).BeginInit();
             this.splitContainerInner.Panel1.SuspendLayout();
             this.splitContainerInner.Panel2.SuspendLayout();
             this.splitContainerInner.SuspendLayout();
@@ -487,7 +489,7 @@ namespace BDInfo
             this.Controls.Add(this.textBoxSource);
             this.Controls.Add(this.labelSource);
             this.Name = "FormMain";
-            this.Text = "BDInfo v.0.5.8";
+            this.Text = "BDInfo v.0.7.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.LocationChanged += new System.EventHandler(this.FormMain_LocationChanged);
@@ -496,9 +498,11 @@ namespace BDInfo
             this.Resize += new System.EventHandler(this.FormMain_Resize);
             this.splitContainerOuter.Panel1.ResumeLayout(false);
             this.splitContainerOuter.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerOuter)).EndInit();
             this.splitContainerOuter.ResumeLayout(false);
             this.splitContainerInner.Panel1.ResumeLayout(false);
             this.splitContainerInner.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).EndInit();
             this.splitContainerInner.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
