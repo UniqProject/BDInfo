@@ -34,6 +34,8 @@ namespace BDInfo
         {
             stream.IsVBR = true;
             stream.IsInitialized = true;
+            stream.BaseView = false;
+
         }
     }
 }

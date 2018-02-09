@@ -318,6 +318,7 @@ namespace BDInfo
                 playlistFile.Initialize();
                 if (!Is50Hz)
                 {
+                    int vidStreamCount = playlistFile.VideoStreams.Count;
                     foreach (TSVideoStream videoStream in playlistFile.VideoStreams)
                     {
                         if (videoStream.FrameRate == TSFrameRate.FRAMERATE_25 ||
@@ -325,6 +326,16 @@ namespace BDInfo
                         {
                             Is50Hz = true;
                         }
+
+                        if (vidStreamCount > 1)
+                        {
+                            if ((videoStream.StreamType == TSStreamType.AVC_VIDEO && playlistFile.MVCBaseViewR) ||
+                                (videoStream.StreamType == TSStreamType.MVC_VIDEO && !playlistFile.MVCBaseViewR))
+                                videoStream.BaseView = true;
+                            else
+                                videoStream.BaseView = false;
+                        }
+
                     }
                 }
             }

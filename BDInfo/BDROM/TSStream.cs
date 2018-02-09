@@ -145,6 +145,8 @@ namespace BDInfo
         public double PacketSeconds = 0;
         public int AngleIndex = 0;
 
+        public bool? BaseView;
+
         public ulong PacketSize
         {
             get
@@ -544,6 +546,15 @@ namespace BDInfo
             get
             {
                 string description = "";
+
+                if (BaseView != null)
+                {
+                    if (BaseView == true)
+                        description += "Right Eye";
+                    else
+                        description += "Left Eye";
+                    description += " / ";
+                }
 
                 if (Height > 0)
                 {
