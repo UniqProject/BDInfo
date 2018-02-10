@@ -489,7 +489,7 @@ namespace BDInfo
             this.Controls.Add(this.textBoxSource);
             this.Controls.Add(this.labelSource);
             this.Name = "FormMain";
-            this.Text = "BDInfo v.0.7.0";
+            this.Text = "BDInfo v.0.7.1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.LocationChanged += new System.EventHandler(this.FormMain_LocationChanged);
