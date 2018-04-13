@@ -131,12 +131,12 @@ namespace BDInfo
                 if (BDInfoSettings.EnableSSIF &&
                     playlist.InterleavedFileSize > 0)
                 {
-                    playlistSize.Text = playlist.InterleavedFileSize.ToString("N0");
+                    playlistSize.Text = ToolBox.FormatFileSize(playlist.InterleavedFileSize);
                     playlistSize.Tag = playlist.InterleavedFileSize;
                 }
                 else if (playlist.FileSize > 0)
                 {
-                    playlistSize.Text = playlist.FileSize.ToString("N0");
+                    playlistSize.Text = ToolBox.FormatFileSize(playlist.FileSize);
                     playlistSize.Tag = playlist.FileSize;
                 }
                 else
@@ -149,7 +149,7 @@ namespace BDInfo
                     new ListViewItem.ListViewSubItem();
                 if (playlist.TotalAngleSize > 0)
                 {
-                    playlistSize2.Text = (playlist.TotalAngleSize).ToString("N0");
+                    playlistSize2.Text = ToolBox.FormatFileSize(playlist.TotalAngleSize);
                 }
                 else
                 {
@@ -244,12 +244,12 @@ namespace BDInfo
                 if (BDInfoSettings.EnableSSIF &&
                     clip.InterleavedFileSize > 0)
                 {
-                    clipSize.Text = clip.InterleavedFileSize.ToString("N0");
+                    clipSize.Text = ToolBox.FormatFileSize(clip.InterleavedFileSize);
                     clipSize.Tag = clip.InterleavedFileSize;
                 }
                 else if (clip.FileSize > 0)
                 {
-                    clipSize.Text = clip.FileSize.ToString("N0");
+                    clipSize.Text = ToolBox.FormatFileSize(clip.FileSize);
                     clipSize.Tag = clip.FileSize;
                 }
                 else
@@ -262,7 +262,7 @@ namespace BDInfo
                     new ListViewItem.ListViewSubItem();
                 if (clip.PacketSize > 0)
                 {
-                    clipSize2.Text = clip.PacketSize.ToString("N0");
+                    clipSize2.Text = ToolBox.FormatFileSize(clip.PacketSize);
                 }
                 else
                 {
