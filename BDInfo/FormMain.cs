@@ -106,8 +106,18 @@ namespace BDInfo
             try
             {
                 CommonOpenFileDialog openDialog = new CommonOpenFileDialog();
-                openDialog.IsFolderPicker = true;
-                openDialog.Title = "Select a Blu - ray BDMV Folder:";
+                if (((Button) sender).Name == "buttonBrowse")
+                {
+                    openDialog.IsFolderPicker = true;
+                    openDialog.Title = "Select a BluRay BDMV Folder:";
+                }
+                else
+                {
+                    openDialog.IsFolderPicker = false;
+                    openDialog.Title = "Select a BluRay .ISO file:";
+                    openDialog.Filters.Add(new CommonFileDialogFilter("ISO-Image", ".iso"));
+                }
+                
 
                 if (!string.IsNullOrEmpty(textBoxSource.Text))
                 {
@@ -324,6 +334,9 @@ namespace BDInfo
             listViewStreamFiles.Items.Clear();
             listViewStreams.Items.Clear();
 
+            if (BDROM != null && BDROM.IsImage && BDROM.CdReader != null)
+                BDROM.CloseDiscImage();
+
             InitBDROMWorker = new BackgroundWorker();
             InitBDROMWorker.WorkerReportsProgress = true;
             InitBDROMWorker.WorkerSupportsCancellation = true;
@@ -421,13 +434,24 @@ namespace BDInfo
             labelTimeElapsed.Text = "00:00:00";
             labelTimeRemaining.Text = "00:00:00";
 
-            textBoxSource.Text = BDROM.DirectoryRoot.FullName;
-
-            textBoxDetails.Text += string.Format(
-                "Detected BDMV Folder: {0} ({1}) {2}",
-                BDROM.DirectoryBDMV.FullName,
-                BDROM.VolumeLabel,
-                Environment.NewLine);
+            if (!BDROM.IsImage)
+            {
+                textBoxSource.Text = BDROM.DirectoryRoot.FullName;
+                textBoxDetails.Text += string.Format(
+                    "Detected BDMV Folder: {0} ({1}) {2}",
+                    BDROM.DirectoryBDMV.FullName,
+                    BDROM.VolumeLabel,
+                    Environment.NewLine);
+            }
+            else
+            {
+                textBoxDetails.Text += string.Format(
+                    "Detected BDMV Folder: {0} ({1}) {3} ISO Image: {2} {3}",
+                    BDROM.DiscDirectoryBDMV.FullName,
+                    BDROM.VolumeLabel,
+                    textBoxSource.Text,
+                    Environment.NewLine);
+            }
 
             List<string> features = new List<string>();
             if (BDROM.Is50Hz)
@@ -969,11 +993,17 @@ namespace BDInfo
                     if (BDInfoSettings.EnableSSIF &&
                         streamFile.InterleavedFile != null)
                     {
-                        scanState.TotalBytes += streamFile.InterleavedFile.FileInfo.Length;
+                        if (streamFile.InterleavedFile.FileInfo != null)
+                            scanState.TotalBytes += streamFile.InterleavedFile.FileInfo.Length;
+                        else
+                            scanState.TotalBytes += streamFile.InterleavedFile.DFileInfo.Length;
                     }
                     else
                     {
-                        scanState.TotalBytes += streamFile.FileInfo.Length;
+                        if (streamFile.FileInfo != null)
+                            scanState.TotalBytes += streamFile.FileInfo.Length;
+                        else
+                            scanState.TotalBytes += streamFile.DFileInfo.Length;
                     }
                     
                     if (!scanState.PlaylistMap.ContainsKey(streamFile.Name))
@@ -1018,7 +1048,10 @@ namespace BDInfo
                         }
                         Thread.Sleep(0);
                     }
-                    scanState.FinishedBytes += streamFile.FileInfo.Length;
+                    if (streamFile.FileInfo != null)
+                        scanState.FinishedBytes += streamFile.FileInfo.Length;
+                    else
+                        scanState.FinishedBytes += streamFile.DFileInfo.Length;
                     if (scanState.Exception != null)
                     {
                         ScanResult.FileExceptions[streamFile.Name] = scanState.Exception;

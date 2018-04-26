@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using DiscUtils;
+using DiscUtils.Udf;
 
 namespace BDInfo
 {
@@ -29,12 +31,23 @@ namespace BDInfo
     {
         public DirectoryInfo DirectoryRoot = null;
         public DirectoryInfo DirectoryBDMV = null;
+
         public DirectoryInfo DirectoryBDJO = null;
         public DirectoryInfo DirectoryCLIPINF = null;
         public DirectoryInfo DirectoryPLAYLIST = null;
         public DirectoryInfo DirectorySNP = null;
         public DirectoryInfo DirectorySSIF = null;
         public DirectoryInfo DirectorySTREAM = null;
+
+        public DiscDirectoryInfo DiscDirectoryRoot = null;
+        public DiscDirectoryInfo DiscDirectoryBDMV = null;
+
+        public DiscDirectoryInfo DiscDirectoryBDJO = null;
+        public DiscDirectoryInfo DiscDirectoryCLIPINF = null;
+        public DiscDirectoryInfo DiscDirectoryPLAYLIST = null;
+        public DiscDirectoryInfo DiscDirectorySNP = null;
+        public DiscDirectoryInfo DiscDirectorySSIF = null;
+        public DiscDirectoryInfo DiscDirectorySTREAM = null;
 
         public string VolumeLabel = null;
         public ulong Size = 0;
@@ -44,6 +57,10 @@ namespace BDInfo
         public bool IsPSP = false;
         public bool Is3D = false;
         public bool Is50Hz = false;
+
+        public bool IsImage = false;
+        public FileStream IoStream = null;
+        public UdfReader CdReader = null;
 
         public Dictionary<string, TSPlaylistFile> PlaylistFiles = 
             new Dictionary<string, TSPlaylistFile>();
@@ -77,32 +94,47 @@ namespace BDInfo
             //
             // Locate BDMV directories.
             //
+            if ((new FileInfo(path).Attributes & FileAttributes.Directory) != FileAttributes.Directory)
+            {
+                IsImage = true;
+                IoStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None);
+                CdReader = new UdfReader(IoStream);
+            }
 
-            DirectoryBDMV = 
-                GetDirectoryBDMV(path);
+            if (!IsImage)
+                DirectoryBDMV = GetDirectoryBDMV(path);
+            else
+                DiscDirectoryBDMV = GetDiscDirectoryBDMV();
             
-            if (DirectoryBDMV == null)
+            if ((!IsImage && DirectoryBDMV == null) || (IsImage && DiscDirectoryBDMV == null))
             {
                 throw new Exception("Unable to locate BD structure.");
             }
 
-            DirectoryRoot = 
-                DirectoryBDMV.Parent;
-            DirectoryBDJO = 
-                GetDirectory("BDJO", DirectoryBDMV, 0);
-            DirectoryCLIPINF = 
-                GetDirectory("CLIPINF", DirectoryBDMV, 0);
-            DirectoryPLAYLIST =
-                GetDirectory("PLAYLIST", DirectoryBDMV, 0);
-            DirectorySNP =
-                GetDirectory("SNP", DirectoryRoot, 0);
-            DirectorySTREAM = 
-                GetDirectory("STREAM", DirectoryBDMV, 0);
-            DirectorySSIF =
-                GetDirectory("SSIF", DirectorySTREAM, 0);
+            if (IsImage)
+            {
+                DiscDirectoryRoot = DiscDirectoryBDMV.Parent;
 
-            if (DirectoryCLIPINF == null
-                || DirectoryPLAYLIST == null)
+                DiscDirectoryBDJO = GetDiscDirectory("BDJO", DiscDirectoryBDMV, 0);
+                DiscDirectoryCLIPINF = GetDiscDirectory("CLIPINF", DiscDirectoryBDMV, 0);
+                DiscDirectoryPLAYLIST = GetDiscDirectory("PLAYLIST", DiscDirectoryBDMV, 0);
+                DiscDirectorySNP = GetDiscDirectory("SNP", DiscDirectoryRoot, 0);
+                DiscDirectorySTREAM = GetDiscDirectory("STREAM", DiscDirectoryBDMV, 0);
+                DiscDirectorySSIF = GetDiscDirectory("SSIF", DiscDirectorySTREAM, 0);
+            }
+            else
+            {
+                DirectoryRoot = DirectoryBDMV.Parent;
+
+                DirectoryBDJO = GetDirectory("BDJO", DirectoryBDMV, 0);
+                DirectoryCLIPINF = GetDirectory("CLIPINF", DirectoryBDMV, 0);
+                DirectoryPLAYLIST = GetDirectory("PLAYLIST", DirectoryBDMV, 0);
+                DirectorySNP = GetDirectory("SNP", DirectoryRoot, 0);
+                DirectorySTREAM = GetDirectory("STREAM", DirectoryBDMV, 0);
+                DirectorySSIF = GetDirectory("SSIF", DirectorySTREAM, 0);
+            }
+
+            if ((!IsImage & (DirectoryCLIPINF == null || DirectoryPLAYLIST == null)) || (IsImage & (DiscDirectoryCLIPINF == null || DiscDirectoryPLAYLIST == null)))
             {
                 throw new Exception("Unable to locate BD structure.");
             }
@@ -110,103 +142,203 @@ namespace BDInfo
             //
             // Initialize basic disc properties.
             //
+            if (IsImage)
+            {
+                VolumeLabel = CdReader.VolumeLabel;
+                Size = (ulong)GetDiscDirectorySize(DiscDirectoryRoot);
 
-            VolumeLabel = GetVolumeLabel(DirectoryRoot);
-            Size = (ulong)GetDirectorySize(DirectoryRoot);
+                if (null != GetDiscDirectory("BDSVM", DiscDirectoryRoot, 0))
+                {
+                    IsBDPlus = true;
+                }
+                if (null != GetDiscDirectory("SLYVM", DiscDirectoryRoot, 0))
+                {
+                    IsBDPlus = true;
+                }
+                if (null != GetDiscDirectory("ANYVM", DiscDirectoryRoot, 0))
+                {
+                    IsBDPlus = true;
+                }
+
+                if (DiscDirectoryBDJO != null &&
+                    DiscDirectoryBDJO.GetFiles().Length > 0)
+                {
+                    IsBDJava = true;
+                }
+
+                if (DiscDirectorySNP != null &&
+                    (DiscDirectorySNP.GetFiles("*.mnv").Length > 0 || DiscDirectorySNP.GetFiles("*.MNV").Length > 0))
+                {
+                    IsPSP = true;
+                }
+
+                if (DiscDirectorySSIF != null &&
+                    DiscDirectorySSIF.GetFiles().Length > 0)
+                {
+                    Is3D = true;
+                }
+
+                DiscFileInfo[] discFiles = DiscDirectoryRoot.GetFiles("FilmIndex.xml");
+                if (discFiles != null && discFiles.Length > 0)
+                {
+                    IsDBOX = true;
+                }
+
+                //
+                // Initialize file lists.
+                //
+
+                if (DiscDirectoryPLAYLIST != null)
+                {
+                    DiscFileInfo[] files = DiscDirectoryPLAYLIST.GetFiles("*.mpls");
+                    if (files.Length == 0)
+                    {
+                        files = DiscDirectoryPLAYLIST.GetFiles("*.MPLS");
+                    }
+                    foreach (DiscFileInfo file in files)
+                    {
+                        PlaylistFiles.Add(file.Name.ToUpper(), new TSPlaylistFile(this, file, CdReader));
+                    }
+                }
+
+                if (DiscDirectorySTREAM != null)
+                {
+                    DiscFileInfo[] files = DiscDirectorySTREAM.GetFiles("*.m2ts");
+                    if (files.Length == 0)
+                    {
+                        files = DiscDirectoryPLAYLIST.GetFiles("*.M2TS");
+                    }
+                    foreach (DiscFileInfo file in files)
+                    {
+                        StreamFiles.Add(file.Name.ToUpper(), new TSStreamFile(file, CdReader));
+                    }
+                }
+
+                if (DiscDirectoryCLIPINF != null)
+                {
+                    DiscFileInfo[] files = DiscDirectoryCLIPINF.GetFiles("*.clpi");
+                    if (files.Length == 0)
+                    {
+                        files = DiscDirectoryPLAYLIST.GetFiles("*.CLPI");
+                    }
+                    foreach (DiscFileInfo file in files)
+                    {
+                        StreamClipFiles.Add(file.Name.ToUpper(), new TSStreamClipFile(file, CdReader));
+                    }
+                }
+
+                if (DiscDirectorySSIF != null)
+                {
+                    DiscFileInfo[] files = DiscDirectorySSIF.GetFiles("*.ssif");
+                    if (files.Length == 0)
+                    {
+                        files = DiscDirectorySSIF.GetFiles("*.SSIF");
+                    }
+                    foreach (DiscFileInfo file in files)
+                    {
+                        InterleavedFiles.Add(file.Name.ToUpper(), new TSInterleavedFile(file, CdReader));
+                    }
+                }
+            }
+            else
+            {
+                VolumeLabel = GetVolumeLabel(DirectoryRoot);
+                Size = (ulong)GetDirectorySize(DirectoryRoot);
             
-            if (null != GetDirectory("BDSVM", DirectoryRoot, 0))
-            {
-                IsBDPlus = true;
-            }
-            if (null != GetDirectory("SLYVM", DirectoryRoot, 0))
-            {
-                IsBDPlus = true;
-            }
-            if (null != GetDirectory("ANYVM", DirectoryRoot, 0))
-            {
-                IsBDPlus = true;
-            }
-
-            if (DirectoryBDJO != null &&
-                DirectoryBDJO.GetFiles().Length > 0)
-            {
-                IsBDJava = true;
-            }
-
-            if (DirectorySNP != null &&
-                (DirectorySNP.GetFiles("*.mnv").Length > 0 || DirectorySNP.GetFiles("*.MNV").Length > 0))
-            {
-                IsPSP = true;
-            }
-
-            if (DirectorySSIF != null &&
-                DirectorySSIF.GetFiles().Length > 0)
-            {
-                Is3D = true;
-            }
-
-            if (File.Exists(Path.Combine(DirectoryRoot.FullName, "FilmIndex.xml")))
-            {
-                IsDBOX = true;
-            }
-
-            //
-            // Initialize file lists.
-            //
-
-            if (DirectoryPLAYLIST != null)
-            {
-                FileInfo[] files = DirectoryPLAYLIST.GetFiles("*.mpls");
-                if (files.Length == 0)
+                if (null != GetDirectory("BDSVM", DirectoryRoot, 0))
                 {
-                    files = DirectoryPLAYLIST.GetFiles("*.MPLS");
+                    IsBDPlus = true;
                 }
-                foreach (FileInfo file in files)
+                if (null != GetDirectory("SLYVM", DirectoryRoot, 0))
                 {
-                    PlaylistFiles.Add(
-                        file.Name.ToUpper(), new TSPlaylistFile(this, file));
+                    IsBDPlus = true;
                 }
-            }
+                if (null != GetDirectory("ANYVM", DirectoryRoot, 0))
+                {
+                    IsBDPlus = true;
+                }
 
-            if (DirectorySTREAM != null)
-            {
-                FileInfo[] files = DirectorySTREAM.GetFiles("*.m2ts");
-                if (files.Length == 0)
+                if (DirectoryBDJO != null &&
+                    DirectoryBDJO.GetFiles().Length > 0)
                 {
-                    files = DirectoryPLAYLIST.GetFiles("*.M2TS");
+                    IsBDJava = true;
                 }
-                foreach (FileInfo file in files)
-                {
-                    StreamFiles.Add(
-                        file.Name.ToUpper(), new TSStreamFile(file));
-                }
-            }
 
-            if (DirectoryCLIPINF != null)
-            {
-                FileInfo[] files = DirectoryCLIPINF.GetFiles("*.clpi");
-                if (files.Length == 0)
+                if (DirectorySNP != null &&
+                    (DirectorySNP.GetFiles("*.mnv").Length > 0 || DirectorySNP.GetFiles("*.MNV").Length > 0))
                 {
-                    files = DirectoryPLAYLIST.GetFiles("*.CLPI");
+                    IsPSP = true;
                 }
-                foreach (FileInfo file in files)
-                {
-                    StreamClipFiles.Add(
-                        file.Name.ToUpper(), new TSStreamClipFile(file));
-                }
-            }
 
-            if (DirectorySSIF != null)
-            {
-                FileInfo[] files = DirectorySSIF.GetFiles("*.ssif");
-                if (files.Length == 0)
+                if (DirectorySSIF != null &&
+                    DirectorySSIF.GetFiles().Length > 0)
                 {
-                    files = DirectorySSIF.GetFiles("*.SSIF");
+                    Is3D = true;
                 }
-                foreach (FileInfo file in files)
+
+                if (File.Exists(Path.Combine(DirectoryRoot.FullName, "FilmIndex.xml")))
                 {
-                    InterleavedFiles.Add(
-                        file.Name.ToUpper(), new TSInterleavedFile(file));
+                    IsDBOX = true;
+                }
+
+                //
+                // Initialize file lists.
+                //
+
+                if (DirectoryPLAYLIST != null)
+                {
+                    FileInfo[] files = DirectoryPLAYLIST.GetFiles("*.mpls");
+                    if (files.Length == 0)
+                    {
+                        files = DirectoryPLAYLIST.GetFiles("*.MPLS");
+                    }
+                    foreach (FileInfo file in files)
+                    {
+                        PlaylistFiles.Add(
+                            file.Name.ToUpper(), new TSPlaylistFile(this, file));
+                    }
+                }
+
+                if (DirectorySTREAM != null)
+                {
+                    FileInfo[] files = DirectorySTREAM.GetFiles("*.m2ts");
+                    if (files.Length == 0)
+                    {
+                        files = DirectoryPLAYLIST.GetFiles("*.M2TS");
+                    }
+                    foreach (FileInfo file in files)
+                    {
+                        StreamFiles.Add(
+                            file.Name.ToUpper(), new TSStreamFile(file));
+                    }
+                }
+
+                if (DirectoryCLIPINF != null)
+                {
+                    FileInfo[] files = DirectoryCLIPINF.GetFiles("*.clpi");
+                    if (files.Length == 0)
+                    {
+                        files = DirectoryPLAYLIST.GetFiles("*.CLPI");
+                    }
+                    foreach (FileInfo file in files)
+                    {
+                        StreamClipFiles.Add(
+                            file.Name.ToUpper(), new TSStreamClipFile(file));
+                    }
+                }
+
+                if (DirectorySSIF != null)
+                {
+                    FileInfo[] files = DirectorySSIF.GetFiles("*.ssif");
+                    if (files.Length == 0)
+                    {
+                        files = DirectorySSIF.GetFiles("*.SSIF");
+                    }
+                    foreach (FileInfo file in files)
+                    {
+                        InterleavedFiles.Add(
+                            file.Name.ToUpper(), new TSInterleavedFile(file));
+                    }
                 }
             }
         }
@@ -342,27 +474,30 @@ namespace BDInfo
             }
         }
 
+        private DiscDirectoryInfo GetDiscDirectoryBDMV()
+        {
+            var DiscDirInfo = CdReader.GetDirectoryInfo("BDMV");
+            return DiscDirInfo;
+        }
+
         private DirectoryInfo GetDirectoryBDMV(
             string path)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
+                DirectoryInfo dir = new DirectoryInfo(path);
 
-            while (dir != null)
-            {
-                if (dir.Name == "BDMV")
+                while (dir != null)
                 {
-                    return dir;
+                    if (dir.Name == "BDMV")
+                    {
+                        return dir;
+                    }
+                    dir = dir.Parent;
                 }
-                dir = dir.Parent;
-            }
 
-            return GetDirectory("BDMV", new DirectoryInfo(path), 0);
+                return GetDirectory("BDMV", new DirectoryInfo(path), 0);
         }
 
-        private DirectoryInfo GetDirectory(
-            string name,
-            DirectoryInfo dir,
-            int searchDepth)
+        private DirectoryInfo GetDirectory(string name, DirectoryInfo dir, int searchDepth)
         {
             if (dir != null)
             {
@@ -386,57 +521,104 @@ namespace BDInfo
             return null;
         }
 
+        private DiscDirectoryInfo GetDiscDirectory(string name, DiscDirectoryInfo dir, int searchDepth)
+        {
+            if (dir != null)
+            {
+                DiscDirectoryInfo[] children = dir.GetDirectories();
+                foreach (DiscDirectoryInfo child in children)
+                {
+                    if (child.Name == name)
+                    {
+                        return child;
+                    }
+                }
+                if (searchDepth > 0)
+                {
+                    foreach (DiscDirectoryInfo child in children)
+                    {
+                        GetDiscDirectory(name, child, searchDepth - 1);
+                    }
+                }
+            }
+            return null;
+        }
+
         private long GetDirectorySize(DirectoryInfo directoryInfo)
         {
             long size = 0;
 
-            //if (!ExcludeDirs.Contains(directoryInfo.Name.ToUpper()))  // TODO: Keep?
+            FileInfo[] pathFiles = directoryInfo.GetFiles();
+            foreach (FileInfo pathFile in pathFiles)
             {
-                FileInfo[] pathFiles = directoryInfo.GetFiles();
-                foreach (FileInfo pathFile in pathFiles)
+                if (pathFile.Extension.ToUpper() == ".SSIF")
                 {
-                    if (pathFile.Extension.ToUpper() == ".SSIF")
-                    {
-                        continue;
-                    }
-                    size += pathFile.Length;
+                    continue;
                 }
-
-                DirectoryInfo[] pathChildren = directoryInfo.GetDirectories();
-                foreach (DirectoryInfo pathChild in pathChildren)
-                {
-                    size += GetDirectorySize(pathChild);
-                }
+                size += pathFile.Length;
             }
 
+            DirectoryInfo[] pathChildren = directoryInfo.GetDirectories();
+            foreach (DirectoryInfo pathChild in pathChildren)
+            {
+                size += GetDirectorySize(pathChild);
+            }
+            return size;
+        }
+
+        private long GetDiscDirectorySize(DiscDirectoryInfo directoryInfo)
+        {
+            long size = 0;
+
+            DiscFileInfo[] pathFiles = directoryInfo.GetFiles();
+            foreach (DiscFileInfo pathFile in pathFiles)
+            {
+                if (pathFile.Extension.ToUpper() == ".SSIF")
+                {
+                    continue;
+                }
+                size += pathFile.Length;
+            }
+
+            DiscDirectoryInfo[] pathChildren = directoryInfo.GetDirectories();
+            foreach (DiscDirectoryInfo pathChild in pathChildren)
+            {
+                size += GetDiscDirectorySize(pathChild);
+            }
             return size;
         }
 
         private string GetVolumeLabel(DirectoryInfo dir)
         {
-            uint serialNumber = 0;
-            uint maxLength = 0;
-            uint volumeFlags = new uint();
-            StringBuilder volumeLabel = new StringBuilder(256);
-            StringBuilder fileSystemName = new StringBuilder(256);
             string label = "";
+            if (!IsImage)
+            { 
+                uint serialNumber = 0;
+                uint maxLength = 0;
+                uint volumeFlags = new uint();
+                StringBuilder volumeLabel = new StringBuilder(256);
+                StringBuilder fileSystemName = new StringBuilder(256);
+                
+                try
+                {
+                    long result = GetVolumeInformation(
+                        dir.Name,
+                        volumeLabel,
+                        (uint)volumeLabel.Capacity,
+                        ref serialNumber,
+                        ref maxLength,
+                        ref volumeFlags,
+                        fileSystemName,
+                        (uint)fileSystemName.Capacity);
 
-            try
-            {
-                long result = GetVolumeInformation(
-                    dir.Name,
-                    volumeLabel,
-                    (uint)volumeLabel.Capacity,
-                    ref serialNumber,
-                    ref maxLength,
-                    ref volumeFlags,
-                    fileSystemName,
-                    (uint)fileSystemName.Capacity);
-
-                label = volumeLabel.ToString();
+                    label = volumeLabel.ToString();
+                }
+                catch { }
             }
-            catch { }
-
+            else
+            {
+                label = CdReader.VolumeLabel;
+            }
             if (label.Length == 0)
             {
                 label = dir.Name;
@@ -477,6 +659,18 @@ namespace BDInfo
                 {
                     return 0;
                 }
+            }
+        }
+
+        public void CloseDiscImage()
+        {
+            if (IsImage && CdReader != null)
+            {
+                CdReader.Dispose();
+                CdReader = null;
+                IoStream.Close();
+                IoStream.Dispose();
+                IoStream = null;
             }
         }
 

@@ -52,10 +52,18 @@ namespace BDInfo
             {
                 Name = streamFile.Name;
                 StreamFile = streamFile;
-                FileSize = (ulong)StreamFile.FileInfo.Length;
+
+                if (StreamFile.FileInfo != null)
+                    FileSize = (ulong) StreamFile.FileInfo.Length;
+                else
+                    FileSize = (ulong) StreamFile.DFileInfo.Length;
+
                 if (StreamFile.InterleavedFile != null)
                 {
-                    InterleavedFileSize = (ulong)StreamFile.InterleavedFile.FileInfo.Length;
+                    if (StreamFile.InterleavedFile.FileInfo != null)
+                        InterleavedFileSize = (ulong) StreamFile.InterleavedFile.FileInfo.Length;
+                    else
+                        InterleavedFileSize = (ulong) StreamFile.InterleavedFile.DFileInfo.Length;
                 }
             }
             StreamClipFile = streamClipFile;
