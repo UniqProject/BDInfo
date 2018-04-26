@@ -56,6 +56,7 @@ namespace BDInfo
             {
                 textBoxSource.Text = BDInfoSettings.LastPath;
             }
+            this.Icon = BDInfo.Properties.Resources.Bluray_disc;
         }
 
         private void FormMain_Load(object sender, EventArgs e)

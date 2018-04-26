@@ -59,5 +59,15 @@ namespace BDInfo.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
+        /// </summary>
+        internal static System.Drawing.Icon Bluray_disc {
+            get {
+                object obj = ResourceManager.GetObject("Bluray_disc", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
