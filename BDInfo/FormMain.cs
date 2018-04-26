@@ -320,6 +320,7 @@ namespace BDInfo
 
             CustomPlaylistCount = 0;
             buttonBrowse.Enabled = false;
+            buttonIsoBrowse.Enabled = false;
             buttonRescan.Enabled = false;
             buttonSelectAll.Enabled = false;
             buttonUnselectAll.Enabled = false;
@@ -420,6 +421,7 @@ namespace BDInfo
             }
 
             buttonBrowse.Enabled = true;
+            buttonIsoBrowse.Enabled = true;
             buttonRescan.Enabled = true;
             buttonScan.Enabled = true;
             buttonSelectAll.Enabled = true;
@@ -932,6 +934,7 @@ namespace BDInfo
             labelTimeElapsed.Text = "00:00:00";
             labelTimeRemaining.Text = "00:00:00";
             buttonBrowse.Enabled = false;
+            buttonIsoBrowse.Enabled = false;
             buttonRescan.Enabled = false;
 
             List<TSStreamFile> streamFiles = new List<TSStreamFile>();
@@ -1199,6 +1202,7 @@ namespace BDInfo
                 }
             }
             buttonBrowse.Enabled = true;
+            buttonIsoBrowse.Enabled = true;
             buttonRescan.Enabled = true;
             buttonScan.Enabled = true;
             buttonScan.Text = "Scan Bitrates";
