@@ -292,7 +292,10 @@ namespace BDInfo
                     case TSStreamType.DTS_HD_SECONDARY_AUDIO:
                         return "DTS Express";
                     case TSStreamType.DTS_HD_MASTER_AUDIO:
-                        return "DTS-HD Master Audio";
+                        if (((TSAudioStream) this).HasExtensions)
+                            return "DTS:X";
+                        else
+                            return "DTS-HD Master Audio";
                     case TSStreamType.PRESENTATION_GRAPHICS:
                         return "Presentation Graphics";
                     case TSStreamType.INTERACTIVE_GRAPHICS:

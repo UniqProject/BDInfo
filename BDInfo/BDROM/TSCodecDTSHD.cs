@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BDInfo
@@ -209,6 +210,34 @@ namespace BDInfo
                     // TODO...
                     break;
                 }
+            }
+
+            var startPos = 0;
+            foreach (var size in AssetSizes)
+            {
+                startPos += size;
+            }
+            buffer.Seek(buffer.Length - startPos, SeekOrigin.Begin);
+            uint temp2 = 0;
+            for (int j = 0; j < 4; j++)
+            {
+                temp2 = (temp2 << 8) + buffer.ReadByte();
+            }
+
+            if (temp2 == 0x41A29547) //XLL Extended data
+            {
+                uint temp3 = 0;
+                for (int i = (int)buffer.Position; i < buffer.Length; i++)
+                {
+                    temp3 = (temp3 << 8) + buffer.ReadByte();
+
+                    if (temp3 == 0x02000850) //DTS:X Pattern
+                    {
+                        stream.HasExtensions = true; 
+                        break;
+                    }
+                }
+                
             }
 
             // TODO
