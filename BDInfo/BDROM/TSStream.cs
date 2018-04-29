@@ -275,6 +275,10 @@ namespace BDInfo
                         else
                             return "Dolby Digital Audio";
                     case TSStreamType.AC3_PLUS_AUDIO:
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "Dolby Digital Plus + Atmos";
+                        else
+                            return "Dolby Digital Plus Audio";
                     case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
                         return "Dolby Digital Plus Audio";
                     case TSStreamType.AC3_TRUE_HD_AUDIO:

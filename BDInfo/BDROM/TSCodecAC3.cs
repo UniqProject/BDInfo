@@ -18,10 +18,7 @@
 //=============================================================================
 
 #undef DEBUG
-using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BDInfo
 {
@@ -243,10 +240,89 @@ namespace BDInfo
                     if (1 == buffer.ReadBits(1)) //channel remapping
                     {
                         int chanmap = buffer.ReadBits(16);
-
+                        
                         stream.ChannelCount = stream.CoreStream.ChannelCount;
                         stream.ChannelCount += AC3ChanMap(chanmap);
                         lfe_on = stream.CoreStream.LFE;
+                    }
+                }
+
+                int emdf_sync = 0;
+                bool emdf_found = false;
+                int emdf_container_size = 0;
+                long remainAfterEMDF = 0;
+
+                do
+                {
+                    emdf_sync = (buffer.ReadBits(16));
+                    if ((emdf_sync) == 0x5838)
+                    {
+                        emdf_found = true;
+                        break;
+                    }
+                    buffer.Seek(-2, SeekOrigin.Current);
+                    buffer.ReadBits(1); // skip 1 bit
+                } while (buffer.Position < buffer.Length);
+
+                if (emdf_found)
+                {
+                    emdf_container_size = buffer.ReadBits(16);
+                    remainAfterEMDF = buffer.DataBitStreamRemain() - emdf_container_size*8;
+
+                    int temp = 0;
+
+                    int emdf_version = buffer.ReadBits(2); //emdf_version
+                    if (emdf_version == 3)
+                        emdf_version += buffer.ReadBits(2);
+
+                    if (emdf_version > 0)
+                    {
+                        temp = buffer.ReadBits((int) (buffer.DataBitStreamRemain() - remainAfterEMDF));
+                    }
+                    else
+                    {
+                        temp = buffer.ReadBits(3); //key_id
+                        if (temp == 0x7)
+                            buffer.ReadBits(2); //skip 3 bits
+
+                        int emdf_payload_id = 0;
+                        emdf_payload_id = buffer.ReadBits(5); //emdf_payload_id
+                        
+                        if (emdf_payload_id > 0 && emdf_payload_id < 16)
+                        {
+                            if (emdf_payload_id == 0x1F)
+                                temp = buffer.ReadBits(5); //skip 5 bits
+
+                            EmdfPayloadConfig(buffer);
+
+                            int emdf_payload_size = buffer.ReadBits(8)*8;
+                            buffer.ReadBits(emdf_payload_size + 1);
+                        }
+
+                        while ((emdf_payload_id = buffer.ReadBits(5)) != 14 && buffer.Position < buffer.Length)
+                        {
+                            if (emdf_payload_id == 0x1F)
+                                temp = buffer.ReadBits(5); //skip 5 bits
+
+                            EmdfPayloadConfig(buffer);
+
+                            int emdf_payload_size = buffer.ReadBits(8) * 8;
+                            buffer.ReadBits(emdf_payload_size + 1);
+                        }
+
+                        if (buffer.Position < buffer.Length && emdf_payload_id == 14)
+                        {
+                            EmdfPayloadConfig(buffer);
+
+                            int emdf_payload_size = buffer.ReadBits(8) * 8;
+                            buffer.ReadBits(1);
+
+                            int joc_dmx_config_idx = buffer.ReadBits(3);
+                            int joc_num_objects_bits = buffer.ReadBits(6);
+
+                            if (joc_num_objects_bits > 0)
+                                stream.HasExtensions = true;
+                        }
                     }
                 }
             }
@@ -312,6 +388,41 @@ namespace BDInfo
                 stream.IsInitialized = false;
             else
                 stream.IsInitialized = true;
+        }
+
+        private static void EmdfPayloadConfig(TSStreamBuffer buffer)
+        {
+            int temp;
+            bool sample_offset_e = buffer.ReadBits(1) == 1;
+            if (sample_offset_e)
+                temp = buffer.ReadBits(12);
+
+            if (1 == buffer.ReadBits(1)) //duratione
+                temp = buffer.ReadBits(11); //duration
+
+            if (1 == buffer.ReadBits(1)) //groupide
+                temp = buffer.ReadBits(2); //groupid
+
+            temp = buffer.ReadBits(1); //codecdatae
+            if (temp == 1)
+                temp = buffer.ReadBits(8); // reserved
+
+            int discard_unknown_payload = buffer.ReadBits(1);
+            if (discard_unknown_payload == 0) //discard_unknown_payload
+            {
+                temp = buffer.ReadBits(1);
+
+                int payload_frame_aligned = 0;
+                if (!sample_offset_e)
+                {
+                    payload_frame_aligned = buffer.ReadBits(1);
+                    if (payload_frame_aligned == 1)
+                        temp = buffer.ReadBits(2);
+
+                    if (sample_offset_e || payload_frame_aligned == 1)
+                        temp = buffer.ReadBits(7);
+                }
+            }
         }
     }
 }

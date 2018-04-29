@@ -141,5 +141,10 @@ namespace BDInfo
 
             return value;
         }
+
+        public long DataBitStreamRemain()
+        {
+            return (Stream.Length - Stream.Position)*8 - SkipBits;
+        }
     }
 }
