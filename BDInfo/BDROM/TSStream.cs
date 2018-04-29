@@ -771,6 +771,9 @@ namespace BDInfo
                         case TSStreamType.DTS_AUDIO:
                             codec = "DTS Core";
                             break;
+                        case TSStreamType.AC3_PLUS_AUDIO:
+                            codec = "DD+ Embedded";
+                            break;
                     }
                     description += string.Format(
                         " ({0}: {1})",

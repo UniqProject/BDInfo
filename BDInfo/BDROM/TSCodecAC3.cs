@@ -27,7 +27,54 @@ namespace BDInfo
 {
     public abstract class TSCodecAC3
     {
-        private static byte[] eac3_blocks =  new byte[] { 1, 2, 3, 6 };
+        private static byte[] eac3_blocks =  { 1, 2, 3, 6 };
+
+        private static int[] ac3Bitrate = 
+        {
+             32,
+             40,
+             48,
+             56,
+             64,
+             80,
+             96,
+            112,
+            128,
+            160,
+            192,
+            224,
+            256,
+            320,
+            384,
+            448,
+            512,
+            576,
+            640,
+        };
+
+        private static byte[] ac3Channels = {2, 1, 2, 3, 3, 4, 4, 5};
+
+        public static byte AC3ChanMap(int chanMap)
+        {
+            byte Channels = 0;
+
+            for (byte i = 0; i < 16; i++)
+            {
+                if ((chanMap & (1<<(15-i))) != 0)
+                    switch (i)
+                    {
+                        case 5:
+                        case 6:
+                        case 9:
+                        case 10:
+                        case 11:
+                            Channels += 2; break;
+                        default:
+                            Channels++; break;
+                    }
+            }
+            return Channels;
+        }
 
         public static void Scan(
             TSAudioStream stream,
@@ -155,14 +202,18 @@ namespace BDInfo
             }
             else
             {
+                stream.CoreStream = (TSAudioStream)stream.Clone();
+
                 int frame_type = buffer.ReadBits(2);
                 int substreamid = buffer.ReadBits(3);
+
                 frame_size = (buffer.ReadBits(11) + 1) << 1;
 
                 sr_code = buffer.ReadBits(2);
                 if (sr_code == 3)
                 {
                     sr_code = buffer.ReadBits(2);
+                    num_blocks = 3;
                 }
                 else
                 {
@@ -170,45 +221,53 @@ namespace BDInfo
                 }
                 channel_mode = buffer.ReadBits(3);
                 lfe_on = buffer.ReadBits(1);
+                bsid = buffer.ReadBits(5);
+                dial_norm = buffer.ReadBits(5);
+
+                int compr = 0;
+                if (1 == buffer.ReadBits(1))
+                {
+                    compr = buffer.ReadBits(8);
+                }
+                if (channel_mode == 0) // 1+1
+                {
+                    int dialnorm2 = buffer.ReadBits(5);
+                    int compr2 = 0;
+                    if (1 == buffer.ReadBits(1))
+                    {
+                        compr2 = buffer.ReadBits(8);
+                    }
+                }
+                if (frame_type == 1) //dependent stream
+                {
+                    if (1 == buffer.ReadBits(1)) //channel remapping
+                    {
+                        int chanmap = buffer.ReadBits(16);
+                        if (channel_mode <= 8 && channel_mode > 0)
+                            stream.ChannelCount = ac3Channels[channel_mode - 1];
+                        stream.ChannelCount += AC3ChanMap(chanmap);
+                        lfe_on = stream.CoreStream.LFE;
+                    }
+                }
             }
 
-            switch (channel_mode)
+            if ((channel_mode < 8 && channel_mode >= 0) && stream.ChannelCount == 0)
+                stream.ChannelCount = ac3Channels[channel_mode];
+
+            if (stream.AudioMode == TSAudioMode.Unknown)
             {
-                case 0: // 1+1
-                    stream.ChannelCount = 2;
-                    if (stream.AudioMode == TSAudioMode.Unknown)
-                    {
+                switch (channel_mode)
+                {
+                    case 0: // 1+1
                         stream.AudioMode = TSAudioMode.DualMono;
-                    }
-                    break;
-                case 1: // 1/0
-                    stream.ChannelCount = 1;
-                    break;
-                case 2: // 2/0
-                    stream.ChannelCount = 2;
-                    if (stream.AudioMode == TSAudioMode.Unknown)
-                    {
+                        break;
+                    case 2: // 2/0
                         stream.AudioMode = TSAudioMode.Stereo;
-                    }
-                    break;
-                case 3: // 3/0
-                    stream.ChannelCount = 3;
-                    break;
-                case 4: // 2/1
-                    stream.ChannelCount = 3;
-                    break;
-                case 5: // 3/1
-                    stream.ChannelCount = 4;
-                    break;
-                case 6: // 2/2
-                    stream.ChannelCount = 4;
-                    break;
-                case 7: // 3/2
-                    stream.ChannelCount = 5;
-                    break;
-                default:
-                    stream.ChannelCount = 0;
-                    break;
+                        break;
+                    default:
+                        stream.AudioMode = TSAudioMode.Unknown;
+                        break;
+                }
             }
 
             switch (sr_code)
@@ -229,74 +288,17 @@ namespace BDInfo
 
             if (bsid <= 10)
             {
-                switch (frame_size_code >> 1)
-                {
-                    case 18:
-                        stream.BitRate = 640000;
-                        break;
-                    case 17:
-                        stream.BitRate = 576000;
-                        break;
-                    case 16:
-                        stream.BitRate = 512000;
-                        break;
-                    case 15:
-                        stream.BitRate = 448000;
-                        break;
-                    case 14:
-                        stream.BitRate = 384000;
-                        break;
-                    case 13:
-                        stream.BitRate = 320000;
-                        break;
-                    case 12:
-                        stream.BitRate = 256000;
-                        break;
-                    case 11:
-                        stream.BitRate = 224000;
-                        break;
-                    case 10:
-                        stream.BitRate = 192000;
-                        break;
-                    case 9:
-                        stream.BitRate = 160000;
-                        break;
-                    case 8:
-                        stream.BitRate = 128000;
-                        break;
-                    case 7:
-                        stream.BitRate = 112000;
-                        break;
-                    case 6:
-                        stream.BitRate = 96000;
-                        break;
-                    case 5:
-                        stream.BitRate = 80000;
-                        break;
-                    case 4:
-                        stream.BitRate = 64000;
-                        break;
-                    case 3:
-                        stream.BitRate = 56000;
-                        break;
-                    case 2:
-                        stream.BitRate = 48000;
-                        break;
-                    case 1:
-                        stream.BitRate = 40000;
-                        break;
-                    case 0:
-                        stream.BitRate = 32000;
-                        break;
-                    default:
-                        stream.BitRate = 0;
-                        break;
-                }
+
+                int frameSize = frame_size_code >> 1;
+                if (frameSize < 19 && frameSize >= 0)
+                    stream.BitRate = ac3Bitrate[frameSize] * 1000;
             }
             else
             {
                 stream.BitRate = (long)
                     (4.0 * frame_size * stream.SampleRate / (num_blocks * 256));
+                if (stream.CoreStream != null)
+                    stream.BitRate += stream.CoreStream.BitRate;
             }
 
             stream.LFE = lfe_on;
@@ -306,7 +308,10 @@ namespace BDInfo
                 stream.DialNorm = dial_norm - 31;
             }
             stream.IsVBR = false;
-            stream.IsInitialized = true;
+            if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6)
+                stream.IsInitialized = false;
+            else
+                stream.IsInitialized = true;
         }
     }
 }
