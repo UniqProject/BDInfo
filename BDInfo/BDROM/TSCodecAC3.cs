@@ -69,8 +69,6 @@ namespace BDInfo
                         case 10:
                         case 11:
                             Channels += 2; break;
-                        default:
-                            Channels++; break;
                     }
             }
             return Channels;
@@ -90,6 +88,8 @@ namespace BDInfo
             {
                 return;
             }
+
+            bool secondFrame = stream.ChannelCount > 0;
 
             int sr_code = 0;
             int frame_size = 0;
@@ -243,8 +243,8 @@ namespace BDInfo
                     if (1 == buffer.ReadBits(1)) //channel remapping
                     {
                         int chanmap = buffer.ReadBits(16);
-                        if (channel_mode <= 8 && channel_mode > 0)
-                            stream.ChannelCount = ac3Channels[channel_mode - 1];
+
+                        stream.ChannelCount = stream.CoreStream.ChannelCount;
                         stream.ChannelCount += AC3ChanMap(chanmap);
                         lfe_on = stream.CoreStream.LFE;
                     }
@@ -308,7 +308,7 @@ namespace BDInfo
                 stream.DialNorm = dial_norm - 31;
             }
             stream.IsVBR = false;
-            if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6)
+            if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6 && !secondFrame)
                 stream.IsInitialized = false;
             else
                 stream.IsInitialized = true;
