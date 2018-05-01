@@ -573,7 +573,7 @@ namespace BDInfo
             DiscFileInfo[] pathFiles = directoryInfo.GetFiles();
             foreach (DiscFileInfo pathFile in pathFiles)
             {
-                if (pathFile.Extension.ToUpper() == ".SSIF")
+                if (pathFile.Extension.ToUpper() == "SSIF")
                 {
                     continue;
                 }
