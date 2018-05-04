@@ -416,6 +416,7 @@ namespace BDInfo
                 MessageBox.Show(msg, "BDInfo Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 buttonBrowse.Enabled = true;
+                buttonIsoBrowse.Enabled = true;
                 buttonRescan.Enabled = true;
                 return;
             }
