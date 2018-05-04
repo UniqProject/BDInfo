@@ -97,7 +97,7 @@ namespace BDInfo
             if ((new FileInfo(path).Attributes & FileAttributes.Directory) != FileAttributes.Directory)
             {
                 IsImage = true;
-                IoStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None);
+                IoStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                 CdReader = new UdfReader(IoStream);
             }
 
