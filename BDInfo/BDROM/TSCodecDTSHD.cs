@@ -213,15 +213,22 @@ namespace BDInfo
             }
 
             var startPos = 0;
+            uint temp2 = 0;
             foreach (var size in AssetSizes)
             {
                 startPos += size;
             }
-            buffer.Seek(buffer.Length - startPos, SeekOrigin.Begin);
-            uint temp2 = 0;
-            for (int j = 0; j < 4; j++)
+            if (startPos < buffer.Length)
+            { 
+                buffer.Seek(buffer.Length - startPos, SeekOrigin.Begin);
+                for (int j = 0; j < 4; j++)
+                {
+                    temp2 = (temp2 << 8) + buffer.ReadByte();
+                }
+            }
+            else
             {
-                temp2 = (temp2 << 8) + buffer.ReadByte();
+                temp2 = 0;
             }
 
             if (temp2 == 0x41A29547) //XLL Extended data
