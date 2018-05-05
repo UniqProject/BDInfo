@@ -207,7 +207,8 @@ namespace BDInfo
             */
 
             stream.IsVBR = true;
-            stream.IsInitialized = true;
+            if (stream.CoreStream != null && stream.CoreStream.IsInitialized)
+                stream.IsInitialized = true;
         }
     }
 }
