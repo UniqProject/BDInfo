@@ -734,8 +734,11 @@ namespace BDInfo
                 }
                 if (BitRate > 0)
                 {
+                    long CoreBitRate = 0;
+                    if (StreamType == TSStreamType.AC3_TRUE_HD_AUDIO && CoreStream != null)
+                        CoreBitRate = CoreStream.BitRate;
                     description += string.Format(
-                        " / {0:D} kbps", (uint)Math.Round((double)BitRate / 1000));
+                        " / {0:D} kbps", (uint)Math.Round((double)(BitRate - CoreBitRate) / 1000));
                 }
                 if (BitDepth > 0)
                 {
