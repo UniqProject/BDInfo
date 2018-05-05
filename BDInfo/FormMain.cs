@@ -274,13 +274,13 @@ namespace BDInfo
                 (int)(listViewStreamFiles.ClientSize.Width * 0.23);
 
             listViewStreams.Columns[0].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.25);
+                (int)(listViewStreams.ClientSize.Width * 0.20);
             listViewStreams.Columns[1].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.15);
+                (int)(listViewStreams.ClientSize.Width * 0.10);
             listViewStreams.Columns[2].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.15);
+                (int)(listViewStreams.ClientSize.Width * 0.10);
             listViewStreams.Columns[3].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.45);
+                (int)(listViewStreams.ClientSize.Width * 0.60);
         }
 
         private void FormMain_FormClosing(

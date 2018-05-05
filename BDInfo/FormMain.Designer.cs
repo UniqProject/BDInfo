@@ -98,7 +98,7 @@ namespace BDInfo
             // buttonBrowse
             // 
             this.buttonBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonBrowse.Location = new System.Drawing.Point(398, 22);
+            this.buttonBrowse.Location = new System.Drawing.Point(598, 22);
             this.buttonBrowse.Name = "buttonBrowse";
             this.buttonBrowse.Size = new System.Drawing.Size(62, 23);
             this.buttonBrowse.TabIndex = 1;
@@ -112,7 +112,7 @@ namespace BDInfo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxSource.Location = new System.Drawing.Point(17, 24);
             this.textBoxSource.Name = "textBoxSource";
-            this.textBoxSource.Size = new System.Drawing.Size(375, 20);
+            this.textBoxSource.Size = new System.Drawing.Size(575, 20);
             this.textBoxSource.TabIndex = 0;
             this.textBoxSource.TextChanged += new System.EventHandler(this.textBoxSource_TextChanged);
             // 
@@ -128,7 +128,7 @@ namespace BDInfo
             // buttonSettings
             // 
             this.buttonSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSettings.Location = new System.Drawing.Point(463, 548);
+            this.buttonSettings.Location = new System.Drawing.Point(663, 548);
             this.buttonSettings.Name = "buttonSettings";
             this.buttonSettings.Size = new System.Drawing.Size(108, 23);
             this.buttonSettings.TabIndex = 13;
@@ -141,7 +141,7 @@ namespace BDInfo
             this.labelTimeRemainingElapsed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelTimeRemainingElapsed.AutoSize = true;
             this.labelTimeRemainingElapsed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimeRemainingElapsed.Location = new System.Drawing.Point(310, 503);
+            this.labelTimeRemainingElapsed.Location = new System.Drawing.Point(510, 503);
             this.labelTimeRemainingElapsed.Name = "labelTimeRemainingElapsed";
             this.labelTimeRemainingElapsed.Size = new System.Drawing.Size(135, 13);
             this.labelTimeRemainingElapsed.TabIndex = 35;
@@ -151,7 +151,7 @@ namespace BDInfo
             // 
             this.labelTimeDivider.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelTimeDivider.AutoSize = true;
-            this.labelTimeDivider.Location = new System.Drawing.Point(503, 503);
+            this.labelTimeDivider.Location = new System.Drawing.Point(703, 503);
             this.labelTimeDivider.Name = "labelTimeDivider";
             this.labelTimeDivider.Size = new System.Drawing.Size(12, 13);
             this.labelTimeDivider.TabIndex = 34;
@@ -162,7 +162,7 @@ namespace BDInfo
             this.labelTimeElapsed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelTimeElapsed.AutoSize = true;
             this.labelTimeElapsed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimeElapsed.Location = new System.Drawing.Point(521, 503);
+            this.labelTimeElapsed.Location = new System.Drawing.Point(721, 503);
             this.labelTimeElapsed.Name = "labelTimeElapsed";
             this.labelTimeElapsed.Size = new System.Drawing.Size(49, 13);
             this.labelTimeElapsed.TabIndex = 33;
@@ -173,7 +173,7 @@ namespace BDInfo
             this.labelTimeRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelTimeRemaining.AutoSize = true;
             this.labelTimeRemaining.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTimeRemaining.Location = new System.Drawing.Point(451, 503);
+            this.labelTimeRemaining.Location = new System.Drawing.Point(651, 503);
             this.labelTimeRemaining.Name = "labelTimeRemaining";
             this.labelTimeRemaining.Size = new System.Drawing.Size(49, 13);
             this.labelTimeRemaining.TabIndex = 32;
@@ -185,7 +185,7 @@ namespace BDInfo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBarScan.Location = new System.Drawing.Point(17, 519);
             this.progressBarScan.Name = "progressBarScan";
-            this.progressBarScan.Size = new System.Drawing.Size(554, 23);
+            this.progressBarScan.Size = new System.Drawing.Size(754, 23);
             this.progressBarScan.TabIndex = 31;
             // 
             // labelPlaylistFiles
@@ -201,7 +201,7 @@ namespace BDInfo
             // 
             this.buttonViewReport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonViewReport.Enabled = false;
-            this.buttonViewReport.Location = new System.Drawing.Point(285, 548);
+            this.buttonViewReport.Location = new System.Drawing.Point(485, 548);
             this.buttonViewReport.Name = "buttonViewReport";
             this.buttonViewReport.Size = new System.Drawing.Size(108, 23);
             this.buttonViewReport.TabIndex = 12;
@@ -213,7 +213,7 @@ namespace BDInfo
             // 
             this.buttonScan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonScan.Enabled = false;
-            this.buttonScan.Location = new System.Drawing.Point(168, 548);
+            this.buttonScan.Location = new System.Drawing.Point(368, 548);
             this.buttonScan.Name = "buttonScan";
             this.buttonScan.Size = new System.Drawing.Size(108, 23);
             this.buttonScan.TabIndex = 11;
@@ -231,7 +231,7 @@ namespace BDInfo
             this.textBoxDetails.Name = "textBoxDetails";
             this.textBoxDetails.ReadOnly = true;
             this.textBoxDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDetails.Size = new System.Drawing.Size(554, 59);
+            this.textBoxDetails.Size = new System.Drawing.Size(754, 59);
             this.textBoxDetails.TabIndex = 10;
             // 
             // labelProgress
@@ -292,7 +292,7 @@ namespace BDInfo
             // splitContainerOuter.Panel2
             // 
             this.splitContainerOuter.Panel2.Controls.Add(this.listViewStreams);
-            this.splitContainerOuter.Size = new System.Drawing.Size(553, 353);
+            this.splitContainerOuter.Size = new System.Drawing.Size(753, 353);
             this.splitContainerOuter.SplitterDistance = 199;
             this.splitContainerOuter.TabIndex = 38;
             // 
@@ -310,7 +310,7 @@ namespace BDInfo
             // splitContainerInner.Panel2
             // 
             this.splitContainerInner.Panel2.Controls.Add(this.listViewStreamFiles);
-            this.splitContainerInner.Size = new System.Drawing.Size(553, 199);
+            this.splitContainerInner.Size = new System.Drawing.Size(753, 199);
             this.splitContainerInner.SplitterDistance = 97;
             this.splitContainerInner.TabIndex = 0;
             // 
@@ -330,7 +330,7 @@ namespace BDInfo
             this.listViewPlaylistFiles.Location = new System.Drawing.Point(0, 0);
             this.listViewPlaylistFiles.MultiSelect = false;
             this.listViewPlaylistFiles.Name = "listViewPlaylistFiles";
-            this.listViewPlaylistFiles.Size = new System.Drawing.Size(553, 97);
+            this.listViewPlaylistFiles.Size = new System.Drawing.Size(753, 97);
             this.listViewPlaylistFiles.TabIndex = 7;
             this.listViewPlaylistFiles.UseCompatibleStateImageBehavior = false;
             this.listViewPlaylistFiles.View = System.Windows.Forms.View.Details;
@@ -381,7 +381,7 @@ namespace BDInfo
             this.listViewStreamFiles.Location = new System.Drawing.Point(0, 0);
             this.listViewStreamFiles.MultiSelect = false;
             this.listViewStreamFiles.Name = "listViewStreamFiles";
-            this.listViewStreamFiles.Size = new System.Drawing.Size(553, 98);
+            this.listViewStreamFiles.Size = new System.Drawing.Size(753, 98);
             this.listViewStreamFiles.TabIndex = 8;
             this.listViewStreamFiles.UseCompatibleStateImageBehavior = false;
             this.listViewStreamFiles.View = System.Windows.Forms.View.Details;
@@ -428,7 +428,7 @@ namespace BDInfo
             this.listViewStreams.Location = new System.Drawing.Point(0, 0);
             this.listViewStreams.MultiSelect = false;
             this.listViewStreams.Name = "listViewStreams";
-            this.listViewStreams.Size = new System.Drawing.Size(553, 150);
+            this.listViewStreams.Size = new System.Drawing.Size(753, 150);
             this.listViewStreams.TabIndex = 9;
             this.listViewStreams.UseCompatibleStateImageBehavior = false;
             this.listViewStreams.View = System.Windows.Forms.View.Details;
@@ -456,7 +456,7 @@ namespace BDInfo
             // 
             this.buttonRescan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonRescan.Enabled = false;
-            this.buttonRescan.Location = new System.Drawing.Point(506, 22);
+            this.buttonRescan.Location = new System.Drawing.Point(706, 22);
             this.buttonRescan.Name = "buttonRescan";
             this.buttonRescan.Size = new System.Drawing.Size(66, 23);
             this.buttonRescan.TabIndex = 3;
@@ -467,7 +467,7 @@ namespace BDInfo
             // buttonIsoBrowse
             // 
             this.buttonIsoBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonIsoBrowse.Location = new System.Drawing.Point(466, 22);
+            this.buttonIsoBrowse.Location = new System.Drawing.Point(666, 22);
             this.buttonIsoBrowse.Name = "buttonIsoBrowse";
             this.buttonIsoBrowse.Size = new System.Drawing.Size(34, 23);
             this.buttonIsoBrowse.TabIndex = 2;
@@ -480,7 +480,7 @@ namespace BDInfo
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 575);
+            this.ClientSize = new System.Drawing.Size(784, 575);
             this.Controls.Add(this.buttonIsoBrowse);
             this.Controls.Add(this.buttonRescan);
             this.Controls.Add(this.splitContainerOuter);
@@ -501,6 +501,7 @@ namespace BDInfo
             this.Controls.Add(this.buttonBrowse);
             this.Controls.Add(this.textBoxSource);
             this.Controls.Add(this.labelSource);
+            this.DoubleBuffered = true;
             this.Name = "FormMain";
             this.Text = "BDInfo v.0.7.3.2";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
