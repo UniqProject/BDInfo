@@ -199,8 +199,6 @@ namespace BDInfo
             }
             else
             {
-                stream.CoreStream = (TSAudioStream)stream.Clone();
-
                 int frame_type = buffer.ReadBits(2);
                 int substreamid = buffer.ReadBits(3);
 
@@ -237,6 +235,8 @@ namespace BDInfo
                 }
                 if (frame_type == 1) //dependent stream
                 {
+                    stream.CoreStream = (TSAudioStream)stream.Clone();
+
                     if (1 == buffer.ReadBits(1)) //channel remapping
                     {
                         int chanmap = buffer.ReadBits(16);
