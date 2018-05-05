@@ -362,13 +362,6 @@ namespace BDInfo
                         {
                             playlistStream.BitRate = (long)Math.Round(
                                 ((playlistStream.PayloadBytes * 8.0) / packetSeconds));
-
-                            if (playlistStream.StreamType == TSStreamType.AC3_TRUE_HD_AUDIO &&
-                                ((TSAudioStream)playlistStream).CoreStream != null)
-                            {
-                                playlistStream.BitRate -=
-                                    ((TSAudioStream)playlistStream).CoreStream.BitRate;
-                            }
                         }
                     }
                 }
