@@ -57,6 +57,7 @@ namespace BDInfo
         public bool IsPSP = false;
         public bool Is3D = false;
         public bool Is50Hz = false;
+        public bool IsUHD = false;
 
         public bool IsImage = false;
         public FileStream IoStream = null;
@@ -146,6 +147,26 @@ namespace BDInfo
             {
                 VolumeLabel = CdReader.VolumeLabel;
                 Size = (ulong)GetDiscDirectorySize(DiscDirectoryRoot);
+
+                var indexFiles = DiscDirectoryBDMV?.GetFiles();
+                DiscFileInfo indexFile = null;
+
+                for (int i = 0; i < indexFiles?.Length; i++)
+                {
+                    if (indexFiles[i].Name.ToLower() == "index.bdmv")
+                    {
+                        indexFile = indexFiles[i];
+                        break;
+                    }
+                }
+
+                if (indexFile != null)
+                {
+                    using (var indexStream = indexFile.OpenRead())
+                    {
+                        ReadIndexVersion(indexStream);
+                    }
+                }
 
                 if (null != GetDiscDirectory("BDSVM", DiscDirectoryRoot, 0))
                 {
@@ -244,7 +265,27 @@ namespace BDInfo
             {
                 VolumeLabel = GetVolumeLabel(DirectoryRoot);
                 Size = (ulong)GetDirectorySize(DirectoryRoot);
-            
+
+                var indexFiles = DirectoryBDMV.GetFiles();
+                FileInfo indexFile = null;
+
+                for (int i = 0; i < indexFiles.Length; i++)
+                {
+                    if (indexFiles[i].Name.ToLower() == "index.bdmv")
+                    {
+                        indexFile = indexFiles[i];
+                        break;
+                    }
+                }
+
+                if (indexFile != null)
+                {
+                    using (var indexStream = indexFile.OpenRead())
+                    {
+                        ReadIndexVersion(indexStream);
+                    }
+                }
+
                 if (null != GetDirectory("BDSVM", DirectoryRoot, 0))
                 {
                     IsBDPlus = true;
@@ -659,6 +700,18 @@ namespace BDInfo
                 {
                     return 0;
                 }
+            }
+        }
+
+        private void ReadIndexVersion(Stream indexStream)
+        {
+            var buffer = new byte[8];
+            int count = indexStream.Read(buffer, 0, 8);
+            int pos = 0;
+            if (count > 0)
+            {
+                var indexVer = ToolBox.ReadString(buffer, count, ref pos);
+                IsUHD = indexVer == "INDX0300";
             }
         }
 

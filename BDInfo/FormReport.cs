@@ -56,8 +56,7 @@ namespace BDInfo
             textBoxReport.Text = "";
 
             string report = "";
-            string protection = (BDROM.IsBDPlus ? "BD+" : "AACS");
-            string bdjava = (BDROM.IsBDJava ? "Yes" : "No");
+            string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
 
             report += string.Format(
                 "{0,-16}{1}\r\n", "Disc Title:", BDROM.VolumeLabel);
@@ -65,10 +64,16 @@ namespace BDInfo
                 "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
             report += string.Format(
                 "{0,-16}{1}\r\n", "Protection:", protection);
-            report += string.Format(
-                "{0,-16}{1}\r\n", "BD-Java:", bdjava);
 
             List<string> extraFeatures = new List<string>();
+            if (BDROM.IsUHD)
+            {
+                extraFeatures.Add("Ultra HD");
+            }
+            if (BDROM.IsBDJava)
+            {
+                extraFeatures.Add("BD-Java");
+            }
             if (BDROM.Is50Hz)
             {
                 extraFeatures.Add("50Hz Content");
@@ -377,8 +382,7 @@ namespace BDInfo
                     "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
                 report += string.Format(
                     "{0,-16}{1}\r\n", "Protection:", protection);
-                report += string.Format(
-                    "{0,-16}{1}\r\n", "BD-Java:", bdjava);
+
                 if (extraFeatures.Count > 0)
                 {
                     report += string.Format(
@@ -432,8 +436,7 @@ namespace BDInfo
                     "Disc Size: {0:N0} bytes\r\n", BDROM.Size);
                 summary += string.Format(
                     "Protection: {0}\r\n", protection);
-                summary += string.Format(
-                    "BD-Java: {0}\r\n", bdjava);
+
                 summary += string.Format(
                     "Playlist: {0}\r\n", title);
                 summary += string.Format(

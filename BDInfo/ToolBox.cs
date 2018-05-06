@@ -18,6 +18,7 @@
 //=============================================================================
 
 using System;
+using System.Text;
 
 namespace BDInfo
 {
@@ -30,6 +31,19 @@ namespace BDInfo
 
             var digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
             return $"{fSize/Math.Pow(1024, digitGroups):#,##0.#}" + " " + units[digitGroups];
+        }
+
+        public static string ReadString(
+            byte[] data,
+            int count,
+            ref int pos)
+        {
+            string val =
+                Encoding.ASCII.GetString(data, pos, count);
+
+            pos += count;
+
+            return val;
         }
     }
 }

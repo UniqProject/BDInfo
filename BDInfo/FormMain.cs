@@ -274,13 +274,13 @@ namespace BDInfo
                 (int)(listViewStreamFiles.ClientSize.Width * 0.23);
 
             listViewStreams.Columns[0].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.20);
+                (int)(listViewStreams.ClientSize.Width * 0.22);
             listViewStreams.Columns[1].Width =
                 (int)(listViewStreams.ClientSize.Width * 0.10);
             listViewStreams.Columns[2].Width =
                 (int)(listViewStreams.ClientSize.Width * 0.10);
             listViewStreams.Columns[3].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.60);
+                (int)(listViewStreams.ClientSize.Width * 0.58);
         }
 
         private void FormMain_FormClosing(
@@ -458,6 +458,10 @@ namespace BDInfo
             }
 
             List<string> features = new List<string>();
+            if (BDROM.IsUHD)
+            {
+                features.Add("Ultra HD");
+            }
             if (BDROM.Is50Hz)
             {
                 features.Add("50Hz Content");

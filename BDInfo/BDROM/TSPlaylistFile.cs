@@ -272,7 +272,7 @@ namespace BDInfo
 
                 int pos = 0;
 
-                FileType = ReadString(data, 8, ref pos);
+                FileType = ToolBox.ReadString(data, 8, ref pos);
                 if (FileType != "MPLS0100" && FileType != "MPLS0200" && FileType != "MPLS0300")
                 {
                     throw new Exception(string.Format(
@@ -303,8 +303,8 @@ namespace BDInfo
                 {
                     int itemStart = pos;
                     int itemLength = ReadInt16(data, ref pos);
-                    string itemName = ReadString(data, 5, ref pos);
-                    string itemType = ReadString(data, 4, ref pos);
+                    string itemName = ToolBox.ReadString(data, 5, ref pos);
+                    string itemType = ToolBox.ReadString(data, 4, ref pos);
 
                     TSStreamFile streamFile = null;
                     string streamFileName = string.Format(
@@ -366,8 +366,8 @@ namespace BDInfo
                         pos += 2;
                         for (int angle = 0; angle < angles - 1; angle++)
                         {
-                            string angleName = ReadString(data, 5, ref pos);
-                            string angleType = ReadString(data, 4, ref pos);
+                            string angleName = ToolBox.ReadString(data, 5, ref pos);
+                            string angleType = ToolBox.ReadString(data, 4, ref pos);
                             pos += 1;
 
                             TSStreamFile angleFile = null;
@@ -664,7 +664,7 @@ namespace BDInfo
                     TSSampleRate sampleRate = (TSSampleRate)
                         (audioFormat & 0xF);
 
-                    string audioLanguage = ReadString(data, 3, ref pos);
+                    string audioLanguage = ToolBox.ReadString(data, 3, ref pos);
 
                     stream = new TSAudioStream();
                     ((TSAudioStream)stream).ChannelLayout = channelLayout;
@@ -686,7 +686,7 @@ namespace BDInfo
                 case TSStreamType.INTERACTIVE_GRAPHICS:
                 case TSStreamType.PRESENTATION_GRAPHICS:
 
-                    string graphicsLanguage = ReadString(data, 3, ref pos);
+                    string graphicsLanguage = ToolBox.ReadString(data, 3, ref pos);
 
                     stream = new TSGraphicsStream();
                     ((TSGraphicsStream)stream).LanguageCode = graphicsLanguage;
@@ -708,7 +708,7 @@ namespace BDInfo
                 case TSStreamType.SUBTITLE:
 
                     int code = ReadByte(data, ref pos); // TODO
-                    string textLanguage = ReadString(data, 3, ref pos);
+                    string textLanguage = ToolBox.ReadString(data, 3, ref pos);
 
                     stream = new TSTextStream();
                     ((TSTextStream)stream).LanguageCode = textLanguage;
@@ -1286,19 +1286,6 @@ namespace BDInfo
                 default:
                     return 0;
             }
-        }
-
-        protected string ReadString(
-            byte[] data,
-            int count,
-            ref int pos)
-        {
-            string val =
-                ASCIIEncoding.ASCII.GetString(data, pos, count);
-
-            pos += count;
-
-            return val;
         }
 
         protected int ReadInt32(
