@@ -17,21 +17,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace BDInfo
 {
     public abstract class TSCodecDTS
     {
-        private static int[] dca_sample_rates =
+        private static readonly int[] DcaSampleRates =
         {
             0, 8000, 16000, 32000, 0, 0, 11025, 22050, 44100, 0, 0,
             12000, 24000, 48000, 96000, 192000
         };
 
-        private static int[] dca_bit_rates =
+        private static readonly int[] DcaBitRates =
         {
             32000, 56000, 64000, 96000, 112000, 128000,
             192000, 224000, 256000, 320000, 384000,
@@ -41,12 +37,7 @@ namespace BDInfo
             2048000, 3072000, 3840000, 1/*open*/, 2/*variable*/, 3/*lossless*/
         };
 
-        private static int[] dca_channels =
-        {
-            1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 6, 6, 6, 7, 8, 8
-        };
-
-        private static int[] dca_bits_per_sample =
+        private static readonly int[] DcaBitsPerSample =
         {
             16, 16, 20, 20, 0, 24, 24
         };
@@ -72,65 +63,56 @@ namespace BDInfo
             }
             if (!syncFound) return;
 
-            int frame_type = buffer.ReadBits(1);
-            int samples_deficit = buffer.ReadBits(5);
-            int crc_present = buffer.ReadBits(1);
-            int sample_blocks = buffer.ReadBits(7);
-            int frame_size = buffer.ReadBits(14);
-            if (frame_size < 95)
+            buffer.BSSkipBits(6);
+            uint crcPresent = buffer.ReadBits4(1);
+            buffer.BSSkipBits(7);
+            uint frameSize = buffer.ReadBits4(14);
+            if (frameSize < 95)
             {
                 return;
             }
-            int amode = buffer.ReadBits(6);
-            int sample_rate = buffer.ReadBits(4);
-            if (sample_rate < 0 || sample_rate >= dca_sample_rates.Length)
+            buffer.BSSkipBits(6);
+            uint sampleRate = buffer.ReadBits4(4);
+            if (sampleRate >= DcaSampleRates.Length)
             {
                 return;
             }
-            int bit_rate = buffer.ReadBits(5);
-            if (bit_rate < 0 || bit_rate >= dca_bit_rates.Length)
+            uint bitRate = buffer.ReadBits4(5);
+            if (bitRate >= DcaBitRates.Length)
             {
                 return;
             }
-            int downmix = buffer.ReadBits(1);
-            int dynrange = buffer.ReadBits(1);
-            int timestamp = buffer.ReadBits(1);
-            int aux_data = buffer.ReadBits(1);
-            int hdcd = buffer.ReadBits(1);
-            int ext_descr = buffer.ReadBits(3);
-            int ext_coding = buffer.ReadBits(1);
-            int aspf = buffer.ReadBits(1);
-            int lfe = buffer.ReadBits(2);
-            int predictor_history = buffer.ReadBits(1);
-            if (crc_present == 1)
+            buffer.BSSkipBits(8);
+            uint extCoding = buffer.ReadBits4(1);
+            buffer.BSSkipBits(1);
+            uint lfe = buffer.ReadBits4(2);
+            buffer.BSSkipBits(1);
+            if (crcPresent == 1)
             {
-                int crc = buffer.ReadBits(16);
+                buffer.BSSkipBits(16);
             }
-            int multirate_inter = buffer.ReadBits(1);
-            int version = buffer.ReadBits(4);
-            int copy_history = buffer.ReadBits(2);
-            int source_pcm_res = buffer.ReadBits(3);
-            int front_sum = buffer.ReadBits(1);
-            int surround_sum = buffer.ReadBits(1);
-            int dialog_norm = buffer.ReadBits(4);
-            if (source_pcm_res < 0 || source_pcm_res >= dca_bits_per_sample.Length)
+            buffer.BSSkipBits(7);
+            uint sourcePcmRes = buffer.ReadBits4(3);
+            buffer.BSSkipBits(2);
+            uint dialogNorm = buffer.ReadBits4(4);
+            if (sourcePcmRes >= DcaBitsPerSample.Length)
             {
                 return;
             }
-            int subframes = buffer.ReadBits(4);
-            int total_channels = buffer.ReadBits(3) + 1 + ext_coding;
+            buffer.BSSkipBits(4);
+            uint totalChannels = buffer.ReadBits4(3) + 1 + extCoding;
 
-            stream.SampleRate = dca_sample_rates[sample_rate];
-            stream.ChannelCount = total_channels;
+            stream.SampleRate = DcaSampleRates[sampleRate];
+            stream.ChannelCount = (int) totalChannels;
             stream.LFE = (lfe > 0 ? 1 : 0);
-            stream.BitDepth = dca_bits_per_sample[source_pcm_res];
-            stream.DialNorm = -dialog_norm;
-            if ((source_pcm_res & 0x1) == 0x1)
+            stream.BitDepth = DcaBitsPerSample[sourcePcmRes];
+            stream.DialNorm = (int) -dialogNorm;
+            if ((sourcePcmRes & 0x1) == 0x1)
             {
                 stream.AudioMode = TSAudioMode.Extended;
             }
 
-            stream.BitRate = (uint)dca_bit_rates[bit_rate];
+            stream.BitRate = (uint)DcaBitRates[bitRate];
             switch (stream.BitRate)
             {
                 case 1:

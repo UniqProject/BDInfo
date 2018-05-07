@@ -18,79 +18,60 @@
 //=============================================================================
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace BDInfo
 {
     public class TSStreamBuffer
     {
-        private MemoryStream Stream = new MemoryStream();
-        private int SkipBits = 0;
-        private byte[] Buffer;
-        private int BufferLength = 0;
-        public int TransferLength = 0;
+        private readonly MemoryStream _stream;
+        private int _skipBits;
+        private readonly byte[] _buffer;
+        private int _bufferLength;
+        public int TransferLength;
 
         public TSStreamBuffer()
         {
-            Buffer = new byte[20480];
-            Stream = new MemoryStream(Buffer);
+            _buffer = new byte[20480];
+            _stream = new MemoryStream(_buffer);
         }
 
-        public long Length
-        {
-            get
-            {
-                return (long)BufferLength;
-            }
-        }
+        public long Length => _bufferLength;
 
-        public long Position
-        {
-            get
-            {
-                return Stream.Position;
-            }
-        }
+        public long Position => _stream.Position;
 
-        public void Add(
-            byte[] buffer,
-            int offset,
-            int length)
+        public void Add(byte[] buffer, int offset, int length)
         {
             TransferLength += length;
 
-            if (BufferLength + length >= Buffer.Length)
+            if (_bufferLength + length >= _buffer.Length)
             {
-                length = Buffer.Length - BufferLength;
+                length = _buffer.Length - _bufferLength;
             }
-            if (length > 0)
-            {
-                Array.Copy(buffer, offset, Buffer, BufferLength, length);
-                BufferLength += length;
-            }
+
+            if (length <= 0) return;
+
+            Array.Copy(buffer, offset, _buffer, _bufferLength, length);
+            _bufferLength += length;
         }
 
-        public void Seek(
-            long offset,
-            SeekOrigin loc)
+        public void Seek(long offset, SeekOrigin loc)
         {
-            Stream.Seek(offset, loc);
+            _stream.Seek(offset, loc);
         }
 
         public void Reset()
         {
-            BufferLength = 0;
+            _bufferLength = 0;
             TransferLength = 0;
         }
 
         public void BeginRead()
         {
-            SkipBits = 0;
-            Stream.Seek(0, SeekOrigin.Begin);
+            _skipBits = 0;
+            _stream.Seek(0, SeekOrigin.Begin);
         }
 
         public void EndRead()
@@ -99,52 +80,174 @@ namespace BDInfo
 
         public byte[] ReadBytes(int bytes)
         {
-            if (Stream.Position + bytes >= BufferLength)
+            if (_stream.Position + bytes >= _bufferLength)
             {
                 return null;
             }
 
-            byte[] value = new byte[bytes];
-            Stream.Read(value, 0, bytes);
+            var value = new byte[bytes];
+            _stream.Read(value, 0, bytes);
             return value;
         }
 
         public byte ReadByte()
         {
-            return (byte)Stream.ReadByte();
+            return (byte)_stream.ReadByte();
         }
 
-        public int ReadBits(int bits)
+        public bool ReadBool()
         {
-            long pos = Stream.Position;
+            var pos = _stream.Position;
+            if (pos == _bufferLength) return false;
 
-            int shift = 24;
-            int data = 0;
-            for (int i = 0; i < 4; i++)
+            var shift = 24;
+            var data = 0;
+            for (var i = 0; i < 4; i++)
             {
-                if (pos + i >= BufferLength) break;
-                data += (Stream.ReadByte() << shift);
+                if (pos + i >= _bufferLength) break;
+                data += (_stream.ReadByte() << shift);
                 shift -= 8;
             }
-            BitVector32 vector = new BitVector32(data);
+            var vector = new BitVector32(data);
 
-            int value = 0;
-            for (int i = SkipBits; i < SkipBits + bits; i++)
-            {
-                value <<= 1;
-                value += (vector[1 << (32 - i - 1)] ? 1 : 0);
-            }
+            var value = vector[1 << (32 - _skipBits - 1)];
 
-            SkipBits += bits;
-            Stream.Seek(pos + (SkipBits >> 3), SeekOrigin.Begin);
-            SkipBits = SkipBits % 8;
+            _skipBits += 1;
+            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _skipBits = _skipBits % 8;
 
             return value;
         }
 
+        public ushort ReadBits2(int bits)
+        {
+            var pos = _stream.Position;
+
+            var shift = 8;
+            var data = 0;
+            for (var i = 0; i < 2; i++)
+            {
+                if (pos + i >= _bufferLength) break;
+                data += (_stream.ReadByte() << shift);
+                shift -= 8;
+            }
+            var vector = new BitVector32(data);
+
+            ushort value = 0;
+            for (var i = _skipBits; i < _skipBits + bits; i++)
+            {
+                value <<= 1;
+                value += (ushort)(vector[1 << (16 - i - 1)] ? 1 : 0);
+            }
+            _skipBits += bits;
+            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _skipBits = _skipBits % 8;
+
+            return value;
+        }
+
+        public uint ReadBits4(int bits)
+        {
+            var pos = _stream.Position;
+
+            var shift = 24;
+            var data = 0;
+            for (var i = 0; i < 4; i++)
+            {
+                if (pos + i >= _bufferLength) break;
+                data += (_stream.ReadByte() << shift);
+                shift -= 8;
+            }
+            var vector = new BitVector32(data);
+
+            uint value = 0;
+            for (var i = _skipBits; i < _skipBits + bits; i++)
+            {
+                value <<= 1;
+                value += (uint)(vector[1<<(32 - i - 1)] ? 1 : 0);
+            }
+            _skipBits += bits;
+            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _skipBits = _skipBits % 8;
+
+            return value;
+        }
+
+        public ulong ReadBits8(int bits)
+        {
+            var pos = _stream.Position;
+
+            var shift = 56;
+            long data = 0;
+            for (var i = 0; i < 8; i++)
+            {
+                if (pos + i >= _bufferLength) break;
+                data += (_stream.ReadByte() << shift);
+                shift -= 8;
+            }
+            var vector = new BitArray(new []{(int)(data >> 32), (int)data});
+
+            ulong value = 0;
+            for (var i = _skipBits; i < _skipBits + bits; i++)
+            {
+                value <<= 1;
+                value += (ulong)(vector[(64 - i - 1)] ? 1 : 0);
+            }
+
+            _skipBits += bits;
+            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _skipBits = _skipBits % 8;
+
+            return value;
+        }
+
+        public void BSSkipBits(int bits)
+        {
+            var pos = _stream.Position;
+            if (pos == _bufferLength) return;
+
+            _skipBits += bits;
+            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _skipBits = _skipBits % 8;
+        }
+
+        public void BSSkipNextByte()
+        {
+            BSSkipBits(8 - _skipBits);
+        }
+
+        public void BSSkipBytes(int bytes)
+        {
+            var pos = _stream.Position;
+            if (pos + bytes >= _bufferLength) return;
+
+            _stream.Seek(pos + bytes, SeekOrigin.Begin);
+        }
+
+        public uint ReadExp()
+        {
+            byte leadingZeroes = 0;
+            while (DataBitStreamRemain() > 0 && !ReadBool())
+                leadingZeroes++;
+
+            var infoD = Math.Pow(2, leadingZeroes);
+            var result = (uint)infoD - 1 + ReadBits4(leadingZeroes);
+
+            return result;
+        }
+
+        public void SkipExp()
+        {
+            byte leadingZeroes = 0;
+            while (DataBitStreamRemain() > 0 && !ReadBool())
+                leadingZeroes++;
+
+            BSSkipBits(leadingZeroes);
+        }
+
         public long DataBitStreamRemain()
         {
-            return (Stream.Length - Stream.Position)*8 - SkipBits;
+            return (_stream.Length - _stream.Position)*8 - _skipBits;
         }
     }
 }

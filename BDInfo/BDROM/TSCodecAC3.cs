@@ -24,9 +24,7 @@ namespace BDInfo
 {
     public abstract class TSCodecAC3
     {
-        private static byte[] eac3_blocks =  { 1, 2, 3, 6 };
-
-        private static int[] ac3Bitrate = 
+        private static readonly int[] AC3Bitrate = 
         {
              32,
              40,
@@ -49,11 +47,11 @@ namespace BDInfo
             640,
         };
 
-        private static byte[] ac3Channels = {2, 1, 2, 3, 3, 4, 4, 5};
+        private static readonly byte[] AC3Channels = {2, 1, 2, 3, 3, 4, 4, 5};
 
         public static byte AC3ChanMap(int chanMap)
         {
-            byte Channels = 0;
+            byte channels = 0;
 
             for (byte i = 0; i < 16; i++)
             {
@@ -65,131 +63,106 @@ namespace BDInfo
                         case 9:
                         case 10:
                         case 11:
-                            Channels += 2; break;
+                            channels += 2; break;
                     }
             }
-            return Channels;
+            return channels;
         }
 
-        public static void Scan(
-            TSAudioStream stream,
-            TSStreamBuffer buffer,
-            ref string tag)
+        public static void Scan(TSAudioStream stream, TSStreamBuffer buffer, ref string tag)
         {
             if (stream.IsInitialized) return;
 
             byte[] sync = buffer.ReadBytes(2);
-            if (sync == null ||
-                sync[0] != 0x0B ||
-                sync[1] != 0x77)
+            if (sync == null || sync[0] != 0x0B || sync[1] != 0x77)
             {
                 return;
             }
 
-            bool secondFrame = stream.ChannelCount > 0;
+            var secondFrame = stream.ChannelCount > 0;
 
-            int sr_code = 0;
-            int frame_size = 0;
-            int frame_size_code = 0;
-            int channel_mode = 0;
-            int lfe_on = 0;
-            int dial_norm = 0;
-            int num_blocks = 0;
+            uint srCode;
+            uint frameSize = 0;
+            uint frameSizeCode = 0;
+            uint channelMode;
+            uint lfeOn;
+            uint dialNorm;
+            uint numBlocks = 0;
 
             byte[] hdr = buffer.ReadBytes(4);
-            int bsid = (hdr[3] & 0xF8) >> 3;
+            uint bsid = (uint)((hdr[3] & 0xF8) >> 3);
             buffer.Seek(-4, SeekOrigin.Current);
             if (bsid <= 10)
             {
-                byte[] crc = buffer.ReadBytes(2);
-                sr_code = buffer.ReadBits(2);
-                frame_size_code = buffer.ReadBits(6);
-                bsid = buffer.ReadBits(5);
-                int bsmod = buffer.ReadBits(3);
+                buffer.BSSkipBytes(2);
+                srCode = buffer.ReadBits2(2);
+                frameSizeCode = buffer.ReadBits2(6);
+                bsid = buffer.ReadBits2(5);
+                buffer.BSSkipBits(3);
 
-                channel_mode = buffer.ReadBits(3);
-                int cmixlev = 0;
-                if (((channel_mode & 0x1) > 0) && (channel_mode != 0x1))
+                channelMode = buffer.ReadBits2(3);
+                if (((channelMode & 0x1) > 0) && (channelMode != 0x1))
                 {
-                    cmixlev = buffer.ReadBits(2);
+                    buffer.BSSkipBits(2);
                 }
-                int surmixlev = 0;
-                if ((channel_mode & 0x4) > 0)
+                if ((channelMode & 0x4) > 0)
                 {
-                    surmixlev = buffer.ReadBits(2);
+                    buffer.BSSkipBits(2);
                 }
-                int dsurmod = 0;
-                if (channel_mode == 0x2)
+                if (channelMode == 0x2)
                 {
-                    dsurmod = buffer.ReadBits(2);
+                    var dsurmod = buffer.ReadBits2(2);
                     if (dsurmod == 0x2)
                     {
                         stream.AudioMode = TSAudioMode.Surround;
                     }
                 }
-                lfe_on = buffer.ReadBits(1);
-                dial_norm = buffer.ReadBits(5);
-                int compr = 0;
-                if (1 == buffer.ReadBits(1))
+                lfeOn = buffer.ReadBits2(1);
+                dialNorm = buffer.ReadBits2(5);
+                if (buffer.ReadBool())
                 {
-                    compr = buffer.ReadBits(8);
+                    buffer.BSSkipBits(8);
                 }
-                int langcod = 0;
-                if (1 == buffer.ReadBits(1))
+                if (buffer.ReadBool())
                 {
-                    langcod = buffer.ReadBits(8);
+                    buffer.BSSkipBits(8);
                 }
-                int mixlevel = 0;
-                int roomtyp = 0;
-                if (1 == buffer.ReadBits(1))
+                if (buffer.ReadBool())
                 {
-                    mixlevel = buffer.ReadBits(5);
-                    roomtyp = buffer.ReadBits(2);
+                    buffer.BSSkipBits(7);
                 }
-                if (channel_mode == 0)
+                if (channelMode == 0)
                 {
-                    int dialnorm2 = buffer.ReadBits(5);
-                    int compr2 = 0;
-                    if (1 == buffer.ReadBits(1))
+                    buffer.BSSkipBits(5);
+                    if (buffer.ReadBool())
                     {
-                        compr2 = buffer.ReadBits(8);
+                        buffer.BSSkipBits(8);
                     }
-                    int langcod2 = 0;
-                    if (1 == buffer.ReadBits(1))
+                    if (buffer.ReadBool())
                     {
-                        langcod2 = buffer.ReadBits(8);
+                        buffer.BSSkipBits(8);
                     }
-                    int mixlevel2 = 0;
-                    int roomtyp2 = 0;
-                    if (1 == buffer.ReadBits(1))
+                    if (buffer.ReadBool())
                     {
-                        mixlevel2 = buffer.ReadBits(5);
-                        roomtyp2 = buffer.ReadBits(2);
+                        buffer.BSSkipBits(7);
                     }
                 }
-                int copyrightb = buffer.ReadBits(1);
-                int origbs = buffer.ReadBits(1);
+                buffer.BSSkipBits(2);
                 if (bsid == 6)
                 {
-                    if (1 == buffer.ReadBits(1))
+                    if (buffer.ReadBool())
                     {
-                        int dmixmod = buffer.ReadBits(2);
-                        int ltrtcmixlev = buffer.ReadBits(3);
-                        int ltrtsurmixlev = buffer.ReadBits(3);
-                        int lorocmixlev = buffer.ReadBits(3);
-                        int lorosurmixlev = buffer.ReadBits(3);
+                        buffer.BSSkipBits(14);
                     }
-                    if (1 == buffer.ReadBits(1))
+                    if (buffer.ReadBool())
                     {
-                        int dsurexmod = buffer.ReadBits(2);
-                        int dheadphonmod = buffer.ReadBits(2);
+                        uint dsurexmod = buffer.ReadBits2(2);
+                        uint dheadphonmod = buffer.ReadBits2(2);
                         if (dheadphonmod == 0x2)
                         {
                             // TODO
                         }
-                        int adconvtyp = buffer.ReadBits(1);
-                        int xbsi2 = buffer.ReadBits(8);
-                        int encinfo = buffer.ReadBits(1);
+                        buffer.BSSkipBits(10);
                         if (dsurexmod == 2)
                         {
                             stream.AudioMode = TSAudioMode.Extended;
@@ -199,140 +172,130 @@ namespace BDInfo
             }
             else
             {
-                int frame_type = buffer.ReadBits(2);
-                int substreamid = buffer.ReadBits(3);
+                uint frameType = buffer.ReadBits2(2);
+                buffer.BSSkipBits(3);
 
-                frame_size = (buffer.ReadBits(11) + 1) << 1;
+                frameSize = (buffer.ReadBits4(11) + 1) << 1;
 
-                sr_code = buffer.ReadBits(2);
-                if (sr_code == 3)
+                srCode = buffer.ReadBits2(2);
+                if (srCode == 3)
                 {
-                    sr_code = buffer.ReadBits(2);
-                    num_blocks = 3;
+                    srCode = buffer.ReadBits2(2);
+                    numBlocks = 3;
                 }
                 else
                 {
-                    num_blocks = buffer.ReadBits(2);
+                    numBlocks = buffer.ReadBits2(2);
                 }
-                channel_mode = buffer.ReadBits(3);
-                lfe_on = buffer.ReadBits(1);
-                bsid = buffer.ReadBits(5);
-                dial_norm = buffer.ReadBits(5);
+                channelMode = buffer.ReadBits2(3);
+                lfeOn = buffer.ReadBits2(1);
+                bsid = buffer.ReadBits2(5);
+                dialNorm = buffer.ReadBits2(5);
 
-                int compr = 0;
-                if (1 == buffer.ReadBits(1))
+                if (buffer.ReadBool())
                 {
-                    compr = buffer.ReadBits(8);
+                    buffer.BSSkipBits(8);
                 }
-                if (channel_mode == 0) // 1+1
+                if (channelMode == 0) // 1+1
                 {
-                    int dialnorm2 = buffer.ReadBits(5);
-                    int compr2 = 0;
-                    if (1 == buffer.ReadBits(1))
+                    buffer.BSSkipBits(5);
+                    if (buffer.ReadBool())
                     {
-                        compr2 = buffer.ReadBits(8);
+                        buffer.BSSkipBits(8);
                     }
                 }
-                if (frame_type == 1) //dependent stream
+                if (frameType == 1) //dependent stream
                 {
                     stream.CoreStream = (TSAudioStream)stream.Clone();
 
-                    if (1 == buffer.ReadBits(1)) //channel remapping
+                    if (buffer.ReadBool()) //channel remapping
                     {
-                        int chanmap = buffer.ReadBits(16);
+                        uint chanmap = buffer.ReadBits4(16);
                         
                         stream.ChannelCount = stream.CoreStream.ChannelCount;
-                        stream.ChannelCount += AC3ChanMap(chanmap);
-                        lfe_on = stream.CoreStream.LFE;
+                        stream.ChannelCount += AC3ChanMap((int) chanmap);
+                        lfeOn = (uint) stream.CoreStream.LFE;
                     }
                 }
 
-                int emdf_sync = 0;
-                bool emdf_found = false;
-                int emdf_container_size = 0;
-                long remainAfterEMDF = 0;
+                bool emdfFound = false;
 
                 do
                 {
-                    emdf_sync = (buffer.ReadBits(16));
-                    if ((emdf_sync) == 0x5838)
+                    uint emdfSync = (buffer.ReadBits4(16));
+                    if ((emdfSync) == 0x5838)
                     {
-                        emdf_found = true;
+                        emdfFound = true;
                         break;
                     }
                     buffer.Seek(-2, SeekOrigin.Current);
-                    buffer.ReadBits(1); // skip 1 bit
+                    buffer.BSSkipBits(1); // skip 1 bit
                 } while (buffer.Position < buffer.Length);
 
-                if (emdf_found)
+                if (emdfFound)
                 {
-                    emdf_container_size = buffer.ReadBits(16);
-                    remainAfterEMDF = buffer.DataBitStreamRemain() - emdf_container_size*8;
+                    uint emdfContainerSize = buffer.ReadBits4(16);
+                    var remainAfterEmdf = buffer.DataBitStreamRemain() - emdfContainerSize*8;
 
-                    int temp = 0;
+                    uint emdfVersion = buffer.ReadBits2(2); //emdf_version
+                    if (emdfVersion == 3)
+                        emdfVersion += buffer.ReadBits2(2);
 
-                    int emdf_version = buffer.ReadBits(2); //emdf_version
-                    if (emdf_version == 3)
-                        emdf_version += buffer.ReadBits(2);
-
-                    if (emdf_version > 0)
+                    if (emdfVersion > 0)
                     {
-                        temp = buffer.ReadBits((int) (buffer.DataBitStreamRemain() - remainAfterEMDF));
+                        buffer.BSSkipBits((int) (buffer.DataBitStreamRemain() - remainAfterEmdf));
                     }
                     else
                     {
-                        temp = buffer.ReadBits(3); //key_id
+                        var temp = buffer.ReadBits2(3);
                         if (temp == 0x7)
-                            buffer.ReadBits(2); //skip 3 bits
+                            buffer.BSSkipBits(2); //skip 3 bits
 
-                        int emdf_payload_id = 0;
-                        emdf_payload_id = buffer.ReadBits(5); //emdf_payload_id
+                        var emdfPayloadID = buffer.ReadBits2(5);
                         
-                        if (emdf_payload_id > 0 && emdf_payload_id < 16)
+                        if (emdfPayloadID > 0 && emdfPayloadID < 16)
                         {
-                            if (emdf_payload_id == 0x1F)
-                                temp = buffer.ReadBits(5); //skip 5 bits
+                            if (emdfPayloadID == 0x1F)
+                                buffer.BSSkipBits(5); //skip 5 bits
 
                             EmdfPayloadConfig(buffer);
 
-                            int emdf_payload_size = buffer.ReadBits(8)*8;
-                            buffer.ReadBits(emdf_payload_size + 1);
+                            int emdfPayloadSize = buffer.ReadBits2(8)*8;
+                            buffer.BSSkipBits(emdfPayloadSize + 1);
                         }
 
-                        while ((emdf_payload_id = buffer.ReadBits(5)) != 14 && buffer.Position < buffer.Length)
+                        while ((emdfPayloadID = buffer.ReadBits2(5)) != 14 && buffer.Position < buffer.Length)
                         {
-                            if (emdf_payload_id == 0x1F)
-                                temp = buffer.ReadBits(5); //skip 5 bits
+                            if (emdfPayloadID == 0x1F)
+                                buffer.BSSkipBits(5); //skip 5 bits
 
                             EmdfPayloadConfig(buffer);
 
-                            int emdf_payload_size = buffer.ReadBits(8) * 8;
-                            buffer.ReadBits(emdf_payload_size + 1);
+                            int emdfPayloadSize = buffer.ReadBits2(8) * 8;
+                            buffer.ReadBits4(emdfPayloadSize + 1);
                         }
 
-                        if (buffer.Position < buffer.Length && emdf_payload_id == 14)
+                        if (buffer.Position < buffer.Length && emdfPayloadID == 14)
                         {
                             EmdfPayloadConfig(buffer);
 
-                            int emdf_payload_size = buffer.ReadBits(8) * 8;
-                            buffer.ReadBits(1);
+                            buffer.BSSkipBits(12);
 
-                            int joc_dmx_config_idx = buffer.ReadBits(3);
-                            int joc_num_objects_bits = buffer.ReadBits(6);
+                            uint jocNumObjectsBits = buffer.ReadBits2(6);
 
-                            if (joc_num_objects_bits > 0)
+                            if (jocNumObjectsBits > 0)
                                 stream.HasExtensions = true;
                         }
                     }
                 }
             }
 
-            if ((channel_mode < 8 && channel_mode >= 0) && stream.ChannelCount == 0)
-                stream.ChannelCount = ac3Channels[channel_mode];
+            if ((channelMode < 8) && stream.ChannelCount == 0)
+                stream.ChannelCount = AC3Channels[channelMode];
 
             if (stream.AudioMode == TSAudioMode.Unknown)
             {
-                switch (channel_mode)
+                switch (channelMode)
                 {
                     case 0: // 1+1
                         stream.AudioMode = TSAudioMode.DualMono;
@@ -346,7 +309,7 @@ namespace BDInfo
                 }
             }
 
-            switch (sr_code)
+            switch (srCode)
             {
                 case 0:
                     stream.SampleRate = 48000;
@@ -365,23 +328,23 @@ namespace BDInfo
             if (bsid <= 10)
             {
 
-                int frameSize = frame_size_code >> 1;
-                if (frameSize < 19 && frameSize >= 0)
-                    stream.BitRate = ac3Bitrate[frameSize] * 1000;
+                uint fSize = frameSizeCode >> 1;
+                if (fSize < 19)
+                    stream.BitRate = AC3Bitrate[fSize] * 1000;
             }
             else
             {
                 stream.BitRate = (long)
-                    (4.0 * frame_size * stream.SampleRate / (num_blocks * 256));
+                    (4.0 * frameSize * stream.SampleRate / (numBlocks * 256));
                 if (stream.CoreStream != null)
                     stream.BitRate += stream.CoreStream.BitRate;
             }
 
-            stream.LFE = lfe_on;
+            stream.LFE = (int) lfeOn;
             if (stream.StreamType != TSStreamType.AC3_PLUS_AUDIO &&
                 stream.StreamType != TSStreamType.AC3_PLUS_SECONDARY_AUDIO)
             {
-                stream.DialNorm = dial_norm - 31;
+                stream.DialNorm = (int) (dialNorm - 31);
             }
             stream.IsVBR = false;
             if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6 && !secondFrame)
@@ -392,35 +355,27 @@ namespace BDInfo
 
         private static void EmdfPayloadConfig(TSStreamBuffer buffer)
         {
-            int temp;
-            bool sample_offset_e = buffer.ReadBits(1) == 1;
-            if (sample_offset_e)
-                temp = buffer.ReadBits(12);
+            bool sampleOffsetE = buffer.ReadBool();
+            if (sampleOffsetE)
+                buffer.BSSkipBits(12);
 
-            if (1 == buffer.ReadBits(1)) //duratione
-                temp = buffer.ReadBits(11); //duration
+            if (buffer.ReadBool()) //duratione
+                buffer.BSSkipBits(11); //duration
 
-            if (1 == buffer.ReadBits(1)) //groupide
-                temp = buffer.ReadBits(2); //groupid
+            if (buffer.ReadBool()) //groupide
+                buffer.BSSkipBits(2); //groupid
 
-            temp = buffer.ReadBits(1); //codecdatae
-            if (temp == 1)
-                temp = buffer.ReadBits(8); // reserved
+            if (buffer.ReadBool())
+                buffer.BSSkipBits(8); // reserved
 
-            int discard_unknown_payload = buffer.ReadBits(1);
-            if (discard_unknown_payload == 0) //discard_unknown_payload
+            if (!buffer.ReadBool()) //discard_unknown_payload
             {
-                temp = buffer.ReadBits(1);
+                buffer.BSSkipBits(1);
 
-                int payload_frame_aligned = 0;
-                if (!sample_offset_e)
+                if (!sampleOffsetE)
                 {
-                    payload_frame_aligned = buffer.ReadBits(1);
-                    if (payload_frame_aligned == 1)
-                        temp = buffer.ReadBits(2);
-
-                    if (sample_offset_e || payload_frame_aligned == 1)
-                        temp = buffer.ReadBits(7);
+                    if (buffer.ReadBool()) //payload_frame_aligned
+                        buffer.BSSkipBits(9);
                 }
             }
         }
