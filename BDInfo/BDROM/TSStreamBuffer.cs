@@ -245,6 +245,14 @@ namespace BDInfo
             BSSkipBits(leadingZeroes);
         }
 
+        public void SkipExpMulti(int num)
+        {
+            for (int i = 0; i < num; i++)
+            {
+                SkipExp();
+            }
+        }
+
         public long DataBitStreamRemain()
         {
             return (_stream.Length - _stream.Position)*8 - _skipBits;
