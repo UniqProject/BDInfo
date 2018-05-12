@@ -177,15 +177,25 @@ namespace BDInfo
         {
             var pos = _stream.Position;
 
-            var shift = 56;
-            long data = 0;
-            for (var i = 0; i < 8; i++)
+            var shift = 24;
+            var data = 0;
+            for (var i = 0; i < 4; i++)
             {
                 if (pos + i >= _bufferLength) break;
                 data += (_stream.ReadByte() << shift);
                 shift -= 8;
             }
-            var vector = new BitArray(new []{(int)(data >> 32), (int)data});
+
+            shift = 24;
+            var data2 = 0;
+            for (var i = 0; i < 4; i++)
+            {
+                if (pos + i >= _bufferLength) break;
+                data2 += (_stream.ReadByte() << shift);
+                shift -= 8;
+            }
+            var vector = new BitArray(new []{data2, data});
+
 
             ulong value = 0;
             for (var i = _skipBits; i < _skipBits + bits; i++)
@@ -213,7 +223,8 @@ namespace BDInfo
 
         public void BSSkipNextByte()
         {
-            BSSkipBits(8 - _skipBits);
+            if (_skipBits > 0)
+                BSSkipBits(8 - _skipBits);
         }
 
         public void BSSkipBytes(int bytes)
@@ -256,6 +267,11 @@ namespace BDInfo
         public long DataBitStreamRemain()
         {
             return (_stream.Length - _stream.Position)*8 - _skipBits;
+        }
+
+        public long DataBitStreamRemainBytes()
+        {
+            return (_stream.Length - _stream.Position);
         }
     }
 }
