@@ -446,6 +446,7 @@ namespace BDInfo
             // columnHeaderBitrate
             // 
             this.columnHeaderBitrate.Text = "Bit Rate";
+            this.columnHeaderBitrate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // columnHeaderDescription
             // 

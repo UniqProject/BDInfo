@@ -5,6 +5,7 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BD/@EntryIndexedValue">BD</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BDJO/@EntryIndexedValue">BDJO</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BDMV/@EntryIndexedValue">BDMV</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BDROM/@EntryIndexedValue">BDROM</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=BS/@EntryIndexedValue">BS</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=CBR/@EntryIndexedValue">CBR</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=CLIPINF/@EntryIndexedValue">CLIPINF</s:String>

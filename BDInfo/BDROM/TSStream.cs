@@ -147,13 +147,7 @@ namespace BDInfo
 
         public bool? BaseView;
 
-        public ulong PacketSize
-        {
-            get
-            {
-                return PacketCount * 192;
-            }
-        }
+        public ulong PacketSize => PacketCount * 192;
 
         private string _LanguageCode;
         public string LanguageCode
@@ -420,13 +414,7 @@ namespace BDInfo
             }
         }
 
-        public virtual string Description
-        {
-            get
-            {
-                return "";
-            }
-        }
+        public virtual string Description => "";
 
         public abstract TSStream Clone();
         

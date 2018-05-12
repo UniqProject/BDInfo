@@ -1140,8 +1140,6 @@ namespace BDInfo
                                                       ((max - ((int) max) == 0) ? "{1:0}" : "{1:0.0000}") +
                                                       " cd/m2",
                                                       (double) min / 10000, (double) max / 10000);
-
-            Debug.WriteLine("");
         }
 
         // SEI - 144
@@ -1245,7 +1243,6 @@ namespace BDInfo
                         deltaIdxMinus1 = buffer.ReadExp();
                     if (deltaIdxMinus1 + 1 > stRpsIdx)
                     {
-                        Debug.WriteLine("Problem");
                         return;
                     }
 

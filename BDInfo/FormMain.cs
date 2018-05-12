@@ -782,10 +782,12 @@ namespace BDInfo
                     codec.Text = "* " + codec.Text;
                 }
 
-                ListViewItem.ListViewSubItem language = 
-                    new ListViewItem.ListViewSubItem();
-                language.Text = stream.LanguageName;
-                language.Tag = stream.LanguageName;
+                ListViewItem.ListViewSubItem language =
+                    new ListViewItem.ListViewSubItem
+                    {
+                        Text = stream.LanguageName,
+                        Tag = stream.LanguageName
+                    };
 
                 ListViewItem.ListViewSubItem bitrate = 
                     new ListViewItem.ListViewSubItem();
@@ -995,8 +997,7 @@ namespace BDInfo
             object sender, 
             DoWorkEventArgs e)
         {
-            ScanResult = new ScanBDROMResult();
-            ScanResult.ScanException = new Exception("Scan is still running.");
+            ScanResult = new ScanBDROMResult {ScanException = new Exception("Scan is still running.")};
 
             System.Threading.Timer timer = null;
             try
@@ -1082,10 +1083,7 @@ namespace BDInfo
             }
             finally
             {
-                if (timer != null)
-                {
-                    timer.Dispose();
-                }
+                timer?.Dispose();
             }
         }
 
@@ -1321,16 +1319,20 @@ namespace BDInfo
         {
             HideNotification();
 
-            Label label = new Label();
-            label.AutoSize = true;
-            label.Font = new Font(Font.SystemFontName, 12);
-            label.Text = text;
+            Label label = new Label
+            {
+                AutoSize = true,
+                Font = new Font(Font.SystemFontName, 12),
+                Text = text
+            };
 
-            FormNotification = new Form();
-            FormNotification.ControlBox = false;
-            FormNotification.ShowInTaskbar = false;
-            FormNotification.ShowIcon = false;
-            FormNotification.FormBorderStyle = FormBorderStyle.Fixed3D;
+            FormNotification = new Form
+            {
+                ControlBox = false,
+                ShowInTaskbar = false,
+                ShowIcon = false,
+                FormBorderStyle = FormBorderStyle.Fixed3D
+            };
             FormNotification.Controls.Add(label);
             FormNotification.Size = new Size(label.Width + 10, 18);
             FormNotification.Show(this);
