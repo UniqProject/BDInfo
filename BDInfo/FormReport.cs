@@ -19,11 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BDInfo
@@ -103,8 +99,10 @@ namespace BDInfo
                 "{0,-16}{1}\r\n", "Notes:", "");
             report += "\r\n";
             report += "BDINFO HOME:\r\n";
-            report += "  Cinema Squid\r\n";
+            report += "  Cinema Squid (old)\r\n";
             report += "    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n";
+            report += "  UniqProject GitHub (new)\r\n";
+            report += "   https://github.com/UniqProject/BDInfo\r\n";
             report += "\r\n";
             report += "INCLUDES FORUMS REPORT FOR:\r\n";
             report += "  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n";
