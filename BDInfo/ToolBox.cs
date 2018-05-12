@@ -18,6 +18,7 @@
 //=============================================================================
 
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace BDInfo
@@ -30,7 +31,7 @@ namespace BDInfo
             var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
 
             var digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
-            return $"{fSize/Math.Pow(1024, digitGroups):#,##0.#}" + " " + units[digitGroups];
+            return string.Format(CultureInfo.InvariantCulture, "{0:N2} {1}", fSize/Math.Pow(1024, digitGroups), units[digitGroups]);
         }
 
         public static string ReadString(

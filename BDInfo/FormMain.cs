@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -133,7 +134,7 @@ namespace BDInfo
             }
             catch (Exception ex)
             {
-                string msg = string.Format(
+                string msg = string.Format(CultureInfo.InvariantCulture,
                     "Error opening path {0}: {1}{2}",
                     path,
                     ex.Message,
@@ -153,7 +154,7 @@ namespace BDInfo
             }
             catch (Exception ex)
             {
-                string msg = string.Format(
+                string msg = string.Format(CultureInfo.InvariantCulture,
                     "Error opening path {0}: {1}{2}",
                     path,
                     ex.Message,
@@ -192,8 +193,8 @@ namespace BDInfo
             object sender, 
             EventArgs e)
         {
-            string name = string.Format(
-                "USER.{0}", (++CustomPlaylistCount).ToString("D3"));
+            string name = string.Format(CultureInfo.InvariantCulture,
+                "USER.{0}", (++CustomPlaylistCount).ToString("D3", CultureInfo.InvariantCulture));
 
             FormPlaylist form = new FormPlaylist(name, BDROM, OnCustomPlaylistAdded);
             form.LoadPlaylists();
@@ -369,7 +370,7 @@ namespace BDInfo
 
         protected bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
         {
-            DialogResult result = MessageBox.Show(string.Format(
+            DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the playlist files?", playlistFile.Name), 
                 "BDInfo Scan Error", MessageBoxButtons.YesNo);
             
@@ -379,7 +380,7 @@ namespace BDInfo
 
         protected bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
         {
-            DialogResult result = MessageBox.Show(string.Format(
+            DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the stream file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the stream files?", streamFile.Name),
                 "BDInfo Scan Error", MessageBoxButtons.YesNo);
 
@@ -389,7 +390,7 @@ namespace BDInfo
 
         protected bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
         {
-            DialogResult result = MessageBox.Show(string.Format(
+            DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the stream clip file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the stream clip files?", streamClipFile.Name),
                 "BDInfo Scan Error", MessageBoxButtons.YesNo);
 
@@ -411,10 +412,11 @@ namespace BDInfo
 
             if (e.Result != null)
             {
-                string msg = string.Format(
-                    "{0}", ((Exception)e.Result).Message);
+                string msg = string.Format(CultureInfo.InvariantCulture,
+                                            "{0}", ((Exception)e.Result).Message);
+
                 MessageBox.Show(msg, "BDInfo Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                 buttonBrowse.Enabled = true;
                 buttonIsoBrowse.Enabled = true;
                 buttonRescan.Enabled = true;
@@ -449,12 +451,12 @@ namespace BDInfo
             }
             else
             {
-                textBoxDetails.Text += string.Format(
-                    "Detected BDMV Folder: {0} ({1}) {3} ISO Image: {2} {3}",
-                    BDROM.DiscDirectoryBDMV.FullName,
-                    BDROM.VolumeLabel,
-                    textBoxSource.Text,
-                    Environment.NewLine);
+                textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture, 
+                                                    "Detected BDMV Folder: {0} ({1}) {3} ISO Image: {2} {3}",
+                                                    BDROM.DiscDirectoryBDMV.FullName,
+                                                    BDROM.VolumeLabel,
+                                                    textBoxSource.Text,
+                                                    Environment.NewLine);
             }
 
             List<string> features = new List<string>();
@@ -491,11 +493,11 @@ namespace BDInfo
                 textBoxDetails.Text += "Detected Features: " + string.Join(", ", features.ToArray()) + Environment.NewLine;
             }
 
-            textBoxDetails.Text += string.Format(
-                "Disc Size: {0:N0} bytes ({1}){2}",
-                BDROM.Size,
-                ToolBox.FormatFileSize(BDROM.Size),
-                Environment.NewLine);
+            textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture, 
+                                                "Disc Size: {0:N0} bytes ({1}){2}",
+                                                BDROM.Size,
+                                                ToolBox.FormatFileSize(BDROM.Size),
+                                                Environment.NewLine);
 
             LoadPlaylists();
         }
@@ -579,7 +581,7 @@ namespace BDInfo
 
                     ListViewItem.ListViewSubItem playlistIndex =
                         new ListViewItem.ListViewSubItem();
-                    playlistIndex.Text = (groupIndex + 1).ToString();
+                    playlistIndex.Text = (groupIndex + 1).ToString(CultureInfo.InvariantCulture);
                     playlistIndex.Tag = groupIndex;
 
                     ListViewItem.ListViewSubItem playlistName =
@@ -591,7 +593,7 @@ namespace BDInfo
                         new TimeSpan((long)(playlist.TotalLength * 10000000));
                     ListViewItem.ListViewSubItem playlistLength =
                         new ListViewItem.ListViewSubItem();
-                    playlistLength.Text = string.Format(
+                    playlistLength.Text = string.Format(CultureInfo.InvariantCulture,
                         "{0:D2}:{1:D2}:{2:D2}",
                         playlistLengthSpan.Hours,
                         playlistLengthSpan.Minutes,
@@ -685,31 +687,37 @@ namespace BDInfo
                 }
 
                 ListViewItem.ListViewSubItem clipIndex =
-                    new ListViewItem.ListViewSubItem();
-                clipIndex.Text = clipCount.ToString();
-                clipIndex.Tag = clipCount;
+                    new ListViewItem.ListViewSubItem
+                    {
+                        Text = clipCount.ToString(CultureInfo.InvariantCulture),
+                        Tag = clipCount
+                    };
 
-                ListViewItem.ListViewSubItem clipName = 
-                    new ListViewItem.ListViewSubItem();
-                clipName.Text =  clip.DisplayName;
-                clipName.Tag = clip.Name;
+                ListViewItem.ListViewSubItem clipName =
+                    new ListViewItem.ListViewSubItem
+                    {
+                        Text = clip.DisplayName,
+                        Tag = clip.Name
+                    };
                 if (clip.AngleIndex > 0)
                 {
-                    clipName.Text += string.Format(
+                    clipName.Text += string.Format(CultureInfo.InvariantCulture,
                         " ({0})", clip.AngleIndex);
                 }
 
                 TimeSpan clipLengthSpan =
                     new TimeSpan((long)(clip.Length * 10000000));
 
-                ListViewItem.ListViewSubItem clipLength = 
-                    new ListViewItem.ListViewSubItem();
-                clipLength.Text = string.Format(
-                    "{0:D2}:{1:D2}:{2:D2}",
-                    clipLengthSpan.Hours,
-                    clipLengthSpan.Minutes,
-                    clipLengthSpan.Seconds);
-                clipLength.Tag = clip.Length;
+                ListViewItem.ListViewSubItem clipLength =
+                    new ListViewItem.ListViewSubItem
+                    {
+                        Text = string.Format(CultureInfo.InvariantCulture,
+                            "{0:D2}:{1:D2}:{2:D2}",
+                            clipLengthSpan.Hours,
+                            clipLengthSpan.Minutes,
+                            clipLengthSpan.Seconds),
+                        Tag = clip.Length
+                    };
 
                 ListViewItem.ListViewSubItem clipSize = 
                     new ListViewItem.ListViewSubItem();
@@ -764,7 +772,7 @@ namespace BDInfo
                 codec.Text = stream.CodecName;
                 if (stream.AngleIndex > 0)
                 {
-                    codec.Text += string.Format(
+                    codec.Text += string.Format(CultureInfo.InvariantCulture,
                         " ({0})", stream.AngleIndex);
                 }
                 codec.Tag = stream.CodecName;
@@ -786,7 +794,7 @@ namespace BDInfo
                 {
                     if (stream.ActiveBitRate > 0)
                     {
-                        bitrate.Text = string.Format(
+                        bitrate.Text = string.Format(CultureInfo.InvariantCulture,
                             "{0} kbps", Math.Round((double)stream.ActiveBitRate / 1000));
                     }
                     else
@@ -799,7 +807,7 @@ namespace BDInfo
                 {
                     if (stream.BitRate > 0)
                     {
-                        bitrate.Text = string.Format(
+                        bitrate.Text = string.Format(CultureInfo.InvariantCulture,
                             "{0} kbps", Math.Round((double)stream.BitRate / 1000));
                     }
                     else
@@ -897,7 +905,7 @@ namespace BDInfo
                     {
                         kbps = (int)Math.Round((double)stream.BitRate / 1000);
                     }
-                    item.SubItems[2].Text = string.Format(
+                    item.SubItems[2].Text = string.Format(CultureInfo.InvariantCulture,
                         "{0} kbps", kbps);
                     item.SubItems[3].Text =
                         stream.Description;
@@ -1121,7 +1129,7 @@ namespace BDInfo
             {
                 if (scanState.StreamFile != null)
                 {
-                    labelProgress.Text = string.Format(
+                    labelProgress.Text = string.Format(CultureInfo.InvariantCulture,
                         "Scanning {0}...\r\n",
                         scanState.StreamFile.DisplayName);
                 }
@@ -1150,13 +1158,13 @@ namespace BDInfo
                     remainingTime = new TimeSpan(0);
                 }
 
-                labelTimeElapsed.Text = string.Format(
+                labelTimeElapsed.Text = string.Format(CultureInfo.InvariantCulture,
                     "{0:D2}:{1:D2}:{2:D2}",
                     elapsedTime.Hours,
                     elapsedTime.Minutes,
                     elapsedTime.Seconds);
 
-                labelTimeRemaining.Text = string.Format(
+                labelTimeRemaining.Text = string.Format(CultureInfo.InvariantCulture,
                     "{0:D2}:{1:D2}:{2:D2}",
                     remainingTime.Hours,
                     remainingTime.Minutes,
@@ -1181,7 +1189,7 @@ namespace BDInfo
 
             if (ScanResult.ScanException != null)
             {
-                string msg = string.Format(
+                string msg = string.Format(CultureInfo.InvariantCulture,
                     "{0}", ScanResult.ScanException.Message);
 
                 MessageBox.Show(msg, "BDInfo Error",

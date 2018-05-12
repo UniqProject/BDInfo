@@ -19,9 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 
 namespace BDInfo
 {
@@ -129,7 +127,7 @@ namespace BDInfo
 
         public override string ToString()
         {
-            return string.Format("{0} ({1})", CodecShortName, PID);
+            return string.Format(CultureInfo.InvariantCulture, "{0} ({1})", CodecShortName, PID);
         }
 
         public ushort PID;
@@ -573,22 +571,25 @@ namespace BDInfo
 
                 if (Height > 0)
                 {
-                    description += string.Format("{0:D}{1} / ",
-                        Height,
-                        IsInterlaced ? "i" : "p");
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 "{0:D}{1} / ",
+                                                 Height,
+                                                 IsInterlaced ? "i" : "p");
                 }
                 if (FrameRateEnumerator > 0 &&
                     FrameRateDenominator > 0)
                 {
                     if (FrameRateEnumerator % FrameRateDenominator == 0)
                     {
-                        description += string.Format("{0:D} fps / ",
-                            FrameRateEnumerator / FrameRateDenominator);
+                        description += string.Format(CultureInfo.InvariantCulture,
+                                                    "{0:D} fps / ",
+                                                    FrameRateEnumerator / FrameRateDenominator);
                     }
                     else
                     {
-                        description += string.Format("{0:F3} fps / ",
-                            (double)FrameRateEnumerator / FrameRateDenominator);
+                        description += string.Format(CultureInfo.InvariantCulture,
+                                                    "{0:F3} fps / ",
+                                                    (double)FrameRateEnumerator / FrameRateDenominator);
                     }
 
                 }
@@ -696,9 +697,10 @@ namespace BDInfo
                 string description = "";
                 if (ChannelCount > 0)
                 {
-                    description += string.Format(
-                        "{0:D}.{1:D}",
-                        ChannelCount, LFE);
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 "{0:D}.{1:D}",
+                                                 ChannelCount,
+                                                 LFE);
                 }
                 else
                 {
@@ -740,26 +742,30 @@ namespace BDInfo
 
                 if (SampleRate > 0)
                 {
-                    description += string.Format(
-                        " / {0:D} kHz", SampleRate / 1000);
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 " / {0:D} kHz",
+                                                 SampleRate / 1000);
                 }
                 if (BitRate > 0)
                 {
                     long CoreBitRate = 0;
                     if (StreamType == TSStreamType.AC3_TRUE_HD_AUDIO && CoreStream != null)
                         CoreBitRate = CoreStream.BitRate;
-                    description += string.Format(
-                        " / {0:D} kbps", (uint)Math.Round((double)(BitRate - CoreBitRate) / 1000));
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 " / {0,5:D} kbps",
+                                                 (uint)Math.Round((double)(BitRate - CoreBitRate) / 1000));
                 }
                 if (BitDepth > 0)
                 {
-                    description += string.Format(
-                        " / {0:D}-bit", BitDepth);
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 " / {0:D}-bit",
+                                                 BitDepth);
                 }
                 if (DialNorm != 0)
                 {
-                    description += string.Format(
-                        " / DN {0}dB", DialNorm);
+                    description += string.Format(CultureInfo.InvariantCulture,
+                                                 " / DN {0}dB",
+                                                 DialNorm);
                 }
                 if (ChannelCount == 2)
                 {
@@ -793,10 +799,10 @@ namespace BDInfo
                             codec = "DD+ Embedded";
                             break;
                     }
-                    description += string.Format(
-                        " ({0}: {1})",
-                        codec,
-                        CoreStream.Description);
+                    description += string.Format(   CultureInfo.InvariantCulture,
+                                                    " ({0}: {1})",
+                                                    codec,
+                                                    CoreStream.Description);
                 }
                 return description;
             }
