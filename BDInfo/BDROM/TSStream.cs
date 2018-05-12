@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Text;
 
 namespace BDInfo
@@ -464,6 +466,8 @@ namespace BDInfo
         public TSAspectRatio AspectRatio;
         public string EncodingProfile;
 
+        public object ExtendedData;
+
         private TSVideoFormat _VideoFormat;
         public TSVideoFormat VideoFormat
         {
@@ -600,6 +604,12 @@ namespace BDInfo
                 {
                     description += EncodingProfile + " / ";
                 }
+                if (StreamType == TSStreamType.HEVC_VIDEO && ExtendedData != null)
+                {
+                    var extendedData = (TSCodecHEVC.ExtendedDataSet) ExtendedData;
+                    string extendedInfo = string.Join(" / ", extendedData.ExtendedFormatInfo);
+                    description += extendedInfo;
+                }
                 if (description.EndsWith(" / "))
                 {
                     description = description.Substring(0, description.Length - 3);
@@ -622,6 +632,7 @@ namespace BDInfo
             stream.FrameRateDenominator = FrameRateDenominator;
             stream.AspectRatio = AspectRatio;
             stream.EncodingProfile = EncodingProfile;
+            stream.ExtendedData = ExtendedData;
 
             return stream;
         }

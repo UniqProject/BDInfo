@@ -849,6 +849,8 @@ namespace BDInfo
                         {
                             ((TSVideoStream)stream).EncodingProfile =
                                 ((TSVideoStream)clipStream).EncodingProfile;
+                            ((TSVideoStream) stream).ExtendedData = 
+                                ((TSVideoStream) clipStream).ExtendedData;
                         }
                         else if (stream.IsAudioStream &&
                             clipStream.IsAudioStream)
