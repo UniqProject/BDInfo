@@ -593,30 +593,39 @@ namespace BDInfo
 
                     if (seqParameterSet.VUIParameters.VideoSignalTypePresentFlag)
                     {
-                        ExtendedFormatInfo.Add(seqParameterSet.VUIParameters.VideoFullRangeFlag == 1 ? "Full Range" : "Limited Range");
+                        if (BDInfoSettings.ExtendedStreamDiagnostics)
+                            ExtendedFormatInfo.Add(seqParameterSet.VUIParameters.VideoFullRangeFlag == 1 ? "Full Range" : "Limited Range");
+
                         if (seqParameterSet.VUIParameters.ColourDescriptionPresentFlag)
                         {
                             ExtendedFormatInfo.Add(ColourPrimaries(seqParameterSet.VUIParameters.ColourPrimaries));
-                            ExtendedFormatInfo.Add(TransferCharacteristics(seqParameterSet.VUIParameters.TransferCharacteristics));
-                            ExtendedFormatInfo.Add(MatrixCoefficients(seqParameterSet.VUIParameters.MatrixCoefficients));
+                            if (BDInfoSettings.ExtendedStreamDiagnostics)
+                            {
+                                ExtendedFormatInfo.Add(TransferCharacteristics(seqParameterSet.VUIParameters.TransferCharacteristics));
+                                ExtendedFormatInfo.Add(MatrixCoefficients(seqParameterSet.VUIParameters.MatrixCoefficients));
+                                
+                            }
                         }
                     }
                 }
             }
 
-            if (MasteringDisplayColorPrimaries != string.Empty)
+            if (BDInfoSettings.ExtendedStreamDiagnostics)
             {
-                ExtendedFormatInfo.Add("Mastering display color primaries: " + MasteringDisplayColorPrimaries);
-            }
-            if (MasteringDisplayLuminance != string.Empty)
-            {
-                ExtendedFormatInfo.Add("Mastering display luminance: " + MasteringDisplayLuminance);
-            }
+                if (MasteringDisplayColorPrimaries != string.Empty)
+                {
+                    ExtendedFormatInfo.Add("Mastering display color primaries: " + MasteringDisplayColorPrimaries);
+                }
+                if (MasteringDisplayLuminance != string.Empty)
+                {
+                    ExtendedFormatInfo.Add("Mastering display luminance: " + MasteringDisplayLuminance);
+                }
 
-            if (LightLevelAvailable && MaximumContentLightLevel > 0)
-            {
-                ExtendedFormatInfo.Add("Maximum Content Light Level: " + MaximumContentLightLevel + " cd / m2");
-                ExtendedFormatInfo.Add("Maximum Frame-Average Light Level: " + MaximumFrameAverageLightLevel + " cd/m2");
+                if (LightLevelAvailable && MaximumContentLightLevel > 0)
+                {
+                    ExtendedFormatInfo.Add("Maximum Content Light Level: " + MaximumContentLightLevel + " cd / m2");
+                    ExtendedFormatInfo.Add("Maximum Frame-Average Light Level: " + MaximumFrameAverageLightLevel + " cd/m2");
+                }
             }
 
             stream.IsVBR = true;

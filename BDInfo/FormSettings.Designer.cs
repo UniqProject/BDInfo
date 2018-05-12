@@ -60,6 +60,7 @@ namespace BDInfo
             this.checkBoxUseImagePrefix = new System.Windows.Forms.CheckBox();
             this.textBoxUseImagePrefixValue = new System.Windows.Forms.TextBox();
             this.checkBoxEnableSSIF = new System.Windows.Forms.CheckBox();
+            this.checkBoxExtendedStreamDiagnostics = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // checkBoxFilterLoopingPlaylists
@@ -67,7 +68,7 @@ namespace BDInfo
             this.checkBoxFilterLoopingPlaylists.AutoSize = true;
             this.checkBoxFilterLoopingPlaylists.Checked = true;
             this.checkBoxFilterLoopingPlaylists.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxFilterLoopingPlaylists.Location = new System.Drawing.Point(11, 99);
+            this.checkBoxFilterLoopingPlaylists.Location = new System.Drawing.Point(11, 122);
             this.checkBoxFilterLoopingPlaylists.Name = "checkBoxFilterLoopingPlaylists";
             this.checkBoxFilterLoopingPlaylists.Size = new System.Drawing.Size(177, 17);
             this.checkBoxFilterLoopingPlaylists.TabIndex = 3;
@@ -77,7 +78,7 @@ namespace BDInfo
             // checkBoxAutosaveReport
             // 
             this.checkBoxAutosaveReport.AutoSize = true;
-            this.checkBoxAutosaveReport.Location = new System.Drawing.Point(11, 53);
+            this.checkBoxAutosaveReport.Location = new System.Drawing.Point(11, 76);
             this.checkBoxAutosaveReport.Name = "checkBoxAutosaveReport";
             this.checkBoxAutosaveReport.Size = new System.Drawing.Size(202, 17);
             this.checkBoxAutosaveReport.TabIndex = 2;
@@ -87,7 +88,7 @@ namespace BDInfo
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(126, 196);
+            this.buttonCancel.Location = new System.Drawing.Point(126, 218);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 6;
@@ -97,7 +98,7 @@ namespace BDInfo
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(45, 196);
+            this.buttonOK.Location = new System.Drawing.Point(45, 218);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 5;
@@ -120,7 +121,7 @@ namespace BDInfo
             // checkBoxKeepStreamOrder
             // 
             this.checkBoxKeepStreamOrder.AutoSize = true;
-            this.checkBoxKeepStreamOrder.Location = new System.Drawing.Point(11, 76);
+            this.checkBoxKeepStreamOrder.Location = new System.Drawing.Point(11, 99);
             this.checkBoxKeepStreamOrder.Name = "checkBoxKeepStreamOrder";
             this.checkBoxKeepStreamOrder.Size = new System.Drawing.Size(165, 17);
             this.checkBoxKeepStreamOrder.TabIndex = 4;
@@ -132,7 +133,7 @@ namespace BDInfo
             this.checkBoxGenerateTextSummary.AutoSize = true;
             this.checkBoxGenerateTextSummary.Checked = true;
             this.checkBoxGenerateTextSummary.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxGenerateTextSummary.Location = new System.Drawing.Point(11, 30);
+            this.checkBoxGenerateTextSummary.Location = new System.Drawing.Point(11, 53);
             this.checkBoxGenerateTextSummary.Name = "checkBoxGenerateTextSummary";
             this.checkBoxGenerateTextSummary.Size = new System.Drawing.Size(198, 17);
             this.checkBoxGenerateTextSummary.TabIndex = 1;
@@ -144,7 +145,7 @@ namespace BDInfo
             this.checkBoxFilterShortPlaylists.AutoSize = true;
             this.checkBoxFilterShortPlaylists.Checked = true;
             this.checkBoxFilterShortPlaylists.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxFilterShortPlaylists.Location = new System.Drawing.Point(11, 122);
+            this.checkBoxFilterShortPlaylists.Location = new System.Drawing.Point(11, 145);
             this.checkBoxFilterShortPlaylists.Name = "checkBoxFilterShortPlaylists";
             this.checkBoxFilterShortPlaylists.Size = new System.Drawing.Size(153, 17);
             this.checkBoxFilterShortPlaylists.TabIndex = 7;
@@ -153,7 +154,7 @@ namespace BDInfo
             // 
             // textBoxFilterShortPlaylistsValue
             // 
-            this.textBoxFilterShortPlaylistsValue.Location = new System.Drawing.Point(160, 120);
+            this.textBoxFilterShortPlaylistsValue.Location = new System.Drawing.Point(160, 143);
             this.textBoxFilterShortPlaylistsValue.MaxLength = 4;
             this.textBoxFilterShortPlaylistsValue.Name = "textBoxFilterShortPlaylistsValue";
             this.textBoxFilterShortPlaylistsValue.Size = new System.Drawing.Size(41, 20);
@@ -163,7 +164,7 @@ namespace BDInfo
             // labelPlaylistLength
             // 
             this.labelPlaylistLength.AutoSize = true;
-            this.labelPlaylistLength.Location = new System.Drawing.Point(202, 124);
+            this.labelPlaylistLength.Location = new System.Drawing.Point(202, 147);
             this.labelPlaylistLength.Name = "labelPlaylistLength";
             this.labelPlaylistLength.Size = new System.Drawing.Size(24, 13);
             this.labelPlaylistLength.TabIndex = 9;
@@ -172,7 +173,7 @@ namespace BDInfo
             // checkBoxUseImagePrefix
             // 
             this.checkBoxUseImagePrefix.AutoSize = true;
-            this.checkBoxUseImagePrefix.Location = new System.Drawing.Point(11, 145);
+            this.checkBoxUseImagePrefix.Location = new System.Drawing.Point(11, 168);
             this.checkBoxUseImagePrefix.Name = "checkBoxUseImagePrefix";
             this.checkBoxUseImagePrefix.Size = new System.Drawing.Size(104, 17);
             this.checkBoxUseImagePrefix.TabIndex = 10;
@@ -181,7 +182,7 @@ namespace BDInfo
             // 
             // textBoxUseImagePrefixValue
             // 
-            this.textBoxUseImagePrefixValue.Location = new System.Drawing.Point(113, 143);
+            this.textBoxUseImagePrefixValue.Location = new System.Drawing.Point(113, 166);
             this.textBoxUseImagePrefixValue.MaxLength = 4;
             this.textBoxUseImagePrefixValue.Name = "textBoxUseImagePrefixValue";
             this.textBoxUseImagePrefixValue.Size = new System.Drawing.Size(113, 20);
@@ -191,12 +192,22 @@ namespace BDInfo
             // checkBoxEnableSSIF
             // 
             this.checkBoxEnableSSIF.AutoSize = true;
-            this.checkBoxEnableSSIF.Location = new System.Drawing.Point(11, 168);
+            this.checkBoxEnableSSIF.Location = new System.Drawing.Point(11, 191);
             this.checkBoxEnableSSIF.Name = "checkBoxEnableSSIF";
             this.checkBoxEnableSSIF.Size = new System.Drawing.Size(134, 17);
             this.checkBoxEnableSSIF.TabIndex = 12;
             this.checkBoxEnableSSIF.Text = "Enable SSIF scanning.";
             this.checkBoxEnableSSIF.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxExtendedStreamDiagnostics
+            // 
+            this.checkBoxExtendedStreamDiagnostics.AutoSize = true;
+            this.checkBoxExtendedStreamDiagnostics.Location = new System.Drawing.Point(11, 30);
+            this.checkBoxExtendedStreamDiagnostics.Name = "checkBoxExtendedStreamDiagnostics";
+            this.checkBoxExtendedStreamDiagnostics.Size = new System.Drawing.Size(193, 17);
+            this.checkBoxExtendedStreamDiagnostics.TabIndex = 13;
+            this.checkBoxExtendedStreamDiagnostics.Text = "Extended video stream diagnostics.";
+            this.checkBoxExtendedStreamDiagnostics.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
@@ -204,7 +215,8 @@ namespace BDInfo
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(243, 231);
+            this.ClientSize = new System.Drawing.Size(243, 250);
+            this.Controls.Add(this.checkBoxExtendedStreamDiagnostics);
             this.Controls.Add(this.checkBoxEnableSSIF);
             this.Controls.Add(this.textBoxUseImagePrefixValue);
             this.Controls.Add(this.checkBoxUseImagePrefix);
@@ -243,5 +255,6 @@ namespace BDInfo
         private System.Windows.Forms.CheckBox checkBoxUseImagePrefix;
         private System.Windows.Forms.TextBox textBoxUseImagePrefixValue;
         private System.Windows.Forms.CheckBox checkBoxEnableSSIF;
+        private System.Windows.Forms.CheckBox checkBoxExtendedStreamDiagnostics;
     }
 }

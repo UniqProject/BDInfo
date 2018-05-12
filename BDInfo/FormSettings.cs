@@ -18,11 +18,6 @@
 //=============================================================================
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BDInfo
@@ -35,6 +30,7 @@ namespace BDInfo
 
             checkBoxAutosaveReport.Checked = BDInfoSettings.AutosaveReport;
             checkBoxGenerateStreamDiagnostics.Checked = BDInfoSettings.GenerateStreamDiagnostics;
+            checkBoxExtendedStreamDiagnostics.Checked = BDInfoSettings.ExtendedStreamDiagnostics;
             checkBoxGenerateTextSummary.Checked = BDInfoSettings.GenerateTextSummary;
             checkBoxFilterLoopingPlaylists.Checked = BDInfoSettings.FilterLoopingPlaylists;
             checkBoxFilterShortPlaylists.Checked = BDInfoSettings.FilterShortPlaylists;
@@ -49,6 +45,7 @@ namespace BDInfo
         {
             BDInfoSettings.AutosaveReport = checkBoxAutosaveReport.Checked;
             BDInfoSettings.GenerateStreamDiagnostics = checkBoxGenerateStreamDiagnostics.Checked;
+            BDInfoSettings.ExtendedStreamDiagnostics = checkBoxExtendedStreamDiagnostics.Checked;
             BDInfoSettings.GenerateTextSummary = checkBoxGenerateTextSummary.Checked;
             BDInfoSettings.KeepStreamOrder = checkBoxKeepStreamOrder.Checked;
             BDInfoSettings.UseImagePrefix = checkBoxUseImagePrefix.Checked;
@@ -84,6 +81,21 @@ namespace BDInfo
             set
             {
                 try { Properties.Settings.Default.GenerateStreamDiagnostics = value; }
+                catch { }
+            }
+        }
+
+        public static bool ExtendedStreamDiagnostics
+        {
+            get
+            {
+                try { return Properties.Settings.Default.ExtendedStreamDetails; }
+                catch { return true; }
+            }
+
+            set
+            {
+                try { Properties.Settings.Default.ExtendedStreamDetails = value; }
                 catch { }
             }
         }

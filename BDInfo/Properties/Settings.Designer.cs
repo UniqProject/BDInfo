@@ -166,5 +166,17 @@ namespace BDInfo.Properties {
                 this["EnableSSIF"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ExtendedStreamDetails {
+            get {
+                return ((bool)(this["ExtendedStreamDetails"]));
+            }
+            set {
+                this["ExtendedStreamDetails"] = value;
+            }
+        }
     }
 }
