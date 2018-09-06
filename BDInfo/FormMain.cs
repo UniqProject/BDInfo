@@ -41,6 +41,17 @@ namespace BDInfo
 
         private ListViewColumnSorter PlaylistColumnSorter;
 
+        public static Control FindFocusedControl(Control control)
+        {
+            var container = control as IContainerControl;
+            while (container != null)
+            {
+                control = container.ActiveControl;
+                container = control as IContainerControl;
+            }
+            return control;
+        }
+
         public FormMain(string[] args)
         {
             InitializeComponent();
@@ -63,6 +74,49 @@ namespace BDInfo
         private void FormMain_Load(object sender, EventArgs e)
         {
             ResetColumnWidths();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.C))
+            {
+                Control focusedControl = FindFocusedControl(this);
+
+                Clipboard.Clear();
+
+                if (focusedControl == listViewPlaylistFiles && listViewPlaylistFiles.SelectedItems.Count > 0)
+                {
+                    ListViewItem playlistItem = listViewPlaylistFiles.SelectedItems[0];
+                    if (playlistItem != null)
+                    {
+                        TSPlaylistFile playlist = null;
+                        string playlistFileName = playlistItem.Text;
+                        if (BDROM.PlaylistFiles.ContainsKey(playlistFileName))
+                        {
+                            playlist = BDROM.PlaylistFiles[playlistFileName];
+                        }
+                        if (playlist != null)
+                          Clipboard.SetText(playlist.GetFilePath());
+                    }
+                }
+                if (focusedControl == listViewStreamFiles && listViewStreamFiles.SelectedItems.Count > 0)
+                {
+                    ListViewItem streamFileItem = listViewStreamFiles.SelectedItems[0];
+                    if (streamFileItem != null)
+                    {
+                        TSStreamFile streamFile = null;
+                        string streamFileName = streamFileItem.Text;
+                        if (BDROM.StreamFiles.ContainsKey(streamFileName))
+                        {
+                            streamFile = BDROM.StreamFiles[streamFileName];
+                        }
+                        if (streamFile != null)
+                            Clipboard.SetText(streamFile.GetFilePath());
+                    }
+                }
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void textBoxSource_TextChanged(object sender, EventArgs e)

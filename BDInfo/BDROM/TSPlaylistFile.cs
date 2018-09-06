@@ -239,6 +239,17 @@ namespace BDInfo
             }
         }
 
+        public string GetFilePath()
+        {
+            if (!string.IsNullOrEmpty(FileInfo?.FullName))
+                return FileInfo.FullName;
+
+            if (!string.IsNullOrEmpty(DFileInfo?.FullName))
+                return DFileInfo.FullName;
+
+            return string.Empty;
+        }
+
         public void Scan(
             Dictionary<string, TSStreamFile> streamFiles,
             Dictionary<string, TSStreamClipFile> streamClipFiles)
