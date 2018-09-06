@@ -254,7 +254,7 @@ namespace BDInfo
                     case TSStreamType.MVC_VIDEO:
                         return "MPEG-4 MVC Video";
                     case TSStreamType.HEVC_VIDEO:
-                        return "HEVC Video";
+                        return "MPEG-H HEVC Video";
                     case TSStreamType.VC1_VIDEO:
                         return "VC-1 Video";
                     case TSStreamType.MPEG1_AUDIO:
