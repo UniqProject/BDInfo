@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml;
 using DiscUtils;
 using DiscUtils.Udf;
 
@@ -38,6 +39,7 @@ namespace BDInfo
         public DirectoryInfo DirectorySNP = null;
         public DirectoryInfo DirectorySSIF = null;
         public DirectoryInfo DirectorySTREAM = null;
+        public DirectoryInfo DirectoryMETA = null;
 
         public DiscDirectoryInfo DiscDirectoryRoot = null;
         public DiscDirectoryInfo DiscDirectoryBDMV = null;
@@ -48,8 +50,10 @@ namespace BDInfo
         public DiscDirectoryInfo DiscDirectorySNP = null;
         public DiscDirectoryInfo DiscDirectorySSIF = null;
         public DiscDirectoryInfo DiscDirectorySTREAM = null;
+        public DiscDirectoryInfo DiscDirectoryMETA = null;
 
         public string VolumeLabel = null;
+        public string DiscTitle = null;
         public ulong Size = 0;
         public bool IsBDPlus = false;
         public bool IsBDJava = false;
@@ -122,6 +126,7 @@ namespace BDInfo
                 DiscDirectorySNP = GetDiscDirectory("SNP", DiscDirectoryRoot, 0);
                 DiscDirectorySTREAM = GetDiscDirectory("STREAM", DiscDirectoryBDMV, 0);
                 DiscDirectorySSIF = GetDiscDirectory("SSIF", DiscDirectorySTREAM, 0);
+                DiscDirectoryMETA = GetDiscDirectory("META", DiscDirectoryBDMV, 0);
             }
             else
             {
@@ -133,6 +138,7 @@ namespace BDInfo
                 DirectorySNP = GetDirectory("SNP", DirectoryRoot, 0);
                 DirectorySTREAM = GetDirectory("STREAM", DirectoryBDMV, 0);
                 DirectorySSIF = GetDirectory("SSIF", DirectorySTREAM, 0);
+                DirectoryMETA = GetDirectory("META", DirectoryBDMV, 0);
             }
 
             if ((!IsImage & (DirectoryCLIPINF == null || DirectoryPLAYLIST == null)) || (IsImage & (DiscDirectoryCLIPINF == null || DiscDirectoryPLAYLIST == null)))
@@ -203,6 +209,12 @@ namespace BDInfo
                 if (discFiles != null && discFiles.Length > 0)
                 {
                     IsDBOX = true;
+                }
+
+                DiscFileInfo[] metaFiles = DiscDirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
+                if (metaFiles != null && metaFiles.Length > 0)
+                {
+                    ReadDiscTitle(metaFiles[0].OpenText());
                 }
 
                 //
@@ -322,6 +334,12 @@ namespace BDInfo
                     IsDBOX = true;
                 }
 
+                FileInfo[] metaFiles = DirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
+                if (metaFiles != null && metaFiles.Length > 0)
+                {
+                    ReadDiscTitle(metaFiles[0].OpenText());
+                }
+
                 //
                 // Initialize file lists.
                 //
@@ -382,6 +400,21 @@ namespace BDInfo
                     }
                 }
             }
+        }
+
+        private void ReadDiscTitle(StreamReader fileStream)
+        {
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load(fileStream);
+            var xNsMgr = new XmlNamespaceManager(xDoc.NameTable);
+            xNsMgr.AddNamespace("di", "urn:BDA:bdmv;discinfo");
+            var xNode = xDoc.DocumentElement?.SelectSingleNode("di:discinfo/di:title/di:name", xNsMgr);
+            DiscTitle = xNode?.InnerText;
+
+            if (!string.IsNullOrEmpty(DiscTitle) && DiscTitle.ToLowerInvariant() == "blu-ray")
+                DiscTitle = null;
+
+            fileStream.Close();
         }
 
         public void Scan()

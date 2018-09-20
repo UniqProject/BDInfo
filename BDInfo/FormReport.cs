@@ -55,8 +55,12 @@ namespace BDInfo
             string report = "";
             string protection = (BDROM.IsBDPlus ? "BD+" : BDROM.IsUHD ? "AACS2" : "AACS");
 
-            report += string.Format(    CultureInfo.InvariantCulture,
+            if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+                report += string.Format(CultureInfo.InvariantCulture,
                                         "{0,-16}{1}\r\n", "Disc Title:",
+                                        BDROM.DiscTitle);
+            report += string.Format(    CultureInfo.InvariantCulture,
+                                        "{0,-16}{1}\r\n", "Disc Label:",
                                         BDROM.VolumeLabel);
             report += string.Format(    CultureInfo.InvariantCulture,
                                         "{0,-16}{1:N0} bytes\r\n", "Disc Size:",
@@ -379,8 +383,12 @@ namespace BDInfo
                 report += "DISC INFO:\r\n";
                 report += "\r\n";
 
+                if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+                    report += string.Format(CultureInfo.InvariantCulture,
+                                            "{0,-16}{1}\r\n", "Disc Title:", BDROM.DiscTitle);
+
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-16}{1}\r\n", "Disc Title:", BDROM.VolumeLabel);
+                                        "{0,-16}{1}\r\n", "Disc Label:", BDROM.VolumeLabel);
 
                 report += string.Format(CultureInfo.InvariantCulture,
                                         "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
@@ -444,9 +452,12 @@ namespace BDInfo
                 report += string.Format(
                     "{0,-24}{1}\r\n", "Description:", "");
                  */
+                if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+                    summary += string.Format(CultureInfo.InvariantCulture,
+                                            "Disc Title: {0}\r\n", BDROM.DiscTitle);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Disc Title: {0}\r\n", BDROM.VolumeLabel);
+                                         "Disc Label: {0}\r\n", BDROM.VolumeLabel);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
                                          "Disc Size: {0:N0} bytes\r\n", BDROM.Size);

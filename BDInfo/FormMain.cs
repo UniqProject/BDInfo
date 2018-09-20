@@ -494,19 +494,27 @@ namespace BDInfo
             labelTimeElapsed.Text = "00:00:00";
             labelTimeRemaining.Text = "00:00:00";
 
+            if (!string.IsNullOrEmpty(BDROM.DiscTitle))
+            {
+                textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
+                                                    "Disc Title: {0}{1}",
+                                                    BDROM.DiscTitle,
+                                                    Environment.NewLine);
+            }
+
             if (!BDROM.IsImage)
             {
                 textBoxSource.Text = BDROM.DirectoryRoot.FullName;
-                textBoxDetails.Text += string.Format(
-                    "Detected BDMV Folder: {0} ({1}) {2}",
-                    BDROM.DirectoryBDMV.FullName,
-                    BDROM.VolumeLabel,
-                    Environment.NewLine);
+                textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture,
+                                                    "Detected BDMV Folder: {0} (Disc Label: {1}){2}",
+                                                    BDROM.DirectoryBDMV.FullName,
+                                                    BDROM.VolumeLabel,
+                                                    Environment.NewLine);
             }
             else
             {
                 textBoxDetails.Text += string.Format(CultureInfo.InvariantCulture, 
-                                                    "Detected BDMV Folder: {0} ({1}) {3} ISO Image: {2} {3}",
+                                                    "Detected BDMV Folder: {0} (Disc Label: {1}){3}ISO Image: {2}{3}",
                                                     BDROM.DiscDirectoryBDMV.FullName,
                                                     BDROM.VolumeLabel,
                                                     textBoxSource.Text,
