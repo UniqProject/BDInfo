@@ -69,6 +69,8 @@ namespace BDInfo
                 textBoxSource.Text = BDInfoSettings.LastPath;
             }
             this.Icon = BDInfo.Properties.Resources.Bluray_disc;
+
+            Text += String.Format(" v{0}", Application.ProductVersion);
         }
 
         private void FormMain_Load(object sender, EventArgs e)
