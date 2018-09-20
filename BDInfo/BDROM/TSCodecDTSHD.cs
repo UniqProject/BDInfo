@@ -182,39 +182,34 @@ namespace BDInfo
                 }
             }
 
-            uint startPos = 0;
             uint temp2 = 0;
-            foreach (var size in assetSizes)
-            {
-                startPos += size;
-            }
-            if (startPos < buffer.Length)
-            { 
-                buffer.Seek(buffer.Length - startPos, SeekOrigin.Begin);
-                for (var j = 0; j < 4; j++)
-                {
-                    temp2 = (temp2 << 8) + buffer.ReadByte();
-                }
-            }
-            else
-            {
-                temp2 = 0;
-            }
 
-            if (temp2 == 0x41A29547) //XLL Extended data
+            while (buffer.Position < buffer.Length)
             {
-                uint temp3 = 0;
-                for (var i = (int)buffer.Position; i < buffer.Length; i++)
+                temp2 = (temp2 << 8) + buffer.ReadByte();
+                switch (temp2)
                 {
-                    temp3 = (temp3 << 8) + buffer.ReadByte();
+                    case 0x41A29547: // XLL Extended data
+                    case 0x655E315E: // XBR Extended data
+                    case 0x0A801921: // XSA Extended data
+                    case 0x1D95F262: // X96k
+                    case 0x47004A03: // XXch
+                    case 0x5A5A5A5A: // Xch
+                        int temp3 = 0;
+                        for (var i = (int)buffer.Position; i < buffer.Length; i++)
+                        {
+                            temp3 = (temp3 << 8) + buffer.ReadByte();
 
-                    if (temp3 == 0x02000850) //DTS:X Pattern
-                    {
-                        stream.HasExtensions = true; 
+                            if (temp3 == 0x02000850) //DTS:X Pattern
+                            {
+                                stream.HasExtensions = true;
+                                break;
+                            }
+                        }
                         break;
-                    }
                 }
-                
+
+                if (stream.HasExtensions) break;
             }
 
             // TODO
