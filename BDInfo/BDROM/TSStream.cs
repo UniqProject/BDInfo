@@ -339,15 +339,24 @@ namespace BDInfo
                     case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
                         return "DD AC3+";
                     case TSStreamType.AC3_TRUE_HD_AUDIO:
-                        return "Dolby TrueHD";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "DD Atmos";
+                        else
+                            return "DD TrueHD";
                     case TSStreamType.DTS_AUDIO:
                         return "DTS";
                     case TSStreamType.DTS_HD_AUDIO:
-                        return "DTS-HD Hi-Res";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "DTS:X Hi-Res";
+                        else
+                            return "DTS-HD Hi-Res";
                     case TSStreamType.DTS_HD_SECONDARY_AUDIO:
                         return "DTS Express";
                     case TSStreamType.DTS_HD_MASTER_AUDIO:
-                        return "DTS-HD Master";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "DTS:X Master";
+                        else
+                            return "DTS-HD Master";
                     case TSStreamType.PRESENTATION_GRAPHICS:
                         return "PGS";
                     case TSStreamType.INTERACTIVE_GRAPHICS:
@@ -393,18 +402,27 @@ namespace BDInfo
                     case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
                         return "AC3+";
                     case TSStreamType.AC3_TRUE_HD_AUDIO:
-                        return "TrueHD";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "Atmos";
+                        else
+                            return "TrueHD";
                     case TSStreamType.DTS_AUDIO:
                         if (((TSAudioStream)this).AudioMode == TSAudioMode.Extended)
                             return "DTS-ES";
                         else
                             return "DTS";
                     case TSStreamType.DTS_HD_AUDIO:
-                        return "DTS-HD HR";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "DTS:X HR";
+                        else
+                            return "DTS-HD HR";
                     case TSStreamType.DTS_HD_SECONDARY_AUDIO:
                         return "DTS Express";
                     case TSStreamType.DTS_HD_MASTER_AUDIO:
-                        return "DTS-HD MA";
+                        if (((TSAudioStream)this).HasExtensions)
+                            return "DTS:X MA";
+                        else
+                            return "DTS-HD MA";
                     case TSStreamType.PRESENTATION_GRAPHICS:
                         return "PGS";
                     case TSStreamType.INTERACTIVE_GRAPHICS:
