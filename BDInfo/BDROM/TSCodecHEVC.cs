@@ -571,7 +571,7 @@ namespace BDInfo
                                 chromaFormat = "4:4:4";
                                 break;
                         }
-                        if (chromaFormat != string.Empty)
+                        if (chromaFormat != string.Empty && BDInfoSettings.ExtendedStreamDiagnostics)
                             ExtendedFormatInfo.Add(chromaFormat);
                     }
 
