@@ -340,9 +340,9 @@ namespace BDInfo
                         return "DD AC3+";
                     case TSStreamType.AC3_TRUE_HD_AUDIO:
                         if (((TSAudioStream)this).HasExtensions)
-                            return "DD Atmos";
+                            return "Dolby Atmos";
                         else
-                            return "DD TrueHD";
+                            return "Dolby TrueHD";
                     case TSStreamType.DTS_AUDIO:
                         return "DTS";
                     case TSStreamType.DTS_HD_AUDIO:
