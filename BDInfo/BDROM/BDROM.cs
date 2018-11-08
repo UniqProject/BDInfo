@@ -210,6 +210,7 @@ namespace BDInfo
                 {
                     IsDBOX = true;
                 }
+
                 if(DiscDirectoryMETA != null)
                 {
                     DiscFileInfo[] metaFiles = DiscDirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
@@ -336,10 +337,13 @@ namespace BDInfo
                     IsDBOX = true;
                 }
 
-                FileInfo[] metaFiles = DirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
-                if (metaFiles != null && metaFiles.Length > 0)
+                if (DirectoryMETA != null)
                 {
-                    ReadDiscTitle(metaFiles[0].OpenText());
+                    FileInfo[] metaFiles = DirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
+                    if (metaFiles != null && metaFiles.Length > 0)
+                    {
+                        ReadDiscTitle(metaFiles[0].OpenText());
+                    }
                 }
 
                 //
