@@ -502,9 +502,12 @@ namespace BDInfo
             this.Controls.Add(this.buttonBrowse);
             this.Controls.Add(this.textBoxSource);
             this.Controls.Add(this.labelSource);
+            this.DataBindings.Add(new System.Windows.Forms.Binding("Size", global::BDInfo.Properties.Settings.Default, "WindowSize", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.DataBindings.Add(new System.Windows.Forms.Binding("Location", global::BDInfo.Properties.Settings.Default, "WindowLocation", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Name = "FormMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "BDInfo";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.Load += new System.EventHandler(this.FormMain_Load);
