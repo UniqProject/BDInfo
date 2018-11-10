@@ -309,15 +309,15 @@ namespace BDInfo
         private void ResetColumnWidths()
         {
             listViewPlaylistFiles.Columns[0].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.23);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.30);
             listViewPlaylistFiles.Columns[1].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.08);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.07);
             listViewPlaylistFiles.Columns[2].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.23);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
             listViewPlaylistFiles.Columns[3].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.23);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
             listViewPlaylistFiles.Columns[4].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.23);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
 
             listViewStreamFiles.Columns[0].Width =
                 (int)(listViewStreamFiles.ClientSize.Width * 0.23);
@@ -653,6 +653,11 @@ namespace BDInfo
                     playlistName.Text = playlist.Name;
                     playlistName.Tag = playlist.Name;
 
+                    if (playlist.Chapters != null && playlist.Chapters.Count > 1 && BDInfoSettings.DisplayChapterCount)
+                        playlistName.Text += string.Format(CultureInfo.InvariantCulture, 
+                            " [{0:D2} Chapters]",
+                            playlist.Chapters.Count);
+
                     TimeSpan playlistLengthSpan =
                         new TimeSpan((long)(playlist.TotalLength * 10000000));
                     ListViewItem.ListViewSubItem playlistLength =
@@ -735,7 +740,7 @@ namespace BDInfo
             if (playlistItem == null) return;
 
             TSPlaylistFile playlist = null;
-            string playlistFileName = playlistItem.Text;
+            string playlistFileName = (string)playlistItem.SubItems[0].Tag;
             if (BDROM.PlaylistFiles.ContainsKey(playlistFileName))
             {
                 playlist = BDROM.PlaylistFiles[playlistFileName];
@@ -1301,9 +1306,9 @@ namespace BDInfo
                 foreach (ListViewItem item
                     in listViewPlaylistFiles.Items)
                 {
-                    if (BDROM.PlaylistFiles.ContainsKey(item.Text))
+                    if (BDROM.PlaylistFiles.ContainsKey(item.SubItems[0].Tag.ToString()))
                     {
-                        playlists.Add(BDROM.PlaylistFiles[item.Text]);
+                        playlists.Add(BDROM.PlaylistFiles[item.SubItems[0].Tag.ToString()]);
                     }
                 }
             }
@@ -1312,9 +1317,9 @@ namespace BDInfo
                 foreach (ListViewItem item
                     in listViewPlaylistFiles.CheckedItems)
                 {
-                    if (BDROM.PlaylistFiles.ContainsKey(item.Text))
+                    if (BDROM.PlaylistFiles.ContainsKey(item.SubItems[0].Tag.ToString()))
                     {
-                        playlists.Add(BDROM.PlaylistFiles[item.Text]);
+                        playlists.Add(BDROM.PlaylistFiles[item.SubItems[0].Tag.ToString()]);
                     }
                 }
             }

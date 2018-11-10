@@ -61,6 +61,7 @@ namespace BDInfo
             this.textBoxUseImagePrefixValue = new System.Windows.Forms.TextBox();
             this.checkBoxEnableSSIF = new System.Windows.Forms.CheckBox();
             this.checkBoxExtendedStreamDiagnostics = new System.Windows.Forms.CheckBox();
+            this.checkBoxDisplayChapterCount = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // checkBoxFilterLoopingPlaylists
@@ -88,7 +89,7 @@ namespace BDInfo
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(126, 218);
+            this.buttonCancel.Location = new System.Drawing.Point(126, 241);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 6;
@@ -98,7 +99,7 @@ namespace BDInfo
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(45, 218);
+            this.buttonOK.Location = new System.Drawing.Point(45, 241);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 5;
@@ -209,13 +210,24 @@ namespace BDInfo
             this.checkBoxExtendedStreamDiagnostics.Text = "Extended video stream diagnostics.";
             this.checkBoxExtendedStreamDiagnostics.UseVisualStyleBackColor = true;
             // 
+            // checkBoxDisplayChapterCount
+            // 
+            this.checkBoxDisplayChapterCount.AutoSize = true;
+            this.checkBoxDisplayChapterCount.Location = new System.Drawing.Point(11, 214);
+            this.checkBoxDisplayChapterCount.Name = "checkBoxDisplayChapterCount";
+            this.checkBoxDisplayChapterCount.Size = new System.Drawing.Size(200, 17);
+            this.checkBoxDisplayChapterCount.TabIndex = 14;
+            this.checkBoxDisplayChapterCount.Text = "Display chapter count in Playlist view";
+            this.checkBoxDisplayChapterCount.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(243, 250);
+            this.ClientSize = new System.Drawing.Size(243, 273);
+            this.Controls.Add(this.checkBoxDisplayChapterCount);
             this.Controls.Add(this.checkBoxExtendedStreamDiagnostics);
             this.Controls.Add(this.checkBoxEnableSSIF);
             this.Controls.Add(this.textBoxUseImagePrefixValue);
@@ -256,5 +268,6 @@ namespace BDInfo
         private System.Windows.Forms.TextBox textBoxUseImagePrefixValue;
         private System.Windows.Forms.CheckBox checkBoxEnableSSIF;
         private System.Windows.Forms.CheckBox checkBoxExtendedStreamDiagnostics;
+        private System.Windows.Forms.CheckBox checkBoxDisplayChapterCount;
     }
 }

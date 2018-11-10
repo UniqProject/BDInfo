@@ -202,5 +202,17 @@ namespace BDInfo.Properties {
                 this["WindowSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisplayChapterCount {
+            get {
+                return ((bool)(this["DisplayChapterCount"]));
+            }
+            set {
+                this["DisplayChapterCount"] = value;
+            }
+        }
     }
 }

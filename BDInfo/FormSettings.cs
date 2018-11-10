@@ -39,6 +39,7 @@ namespace BDInfo
             textBoxUseImagePrefixValue.Text = BDInfoSettings.UseImagePrefixValue;
             checkBoxKeepStreamOrder.Checked = BDInfoSettings.KeepStreamOrder;
             checkBoxEnableSSIF.Checked = BDInfoSettings.EnableSSIF;
+            checkBoxDisplayChapterCount.Checked = BDInfoSettings.DisplayChapterCount;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -53,6 +54,7 @@ namespace BDInfo
             BDInfoSettings.FilterLoopingPlaylists = checkBoxFilterLoopingPlaylists.Checked;
             BDInfoSettings.FilterShortPlaylists = checkBoxFilterShortPlaylists.Checked;
             BDInfoSettings.EnableSSIF = checkBoxEnableSSIF.Checked;
+            BDInfoSettings.DisplayChapterCount = checkBoxDisplayChapterCount.Checked;
             int filterShortPlaylistsValue;
             if (int.TryParse(textBoxFilterShortPlaylistsValue.Text, out filterShortPlaylistsValue))
             {
@@ -111,6 +113,20 @@ namespace BDInfo
             set
             {
                 try { Properties.Settings.Default.EnableSSIF = value; }
+                catch { }
+            }
+        }
+
+        public static bool DisplayChapterCount
+        {
+            get
+            {
+                try { return Properties.Settings.Default.DisplayChapterCount; }
+                catch { return false; }
+            }
+            set
+            {
+                try { Properties.Settings.Default.DisplayChapterCount = value; }
                 catch { }
             }
         }
