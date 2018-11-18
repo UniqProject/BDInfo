@@ -1040,10 +1040,11 @@ namespace BDInfo
                 foreach (ListViewItem item
                     in listViewPlaylistFiles.CheckedItems)
                 {
-                    if (BDROM.PlaylistFiles.ContainsKey(item.Text))
+                    string playlistName = (string)item.SubItems[0].Tag;
+                    if (BDROM.PlaylistFiles.ContainsKey(playlistName))
                     {
                         TSPlaylistFile playlist = 
-                            BDROM.PlaylistFiles[item.Text];
+                            BDROM.PlaylistFiles[playlistName];
 
                         foreach (TSStreamClip clip
                             in playlist.StreamClips)
