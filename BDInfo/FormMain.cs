@@ -71,8 +71,10 @@ namespace BDInfo
             this.Icon = BDInfo.Properties.Resources.Bluray_disc;
 
             Text += String.Format(" v{0}", Application.ProductVersion);
+
             Size = BDInfo.Properties.Settings.Default.WindowSize;
             Location = BDInfo.Properties.Settings.Default.WindowLocation;
+            WindowState = BDInfo.Properties.Settings.Default.WindowState;
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -347,8 +349,20 @@ namespace BDInfo
             FormClosingEventArgs e)
         {
             BDInfoSettings.LastPath = textBoxSource.Text;
-            BDInfo.Properties.Settings.Default.WindowLocation = Location;
-            BDInfo.Properties.Settings.Default.WindowSize = Size;
+            BDInfo.Properties.Settings.Default.WindowState = WindowState;
+
+            if (WindowState == FormWindowState.Normal)
+            {
+                BDInfo.Properties.Settings.Default.WindowSize = Size;
+                BDInfo.Properties.Settings.Default.WindowLocation = Location;
+            }
+            else
+            {
+                BDInfo.Properties.Settings.Default.WindowSize = RestoreBounds.Size;
+                BDInfo.Properties.Settings.Default.WindowLocation = RestoreBounds.Location;
+            }
+            
+
             BDInfoSettings.SaveSettings();
 
             if (InitBDROMWorker != null &&
