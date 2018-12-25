@@ -207,6 +207,7 @@ namespace BDInfo
                 if (frameType == 1) //dependent stream
                 {
                     stream.CoreStream = (TSAudioStream)stream.Clone();
+                    stream.CoreStream.StreamType = TSStreamType.AC3_AUDIO;
 
                     if (buffer.ReadBool()) //channel remapping
                     {
