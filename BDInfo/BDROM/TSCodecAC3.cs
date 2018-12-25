@@ -86,7 +86,8 @@ namespace BDInfo
             uint frameSizeCode = 0;
             uint channelMode;
             uint lfeOn;
-            uint dialNorm;
+            uint dialNorm = 0;
+            uint dialNormExt = 0;
             uint numBlocks = 0;
 
             byte[] hdr = buffer.ReadBytes(4);
@@ -190,7 +191,7 @@ namespace BDInfo
                 channelMode = buffer.ReadBits2(3);
                 lfeOn = buffer.ReadBits2(1);
                 bsid = buffer.ReadBits2(5);
-                dialNorm = buffer.ReadBits2(5);
+                dialNormExt = buffer.ReadBits2(5);
 
                 if (buffer.ReadBool())
                 {
@@ -342,10 +343,15 @@ namespace BDInfo
             }
 
             stream.LFE = (int) lfeOn;
-            if (stream.StreamType != TSStreamType.AC3_PLUS_AUDIO &&
-                stream.StreamType != TSStreamType.AC3_PLUS_SECONDARY_AUDIO)
+            if (stream.StreamType != TSStreamType.AC3_PLUS_SECONDARY_AUDIO)
             {
-                stream.DialNorm = (int) (dialNorm - 31);
+                if ((stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6) ||
+                    (stream.StreamType == TSStreamType.AC3_AUDIO))
+                    stream.DialNorm = (int) dialNorm * -1;
+                else if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && secondFrame)
+                {
+                    stream.DialNorm = (int) dialNormExt * -1;
+                }
             }
             stream.IsVBR = false;
             if (stream.StreamType == TSStreamType.AC3_PLUS_AUDIO && bsid == 6 && !secondFrame)
