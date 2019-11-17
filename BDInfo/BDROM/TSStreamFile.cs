@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BDInfo.IO;
 
 namespace BDInfo
 {
@@ -152,7 +153,7 @@ namespace BDInfo
 
     public class TSStreamFile
     {
-        public FileInfo FileInfo = null;
+        public IFileInfo FileInfo = null;
         public string Name = null;
         public long Size = 0;
         public double Length = 0;
@@ -170,7 +171,7 @@ namespace BDInfo
 
         private List<TSPlaylistFile> Playlists = null;
 
-        public TSStreamFile(FileInfo fileInfo)
+        public TSStreamFile(IFileInfo fileInfo)
         {
             FileInfo = fileInfo;
             Name = fileInfo.Name.ToUpper();
@@ -472,13 +473,8 @@ namespace BDInfo
                     fileName = FileInfo.FullName;
                 }
 
-                fileStream = new FileStream(
-                    fileName,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.Read,
-                    dataSize, false);
 
+                fileStream = FileInfo.OpenRead();
 
                 Size = 0;
                 Length = 0;

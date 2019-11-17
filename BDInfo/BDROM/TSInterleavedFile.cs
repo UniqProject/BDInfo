@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System.IO;
+using BDInfo.IO;
 
 // TODO: Do more interesting things here...
 
@@ -25,10 +25,10 @@ namespace BDInfo
 {
     public class TSInterleavedFile
     {
-        public FileInfo FileInfo = null;
+        public IFileInfo FileInfo = null;
         public string Name = null;
 
-        public TSInterleavedFile(FileInfo fileInfo)
+        public TSInterleavedFile(IFileInfo fileInfo)
         {
             FileInfo = fileInfo;
             Name = fileInfo.Name.ToUpper();

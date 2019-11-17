@@ -21,14 +21,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Text;
+using BDInfo.IO;
+
+using Stream = System.IO.Stream;
+using BinaryReader = System.IO.BinaryReader;
 
 namespace BDInfo
 {
     public class TSPlaylistFile
     {
-        private FileInfo FileInfo = null;
+        private IFileInfo FileInfo = null;
         public string FileType = null;
         public bool IsInitialized = false;
         public string Name = null;
@@ -66,7 +68,7 @@ namespace BDInfo
 
         public TSPlaylistFile(
             BDROM bdrom,
-            FileInfo fileInfo)
+            IFileInfo fileInfo)
         {
             BDROM = bdrom;
             FileInfo = fileInfo;
@@ -232,8 +234,7 @@ namespace BDInfo
             Dictionary<string, TSStreamFile> streamFiles,
             Dictionary<string, TSStreamClipFile> streamClipFiles)
         {
-            FileStream fileStream = null;
-            Stream discFileStream = null;
+            Stream fileStream = null;
             BinaryReader fileReader = null;
             ulong streamLength = 0;
 
@@ -242,8 +243,8 @@ namespace BDInfo
                 Streams.Clear();
                 StreamClips.Clear();
 
-                fileStream = File.OpenRead(FileInfo.FullName);
-                fileReader = new BinaryReader(fileStream);
+                fileStream = FileInfo.OpenRead();
+                fileReader = new System.IO.BinaryReader(fileStream);
                 streamLength = (ulong)fileStream.Length;
 
                 byte[] data = new byte[streamLength];
@@ -506,10 +507,6 @@ namespace BDInfo
                 if (fileStream != null)
                 {
                     fileStream.Close();
-                }
-                if (discFileStream != null)
-                {
-                    discFileStream.Close();
                 }
             }
         }

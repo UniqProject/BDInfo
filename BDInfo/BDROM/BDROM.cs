@@ -24,20 +24,22 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
+using BDInfo.IO;
+
 namespace BDInfo
 {
     public class BDROM
     {
-        public DirectoryInfo DirectoryRoot = null;
-        public DirectoryInfo DirectoryBDMV = null;
+        public IDirectoryInfo DirectoryRoot = null;
+        public IDirectoryInfo DirectoryBDMV = null;
 
-        public DirectoryInfo DirectoryBDJO = null;
-        public DirectoryInfo DirectoryCLIPINF = null;
-        public DirectoryInfo DirectoryPLAYLIST = null;
-        public DirectoryInfo DirectorySNP = null;
-        public DirectoryInfo DirectorySSIF = null;
-        public DirectoryInfo DirectorySTREAM = null;
-        public DirectoryInfo DirectoryMETA = null;
+        public IDirectoryInfo DirectoryBDJO = null;
+        public IDirectoryInfo DirectoryCLIPINF = null;
+        public IDirectoryInfo DirectoryPLAYLIST = null;
+        public IDirectoryInfo DirectorySNP = null;
+        public IDirectoryInfo DirectorySSIF = null;
+        public IDirectoryInfo DirectorySTREAM = null;
+        public IDirectoryInfo DirectoryMETA = null;
 
         public string VolumeLabel = null;
         public string DiscTitle = null;
@@ -76,8 +78,7 @@ namespace BDInfo
 
         public event OnPlaylistFileScanError PlaylistFileScanError;
 
-        public BDROM(
-            string path)
+        public BDROM(IDirectoryInfo path)
         {
             //
             // Locate BDMV directories.
@@ -108,7 +109,7 @@ namespace BDInfo
             Size = (ulong)GetDirectorySize(DirectoryRoot);
 
             var indexFiles = DirectoryBDMV.GetFiles();
-            FileInfo indexFile = null;
+            IFileInfo indexFile = null;
 
             for (int i = 0; i < indexFiles.Length; i++)
             {
@@ -165,7 +166,7 @@ namespace BDInfo
 
             if (DirectoryMETA != null)
             {
-                FileInfo[] metaFiles = DirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
+                IFileInfo[] metaFiles = DirectoryMETA.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
                 if (metaFiles != null && metaFiles.Length > 0)
                 {
                     ReadDiscTitle(metaFiles[0].OpenText());
@@ -178,12 +179,12 @@ namespace BDInfo
 
             if (DirectoryPLAYLIST != null)
             {
-                FileInfo[] files = DirectoryPLAYLIST.GetFiles("*.mpls");
+                IFileInfo[] files = DirectoryPLAYLIST.GetFiles("*.mpls");
                 if (files.Length == 0)
                 {
                     files = DirectoryPLAYLIST.GetFiles("*.MPLS");
                 }
-                foreach (FileInfo file in files)
+                foreach (IFileInfo file in files)
                 {
                     PlaylistFiles.Add(
                         file.Name.ToUpper(), new TSPlaylistFile(this, file));
@@ -192,12 +193,12 @@ namespace BDInfo
 
             if (DirectorySTREAM != null)
             {
-                FileInfo[] files = DirectorySTREAM.GetFiles("*.m2ts");
+                IFileInfo[] files = DirectorySTREAM.GetFiles("*.m2ts");
                 if (files.Length == 0)
                 {
                     files = DirectoryPLAYLIST.GetFiles("*.M2TS");
                 }
-                foreach (FileInfo file in files)
+                foreach (IFileInfo file in files)
                 {
                     StreamFiles.Add(
                         file.Name.ToUpper(), new TSStreamFile(file));
@@ -206,12 +207,12 @@ namespace BDInfo
 
             if (DirectoryCLIPINF != null)
             {
-                FileInfo[] files = DirectoryCLIPINF.GetFiles("*.clpi");
+                IFileInfo[] files = DirectoryCLIPINF.GetFiles("*.clpi");
                 if (files.Length == 0)
                 {
                     files = DirectoryPLAYLIST.GetFiles("*.CLPI");
                 }
-                foreach (FileInfo file in files)
+                foreach (IFileInfo file in files)
                 {
                     StreamClipFiles.Add(
                         file.Name.ToUpper(), new TSStreamClipFile(file));
@@ -220,12 +221,12 @@ namespace BDInfo
 
             if (DirectorySSIF != null)
             {
-                FileInfo[] files = DirectorySSIF.GetFiles("*.ssif");
+                IFileInfo[] files = DirectorySSIF.GetFiles("*.ssif");
                 if (files.Length == 0)
                 {
                     files = DirectorySSIF.GetFiles("*.SSIF");
                 }
-                foreach (FileInfo file in files)
+                foreach (IFileInfo file in files)
                 {
                     InterleavedFiles.Add(
                         file.Name.ToUpper(), new TSInterleavedFile(file));
@@ -379,10 +380,10 @@ namespace BDInfo
             }
         }
 
-        private DirectoryInfo GetDirectoryBDMV(
-            string path)
+        private IDirectoryInfo GetDirectoryBDMV(
+            IDirectoryInfo path)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
+            IDirectoryInfo dir = path;
 
             while (dir != null)
             {
@@ -393,15 +394,15 @@ namespace BDInfo
                 dir = dir.Parent;
             }
 
-            return GetDirectory("BDMV", new DirectoryInfo(path), 0);
+            return GetDirectory("BDMV", path, 0);
         }
 
-        private DirectoryInfo GetDirectory(string name, DirectoryInfo dir, int searchDepth)
+        private IDirectoryInfo GetDirectory(string name, IDirectoryInfo dir, int searchDepth)
         {
             if (dir != null)
             {
-                DirectoryInfo[] children = dir.GetDirectories();
-                foreach (DirectoryInfo child in children)
+                IDirectoryInfo[] children = dir.GetDirectories();
+                foreach (IDirectoryInfo child in children)
                 {
                     if (child.Name == name)
                     {
@@ -410,7 +411,7 @@ namespace BDInfo
                 }
                 if (searchDepth > 0)
                 {
-                    foreach (DirectoryInfo child in children)
+                    foreach (IDirectoryInfo child in children)
                     {
                         GetDirectory(
                             name, child, searchDepth - 1);
@@ -420,12 +421,12 @@ namespace BDInfo
             return null;
         }
 
-        private long GetDirectorySize(DirectoryInfo directoryInfo)
+        private long GetDirectorySize(IDirectoryInfo directoryInfo)
         {
             long size = 0;
 
-            FileInfo[] pathFiles = directoryInfo.GetFiles();
-            foreach (FileInfo pathFile in pathFiles)
+            IFileInfo[] pathFiles = directoryInfo.GetFiles();
+            foreach (IFileInfo pathFile in pathFiles)
             {
                 if (pathFile.Extension.ToUpper() == ".SSIF")
                 {
@@ -434,15 +435,15 @@ namespace BDInfo
                 size += pathFile.Length;
             }
 
-            DirectoryInfo[] pathChildren = directoryInfo.GetDirectories();
-            foreach (DirectoryInfo pathChild in pathChildren)
+            IDirectoryInfo[] pathChildren = directoryInfo.GetDirectories();
+            foreach (IDirectoryInfo pathChild in pathChildren)
             {
                 size += GetDirectorySize(pathChild);
             }
             return size;
         }
 
-        private string GetVolumeLabel(DirectoryInfo dir)
+        private string GetVolumeLabel(IDirectoryInfo dir)
         {
             string label = "";
             if (!IsImage)
