@@ -28,6 +28,7 @@ namespace BDInfo
         {
             InitializeComponent();
 
+            checkBoxMainWindowHRSizeFormat.Checked = BDInfoSettings.MainFormHRSizeFormat;
             checkBoxAutosaveReport.Checked = BDInfoSettings.AutosaveReport;
             checkBoxGenerateStreamDiagnostics.Checked = BDInfoSettings.GenerateStreamDiagnostics;
             checkBoxExtendedStreamDiagnostics.Checked = BDInfoSettings.ExtendedStreamDiagnostics;
@@ -44,6 +45,7 @@ namespace BDInfo
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
+            BDInfoSettings.MainFormHRSizeFormat = checkBoxMainWindowHRSizeFormat.Checked;
             BDInfoSettings.AutosaveReport = checkBoxAutosaveReport.Checked;
             BDInfoSettings.GenerateStreamDiagnostics = checkBoxGenerateStreamDiagnostics.Checked;
             BDInfoSettings.ExtendedStreamDiagnostics = checkBoxExtendedStreamDiagnostics.Checked;
@@ -72,6 +74,20 @@ namespace BDInfo
 
     public class BDInfoSettings
     {
+        public static bool MainFormHRSizeFormat
+        {
+            get
+            {
+                try { return Properties.Settings.Default.MainWindowHRSizeFormat; }
+                catch { return true; }
+            }
+
+            set
+            {
+                try { Properties.Settings.Default.MainWindowHRSizeFormat = value; }
+                catch { }
+            }
+        }
         public static bool GenerateStreamDiagnostics
         {
             get

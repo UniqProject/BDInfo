@@ -354,13 +354,13 @@ namespace BDInfo
             // 
             // columnHeaderPlaylistEstimatedBytes
             // 
-            this.columnHeaderPlaylistEstimatedBytes.Text = "Estimated Bytes";
+            this.columnHeaderPlaylistEstimatedBytes.Text = "Estimated Size";
             this.columnHeaderPlaylistEstimatedBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderPlaylistEstimatedBytes.Width = 98;
             // 
             // columnHeaderPlaylistMeasuredBytes
             // 
-            this.columnHeaderPlaylistMeasuredBytes.Text = "Measured Bytes";
+            this.columnHeaderPlaylistMeasuredBytes.Text = "Measured Size";
             this.columnHeaderPlaylistMeasuredBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderPlaylistMeasuredBytes.Width = 125;
             // 
@@ -403,13 +403,13 @@ namespace BDInfo
             // 
             // columnHeaderFileEstimatedBytes
             // 
-            this.columnHeaderFileEstimatedBytes.Text = "Estimated Bytes";
+            this.columnHeaderFileEstimatedBytes.Text = "Estimated Size";
             this.columnHeaderFileEstimatedBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderFileEstimatedBytes.Width = 119;
             // 
             // columnHeaderFileMeasuredBytes
             // 
-            this.columnHeaderFileMeasuredBytes.Text = "Measured Bytes";
+            this.columnHeaderFileMeasuredBytes.Text = "Measured Size";
             this.columnHeaderFileMeasuredBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderFileMeasuredBytes.Width = 125;
             // 
