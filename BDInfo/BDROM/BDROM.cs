@@ -539,7 +539,7 @@ namespace BDInfo
                             Is50Hz = true;
                         }
 
-                        if (vidStreamCount > 1)
+                        if (vidStreamCount > 1 && Is3D)
                         {
                             if ((videoStream.StreamType == TSStreamType.AVC_VIDEO && playlistFile.MVCBaseViewR) ||
                                 (videoStream.StreamType == TSStreamType.MVC_VIDEO && !playlistFile.MVCBaseViewR))
