@@ -2,6 +2,7 @@ BDInfo
 ======
 
 (source origin: http://www.cinemasquid.com/blu-ray/tools/bdinfo)
+(I am not the original Author of this tool)
 
 The BDInfo tool was designed to collect video and audio technical specifications from Blu-ray movie discs, including:
 
@@ -14,9 +15,9 @@ The BDInfo tool was designed to collect video and audio technical specifications
 Requirements
 ======
 <ul>
-<li>Windows Vista, Windows 7 or higher Operating System</li>
+<li>Windows 7 or higher Operating System</li>
 <li>Blu-ray BD-ROM Drive</li>
-<li>.NET Framework 4.5 or Higher</li>
+<li>.NET Framework 4.7.2 or Higher</li>
 <li>Source Code</li>
 </ul>
 
@@ -28,4 +29,4 @@ Known Issues
 ======
 
 Occasionally inaccurate bit-depth measurement on Dolby TrueHD and DTS-HD Master audio streams.<br>
-BDInfo will *NOT* function correctly with copy-protected discs. You will also need to have SlySoft AnyDVD HD (or equivalent) running in the background in order to gather info from commercial Blu-ray movie discs.
+BDInfo will *NOT* function correctly with copy-protected discs. You will have to decrypt commercial Blu-ray movie discs before you will be able to gather any info.
