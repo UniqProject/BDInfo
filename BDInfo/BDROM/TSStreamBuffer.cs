@@ -28,6 +28,7 @@ namespace BDInfo
     {
         private readonly MemoryStream _stream;
         private int _skipBits;
+        private int _skippedBytes;
         private readonly byte[] _buffer;
         private int _bufferLength;
         public int TransferLength;
@@ -71,6 +72,7 @@ namespace BDInfo
         public void BeginRead()
         {
             _skipBits = 0;
+            _skippedBytes = 0;
             _stream.Seek(0, SeekOrigin.Begin);
         }
 
@@ -90,45 +92,68 @@ namespace BDInfo
             return value;
         }
 
-        public byte ReadByte()
+        public byte ReadByte(bool skipH26xEmulationByte)
         {
-            return (byte)_stream.ReadByte();
+            byte tempByte = (byte)_stream.ReadByte();
+            var tempPosition = _stream.Position;
+
+            if (skipH26xEmulationByte && tempByte == 0x03)
+            {
+                _stream.Seek(-3, SeekOrigin.Current);
+                if (_stream.ReadByte() == 0x00 && _stream.ReadByte() == 0x00)
+                {
+                    _stream.Seek(1, SeekOrigin.Current);
+                    tempByte = (byte)_stream.ReadByte();
+                    _skippedBytes++;
+                }
+                else
+                {
+                    _stream.Seek(tempPosition, SeekOrigin.Begin);
+                }
+            }
+            return tempByte;
         }
 
-        public bool ReadBool()
+        public byte ReadByte()
+        {
+            return ReadByte(false);
+        }
+
+
+        public bool ReadBool(bool skipH26xEmulationByte)
         {
             var pos = _stream.Position;
+            _skippedBytes = 0;
             if (pos == _bufferLength) return false;
 
-            var shift = 24;
-            var data = 0;
-            for (var i = 0; i < 4; i++)
-            {
-                if (pos + i >= _bufferLength) break;
-                data += (_stream.ReadByte() << shift);
-                shift -= 8;
-            }
+            var data = ReadByte(skipH26xEmulationByte);
             var vector = new BitVector32(data);
 
-            var value = vector[1 << (32 - _skipBits - 1)];
+            var value = vector[1 << (8 - _skipBits - 1)];
 
             _skipBits += 1;
-            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
             _skipBits = _skipBits % 8;
 
             return value;
         }
 
-        public ushort ReadBits2(int bits)
+        public bool ReadBool()
+        {
+            return ReadBool(false);
+        }
+
+        public ushort ReadBits2(int bits, bool skipH26xEmulationByte)
         {
             var pos = _stream.Position;
+            _skippedBytes = 0;
 
             var shift = 8;
             var data = 0;
             for (var i = 0; i < 2; i++)
             {
                 if (pos + i >= _bufferLength) break;
-                data += (_stream.ReadByte() << shift);
+                data += (ReadByte(skipH26xEmulationByte) << shift);
                 shift -= 8;
             }
             var vector = new BitVector32(data);
@@ -140,22 +165,28 @@ namespace BDInfo
                 value += (ushort)(vector[1 << (16 - i - 1)] ? 1 : 0);
             }
             _skipBits += bits;
-            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
             _skipBits = _skipBits % 8;
 
             return value;
         }
 
-        public uint ReadBits4(int bits)
+        public ushort ReadBits2(int bits)
+        {
+            return ReadBits2(bits, false);
+        }
+
+        public uint ReadBits4(int bits, bool skipH26xEmulationByte)
         {
             var pos = _stream.Position;
+            _skippedBytes = 0;
 
             var shift = 24;
             var data = 0;
             for (var i = 0; i < 4; i++)
             {
                 if (pos + i >= _bufferLength) break;
-                data += (_stream.ReadByte() << shift);
+                data += (ReadByte(skipH26xEmulationByte) << shift);
                 shift -= 8;
             }
             var vector = new BitVector32(data);
@@ -167,15 +198,21 @@ namespace BDInfo
                 value += (uint)(vector[1<<(32 - i - 1)] ? 1 : 0);
             }
             _skipBits += bits;
-            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
             _skipBits = _skipBits % 8;
 
             return value;
         }
 
-        public ulong ReadBits8(int bits)
+        public uint ReadBits4(int bits)
+        {
+            return ReadBits4(bits, false);
+        }
+
+        public ulong ReadBits8(int bits, bool skipH26xEmulationByte)
         {
             var pos = _stream.Position;
+            _skippedBytes = 0;
 
             var shift = 24;
             var data = 0;
@@ -191,7 +228,7 @@ namespace BDInfo
             for (var i = 0; i < 4; i++)
             {
                 if (pos + i >= _bufferLength) break;
-                data2 += (_stream.ReadByte() << shift);
+                data2 += (ReadByte(skipH26xEmulationByte) << shift);
                 shift -= 8;
             }
             var vector = new BitArray(new []{data2, data});
@@ -205,20 +242,34 @@ namespace BDInfo
             }
 
             _skipBits += bits;
-            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
+            _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
             _skipBits = _skipBits % 8;
 
             return value;
         }
 
+        public ulong ReadBits8(int bits)
+        {
+            return ReadBits8(bits, false);
+        }
+
+        public void BSSkipBits(int bits, bool skipH26xEmulationByte)
+        {
+            int count = bits / 16 + (bits % 16 > 0 ? 1 : 0);
+            int bitsRead = 0;
+            var bitsToRead = 0;
+            for (int i = 0; i < count; i++)
+            {
+                bitsToRead = bits - bitsRead;
+                bitsToRead = bitsToRead > 16 ? 16 : bitsToRead;
+                ReadBits2(bitsToRead, skipH26xEmulationByte);
+                bitsRead += bitsToRead;
+            }
+        }
+
         public void BSSkipBits(int bits)
         {
-            var pos = _stream.Position;
-            if (pos == _bufferLength) return;
-
-            _skipBits += bits;
-            _stream.Seek(pos + (_skipBits >> 3), SeekOrigin.Begin);
-            _skipBits = _skipBits % 8;
+            BSSkipBits(bits, false);
         }
 
         public void BSSkipNextByte()
@@ -227,41 +278,67 @@ namespace BDInfo
                 BSSkipBits(8 - _skipBits);
         }
 
-        public void BSSkipBytes(int bytes)
+        public void BSSkipBytes(int bytes, bool skipH26xEmulationByte)
         {
-            var pos = _stream.Position;
-            if (pos + bytes >= _bufferLength) return;
-
-            _stream.Seek(pos + bytes, SeekOrigin.Begin);
+            if (bytes > 0)
+            {
+                for (int i = 0; i < bytes; i++)
+                    ReadByte(skipH26xEmulationByte);
+            }
+            else
+            {
+                var pos = _stream.Position;
+                _stream.Seek(pos + (_skipBits >> 3) + bytes, SeekOrigin.Begin);
+            }
         }
 
-        public uint ReadExp()
+        public void BSSkipBytes(int bytes)
+        {
+            BSSkipBytes(bytes, false);
+        }
+
+        public uint ReadExp(bool skipH26xEmulationByte)
         {
             byte leadingZeroes = 0;
-            while (DataBitStreamRemain() > 0 && !ReadBool())
+            while (DataBitStreamRemain() > 0 && !ReadBool(skipH26xEmulationByte))
                 leadingZeroes++;
 
             var infoD = Math.Pow(2, leadingZeroes);
-            var result = (uint)infoD - 1 + ReadBits4(leadingZeroes);
+            var result = (uint)infoD - 1 + ReadBits4(leadingZeroes, skipH26xEmulationByte);
 
             return result;
         }
 
-        public void SkipExp()
+        public uint ReadExp()
+        {
+            return ReadExp(false);
+        }
+
+        public void SkipExp(bool skipH26xEmulationByte)
         {
             byte leadingZeroes = 0;
-            while (DataBitStreamRemain() > 0 && !ReadBool())
+            while (DataBitStreamRemain() > 0 && !ReadBool(skipH26xEmulationByte))
                 leadingZeroes++;
 
-            BSSkipBits(leadingZeroes);
+            BSSkipBits(leadingZeroes, skipH26xEmulationByte);
+        }
+
+        public void SkipExp()
+        {
+            SkipExp(false);
+        }
+
+        public void SkipExpMulti(int num, bool skipH26xEmulationByte)
+        {
+            for (int i = 0; i < num; i++)
+            {
+                SkipExp(skipH26xEmulationByte);
+            }
         }
 
         public void SkipExpMulti(int num)
         {
-            for (int i = 0; i < num; i++)
-            {
-                SkipExp();
-            }
+            SkipExpMulti(num, false);
         }
 
         public long DataBitStreamRemain()
