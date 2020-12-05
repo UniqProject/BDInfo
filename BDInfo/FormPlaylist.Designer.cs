@@ -75,10 +75,12 @@ namespace BDInfo
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.checkBoxFilterIncompatible = new System.Windows.Forms.CheckBox();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerOuter)).BeginInit();
             this.splitContainerOuter.Panel1.SuspendLayout();
             this.splitContainerOuter.Panel2.SuspendLayout();
             this.splitContainerOuter.SuspendLayout();
             this.groupBoxSourcePlaylist.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).BeginInit();
             this.splitContainerInner.Panel1.SuspendLayout();
             this.splitContainerInner.Panel2.SuspendLayout();
             this.splitContainerInner.SuspendLayout();
@@ -216,13 +218,13 @@ namespace BDInfo
             // 
             // columnHeaderPlaylistEstimatedBytes
             // 
-            this.columnHeaderPlaylistEstimatedBytes.Text = "Estimated Bytes";
+            this.columnHeaderPlaylistEstimatedBytes.Text = "Estimated Size";
             this.columnHeaderPlaylistEstimatedBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderPlaylistEstimatedBytes.Width = 98;
             // 
             // columnHeaderPlaylistMeasuredBytes
             // 
-            this.columnHeaderPlaylistMeasuredBytes.Text = "Measured Bytes";
+            this.columnHeaderPlaylistMeasuredBytes.Text = "Measured Size";
             this.columnHeaderPlaylistMeasuredBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderPlaylistMeasuredBytes.Width = 125;
             // 
@@ -261,13 +263,13 @@ namespace BDInfo
             // 
             // columnHeaderFileEstimatedBytes
             // 
-            this.columnHeaderFileEstimatedBytes.Text = "Estimated Bytes";
+            this.columnHeaderFileEstimatedBytes.Text = "Estimated Size";
             this.columnHeaderFileEstimatedBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderFileEstimatedBytes.Width = 119;
             // 
             // columnHeaderFileMeasuredBytes
             // 
-            this.columnHeaderFileMeasuredBytes.Text = "Measured Bytes";
+            this.columnHeaderFileMeasuredBytes.Text = "Measured Size";
             this.columnHeaderFileMeasuredBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderFileMeasuredBytes.Width = 125;
             // 
@@ -370,13 +372,13 @@ namespace BDInfo
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Estimated Bytes";
+            this.columnHeader3.Text = "Estimated Size";
             this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeader3.Width = 119;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "Measured Bytes";
+            this.columnHeader4.Text = "Measured Size";
             this.columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeader4.Width = 125;
             // 
@@ -412,10 +414,12 @@ namespace BDInfo
             this.Resize += new System.EventHandler(this.FormPlaylist_Resize);
             this.splitContainerOuter.Panel1.ResumeLayout(false);
             this.splitContainerOuter.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerOuter)).EndInit();
             this.splitContainerOuter.ResumeLayout(false);
             this.groupBoxSourcePlaylist.ResumeLayout(false);
             this.splitContainerInner.Panel1.ResumeLayout(false);
             this.splitContainerInner.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).EndInit();
             this.splitContainerInner.ResumeLayout(false);
             this.groupBoxCustomPlaylist.ResumeLayout(false);
             this.ResumeLayout(false);
