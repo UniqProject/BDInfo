@@ -682,7 +682,7 @@ namespace BDInfo
                 try
                 {
                     long result = GetVolumeInformation(
-                        dir.Name,
+                        dir.FullName,
                         volumeLabel,
                         (uint)volumeLabel.Capacity,
                         ref serialNumber,
@@ -766,7 +766,7 @@ namespace BDInfo
             }
         }
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern long GetVolumeInformation(
             string PathName, 
             StringBuilder VolumeNameBuffer, 

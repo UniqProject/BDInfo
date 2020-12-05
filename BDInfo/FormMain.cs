@@ -70,8 +70,10 @@ namespace BDInfo
             }
             this.Icon = BDInfo.Properties.Resources.Bluray_disc;
 
-            Text += String.Format(" v{0}", Application.ProductVersion);
-
+            Text += $" v{Application.ProductVersion}";
+#if DEBUG
+            Text += "b";
+#endif
             Size = BDInfo.Properties.Settings.Default.WindowSize;
             Location = BDInfo.Properties.Settings.Default.WindowLocation;
             WindowState = BDInfo.Properties.Settings.Default.WindowState;
