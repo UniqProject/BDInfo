@@ -177,7 +177,7 @@ namespace BDInfo
                 {
                     openDialog.IsFolderPicker = false;
                     openDialog.Title = "Select a BluRay .ISO file:";
-                    openDialog.Filters.Add(new CommonFileDialogFilter("ISO-Image", ".iso"));
+                    openDialog.Filters.Add(new CommonFileDialogFilter("ISO-Image", "iso"));
                 }
                 
 
