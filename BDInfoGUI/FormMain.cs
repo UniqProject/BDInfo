@@ -54,6 +54,89 @@ namespace BDInfoGUI
             return control;
         }
 
+        protected override bool ProcessCmdKey(ref Message msg,
+                                              Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.C))
+            {
+                Control focusedControl = FindFocusedControl(this);
+
+                Clipboard.Clear();
+
+                if (focusedControl == listViewPlaylistFiles && listViewPlaylistFiles.SelectedItems.Count > 0)
+                {
+                    ListViewItem playlistItem = listViewPlaylistFiles.SelectedItems[0];
+                    if (playlistItem != null)
+                    {
+                        TSPlaylistFile playlist = null;
+                        string playlistFileName = playlistItem.Text;
+                        if (BDROM.PlaylistFiles.ContainsKey(playlistFileName))
+                        {
+                            playlist = BDROM.PlaylistFiles[playlistFileName];
+                        }
+                        if (playlist != null)
+                            Clipboard.SetText(playlist.GetFilePath());
+                    }
+                }
+                if (focusedControl == listViewStreamFiles && listViewStreamFiles.SelectedItems.Count > 0)
+                {
+                    ListViewItem streamFileItem = listViewStreamFiles.SelectedItems[0];
+                    if (streamFileItem != null)
+                    {
+                        TSStreamFile streamFile = null;
+                        string streamFileName = streamFileItem.Text;
+                        if (BDROM.StreamFiles.ContainsKey(streamFileName))
+                        {
+                            streamFile = BDROM.StreamFiles[streamFileName];
+                        }
+                        if (streamFile != null)
+                            Clipboard.SetText(streamFile.GetFilePath());
+                    }
+                }
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void ResetColumnWidths()
+        {
+            listViewPlaylistFiles.Columns[0].Width =
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.30);
+            listViewPlaylistFiles.Columns[1].Width =
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.07);
+            listViewPlaylistFiles.Columns[2].Width =
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
+            listViewPlaylistFiles.Columns[3].Width =
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
+            listViewPlaylistFiles.Columns[4].Width =
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
+
+            listViewStreamFiles.Columns[0].Width =
+                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
+            listViewStreamFiles.Columns[1].Width =
+                (int)(listViewStreamFiles.ClientSize.Width * 0.08);
+            listViewStreamFiles.Columns[2].Width =
+                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
+            listViewStreamFiles.Columns[3].Width =
+                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
+            listViewStreamFiles.Columns[4].Width =
+                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
+
+            listViewStreams.Columns[0].Width =
+                (int)(listViewStreams.ClientSize.Width * 0.22);
+            listViewStreams.Columns[1].Width =
+                (int)(listViewStreams.ClientSize.Width * 0.10);
+            listViewStreams.Columns[2].Width =
+                (int)(listViewStreams.ClientSize.Width * 0.10);
+            listViewStreams.Columns[3].Width =
+                (int)(listViewStreams.ClientSize.Width * 0.58);
+        }
+
+        public void OnCustomPlaylistAdded()
+        {
+            LoadPlaylists();
+        }
+
         public FormMain(string[] args)
         {
             InitializeComponent();
@@ -81,52 +164,86 @@ namespace BDInfoGUI
             WindowState = Properties.Settings.Default.WindowState;
         }
 
-        private void FormMain_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender,
+                                   EventArgs e)
         {
             ResetColumnWidths();
         }
 
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        private void FormMain_FormClosing(object sender,
+                                          FormClosingEventArgs e)
         {
-            if (keyData == (Keys.Control | Keys.C))
+            BDInfoGUISettings.LastPath = textBoxSource.Text;
+            Properties.Settings.Default.WindowState = WindowState;
+
+            if (WindowState == FormWindowState.Normal)
             {
-                Control focusedControl = FindFocusedControl(this);
-
-                Clipboard.Clear();
-
-                if (focusedControl == listViewPlaylistFiles && listViewPlaylistFiles.SelectedItems.Count > 0)
-                {
-                    ListViewItem playlistItem = listViewPlaylistFiles.SelectedItems[0];
-                    if (playlistItem != null)
-                    {
-                        TSPlaylistFile playlist = null;
-                        string playlistFileName = playlistItem.Text;
-                        if (BDROM.PlaylistFiles.ContainsKey(playlistFileName))
-                        {
-                            playlist = BDROM.PlaylistFiles[playlistFileName];
-                        }
-                        if (playlist != null)
-                          Clipboard.SetText(playlist.GetFilePath());
-                    }
-                }
-                if (focusedControl == listViewStreamFiles && listViewStreamFiles.SelectedItems.Count > 0)
-                {
-                    ListViewItem streamFileItem = listViewStreamFiles.SelectedItems[0];
-                    if (streamFileItem != null)
-                    {
-                        TSStreamFile streamFile = null;
-                        string streamFileName = streamFileItem.Text;
-                        if (BDROM.StreamFiles.ContainsKey(streamFileName))
-                        {
-                            streamFile = BDROM.StreamFiles[streamFileName];
-                        }
-                        if (streamFile != null)
-                            Clipboard.SetText(streamFile.GetFilePath());
-                    }
-                }
-                return true;
+                Properties.Settings.Default.WindowSize = Size;
+                Properties.Settings.Default.WindowLocation = Location;
             }
-            return base.ProcessCmdKey(ref msg, keyData);
+            else
+            {
+                Properties.Settings.Default.WindowSize = RestoreBounds.Size;
+                Properties.Settings.Default.WindowLocation = RestoreBounds.Location;
+            }
+
+
+            BDInfoSettings.SaveSettings();
+            Properties.Settings.Default.Save();
+
+            if (InitBDROMWorker != null &&
+                InitBDROMWorker.IsBusy)
+            {
+                InitBDROMWorker.CancelAsync();
+            }
+            if (ScanBDROMWorker != null &&
+                ScanBDROMWorker.IsBusy)
+            {
+                ScanBDROMWorker.CancelAsync();
+            }
+            if (ReportWorker != null &&
+                ReportWorker.IsBusy)
+            {
+                ReportWorker.CancelAsync();
+            }
+        }
+
+        private void FormMain_Resize(object sender,
+                                     EventArgs e)
+        {
+            ResetColumnWidths();
+            UpdateNotification();
+        }
+
+        private void FormMain_LocationChanged(object sender,
+                                              EventArgs e)
+        {
+            UpdateNotification();
+        }
+
+        private void FormMain_DragEnter(object sender,
+                                        DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void FormMain_DragDrop(object sender,
+                                       DragEventArgs e)
+        {
+            string[] sources = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+            if (sources.Length > 0)
+            {
+                string path = sources[0];
+                textBoxSource.Text = path;
+                InitBDROM(path);
+            }
         }
 
         private void textBoxSource_TextChanged(object sender, EventArgs e)
@@ -141,32 +258,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void FormMain_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.All;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void FormMain_DragDrop(object sender, DragEventArgs e)
-        {
-            string[] sources = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-            if (sources.Length > 0)
-            {
-                string path = sources[0];
-                textBoxSource.Text = path;
-                InitBDROM(path);
-            }
-        }
-
-        private void buttonBrowse_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonBrowse_Click(object sender,
+                                        EventArgs e)
         {
             string path = null;
             try
@@ -209,7 +302,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void buttonRescan_Click(object sender, EventArgs e)
+        private void buttonRescan_Click(object sender,
+                                        EventArgs e)
         {
             string path = textBoxSource.Text;
             try
@@ -229,15 +323,15 @@ namespace BDInfoGUI
             }
         }
 
-        private void buttonSettings_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonSettings_Click(object sender,
+                                          EventArgs e)
         {
             FormSettings settings = new FormSettings();
             settings.ShowDialog();
         }
 
-        private void buttonSelectAll_Click(object sender, EventArgs e)
+        private void buttonSelectAll_Click(object sender,
+                                           EventArgs e)
         {
             foreach (ListViewItem item in listViewPlaylistFiles.Items)
             {
@@ -245,7 +339,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void buttonUnselectAll_Click(object sender, EventArgs e)
+        private void buttonUnselectAll_Click(object sender,
+                                             EventArgs e)
         {
             foreach (ListViewItem item in listViewPlaylistFiles.Items)
             {
@@ -253,9 +348,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void buttonCustomPlaylist_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonCustomPlaylist_Click(object sender,
+                                                EventArgs e)
         {
             string name = string.Format(CultureInfo.InvariantCulture,
                 "USER.{0}", (++CustomPlaylistCount).ToString("D3", CultureInfo.InvariantCulture));
@@ -265,35 +359,26 @@ namespace BDInfoGUI
             form.Show();
         }
 
-        public void OnCustomPlaylistAdded()
-        {
-            LoadPlaylists();
-        }
-
-        private void buttonScan_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonScan_Click(object sender,
+                                      EventArgs e)
         {
             ScanBDROM();
         }
 
-        private void buttonViewReport_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonViewReport_Click(object sender,
+                                            EventArgs e)
         {
             GenerateReport();
         }
 
-        private void listViewPlaylistFiles_SelectedIndexChanged(
-            object sender, 
-            EventArgs e)
+        private void listViewPlaylistFiles_SelectedIndexChanged(object sender,
+                                                                EventArgs e)
         {
             LoadPlaylist();
         }
 
-        private void listViewPlaylistFiles_ColumnClick(
-            object sender, 
-            ColumnClickEventArgs e)
+        private void listViewPlaylistFiles_ColumnClick(object sender,
+                                                       ColumnClickEventArgs e)
         {
             if (e.Column == PlaylistColumnSorter.SortColumn)
             {
@@ -313,88 +398,14 @@ namespace BDInfoGUI
             }
             listViewPlaylistFiles.Sort();
         }
-
-        private void ResetColumnWidths()
-        {
-            listViewPlaylistFiles.Columns[0].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.30);
-            listViewPlaylistFiles.Columns[1].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.07);
-            listViewPlaylistFiles.Columns[2].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
-            listViewPlaylistFiles.Columns[3].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
-            listViewPlaylistFiles.Columns[4].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
-
-            listViewStreamFiles.Columns[0].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
-            listViewStreamFiles.Columns[1].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.08);
-            listViewStreamFiles.Columns[2].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
-            listViewStreamFiles.Columns[3].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
-            listViewStreamFiles.Columns[4].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
-
-            listViewStreams.Columns[0].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.22);
-            listViewStreams.Columns[1].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.10);
-            listViewStreams.Columns[2].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.10);
-            listViewStreams.Columns[3].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.58);
-        }
-
-        private void FormMain_FormClosing(
-            object sender, 
-            FormClosingEventArgs e)
-        {
-            BDInfoGUISettings.LastPath = textBoxSource.Text;
-            Properties.Settings.Default.WindowState = WindowState;
-
-            if (WindowState == FormWindowState.Normal)
-            {
-                Properties.Settings.Default.WindowSize = Size;
-                Properties.Settings.Default.WindowLocation = Location;
-            }
-            else
-            {
-                Properties.Settings.Default.WindowSize = RestoreBounds.Size;
-                Properties.Settings.Default.WindowLocation = RestoreBounds.Location;
-            }
-            
-
-            BDInfoSettings.SaveSettings();
-            Properties.Settings.Default.Save();
-
-            if (InitBDROMWorker != null &&
-                InitBDROMWorker.IsBusy)
-            {
-                InitBDROMWorker.CancelAsync();
-            }
-            if (ScanBDROMWorker != null &&
-                ScanBDROMWorker.IsBusy)
-            {
-                ScanBDROMWorker.CancelAsync();
-            }
-            if (ReportWorker != null &&
-                ReportWorker.IsBusy)
-            {
-                ReportWorker.CancelAsync();
-            }
-        }
-
+       
         #endregion
 
         #region BDROM Initialization Worker
 
         private BackgroundWorker InitBDROMWorker = null;
 
-        private void InitBDROM(
-            string path)
+        private void InitBDROM(string path)
         {
             ShowNotification("Please wait while we scan the disc...");
 
@@ -426,9 +437,8 @@ namespace BDInfoGUI
             InitBDROMWorker.RunWorkerAsync(path);
         }
 
-        private void InitBDROMWork(
-            object sender, 
-            DoWorkEventArgs e)
+        private void InitBDROMWork(object sender,
+                                   DoWorkEventArgs e)
         {
             System.IO.Stream fileStream = null;
             try
@@ -465,7 +475,8 @@ namespace BDInfoGUI
             }
         }
 
-        protected bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
+        protected bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile,
+                                                   Exception ex)
         {
             DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the playlist file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the playlist files?", playlistFile.Name), 
@@ -475,7 +486,8 @@ namespace BDInfoGUI
             else return false;
         }
 
-        protected bool BDROM_StreamFileScanError(TSStreamFile streamFile, Exception ex)
+        protected bool BDROM_StreamFileScanError(TSStreamFile streamFile,
+                                                 Exception ex)
         {
             DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the stream file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the stream files?", streamFile.Name),
@@ -485,7 +497,8 @@ namespace BDInfoGUI
             else return false;
         }
 
-        protected bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile, Exception ex)
+        protected bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile,
+                                                     Exception ex)
         {
             DialogResult result = MessageBox.Show(string.Format(CultureInfo.InvariantCulture,
                 "An error occurred while scanning the stream clip file {0}.\n\nThe disc may be copy-protected or damaged.\n\nDo you want to continue scanning the stream clip files?", streamClipFile.Name),
@@ -495,15 +508,13 @@ namespace BDInfoGUI
             else return false;
         }
 
-        private void InitBDROMProgress(
-            object sender, 
-            ProgressChangedEventArgs e)
+        private void InitBDROMProgress(object sender,
+                                       ProgressChangedEventArgs e)
         {
         }
 
-        private void InitBDROMCompleted(
-            object sender, 
-            RunWorkerCompletedEventArgs e)
+        private void InitBDROMCompleted(object sender,
+                                        RunWorkerCompletedEventArgs e)
         {
             HideNotification();
 
@@ -1017,6 +1028,38 @@ namespace BDInfoGUI
             }
         }
 
+        public static int ComparePlaylistFiles(TSPlaylistFile x,
+                                               TSPlaylistFile y)
+        {
+            if (x == null && y == null)
+            {
+                return 0;
+            }
+            else if (x == null && y != null)
+            {
+                return 1;
+            }
+            else if (x != null && y == null)
+            {
+                return -1;
+            }
+            else
+            {
+                if (x.TotalLength > y.TotalLength)
+                {
+                    return -1;
+                }
+                else if (y.TotalLength > x.TotalLength)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return x.Name.CompareTo(y.Name);
+                }
+            }
+        }
+
         #endregion
 
         #region Scan BDROM
@@ -1419,8 +1462,7 @@ namespace BDInfoGUI
 
         private Form FormNotification = null;
 
-        private void ShowNotification(
-            string text)
+        private void ShowNotification(string text)
         {
             HideNotification();
 
@@ -1468,51 +1510,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void FormMain_Resize(object sender, EventArgs e)
-        {
-            ResetColumnWidths();
-            UpdateNotification();
-        }
-
-        private void FormMain_LocationChanged(object sender, EventArgs e)
-        {
-            UpdateNotification();
-        }
-
         #endregion
 
-        public static int ComparePlaylistFiles(
-            TSPlaylistFile x,
-            TSPlaylistFile y)
-        {
-            if (x == null && y == null)
-            {
-                return 0;
-            }
-            else if (x == null && y != null)
-            {
-                return 1;
-            }
-            else if (x != null && y == null)
-            {
-                return -1;
-            }
-            else
-            {
-                if (x.TotalLength > y.TotalLength)
-                {
-                    return -1;
-                }
-                else if (y.TotalLength > x.TotalLength)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return x.Name.CompareTo(y.Name);
-                }
-            }
-        }
     }
 
     public class ListViewColumnSorter : IComparer

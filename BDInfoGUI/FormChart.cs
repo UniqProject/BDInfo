@@ -33,6 +33,12 @@ namespace BDInfoGUI
         bool IsHoverDisabled = false;
         string DefaultFileName = "";
 
+        private string FixVolumeLabel(string label)
+        {
+            // TODO: Other Volume Label Tweaks?
+            return label.Replace(" ", "_");
+        }
+
         public FormChart()
         {
             InitializeComponent();
@@ -44,11 +50,17 @@ namespace BDInfoGUI
             catch { }
         }
 
-        private void GraphControl_ContextMenuBuilder(
-            ZedGraphControl sender, 
-            ContextMenuStrip menuStrip, 
-            Point mousePt, 
-            ZedGraphControl.ContextMenuObjectState objState)
+        private void FormChart_FormClosed(object sender,
+                                          FormClosedEventArgs e)
+        {
+            GraphControl.Dispose();
+            GC.Collect();
+        }
+
+        private void GraphControl_ContextMenuBuilder(ZedGraphControl sender,
+                                                     ContextMenuStrip menuStrip,
+                                                     Point mousePt,
+                                                     ZedGraphControl.ContextMenuObjectState objState)
         {
             for (int i = 0; i < menuStrip.Items.Count; i++)
             {
@@ -67,26 +79,44 @@ namespace BDInfoGUI
             }
         }
 
-        private void OnSaveGraph(
-            object sender,
-            EventArgs args)
+        private void GraphControl_MouseMove(object sender,
+                                    MouseEventArgs e)
+        {
+            ZedGraphControl graph = (ZedGraphControl)sender;
+            PointF pt = new PointF(e.X, e.Y);
+            GraphPane pane = graph.MasterPane.FindChartRect(pt);
+
+            if (!IsHoverDisabled && pane != null)
+            {
+                double x, y;
+                pane.ReverseTransform(pt, out x, out y);
+
+                TimeSpan time = new TimeSpan(
+                    0, 0, 0, 0, (int)Math.Round(x * 1000 * 60));
+
+                toolStripStatus.Text = string.Format(
+                    "Time: {0} ({1}) Value: {2}",
+                    string.Format("{0:F3} sec", x),
+                    string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D2}",
+                    time.Hours, time.Minutes, time.Seconds, time.Milliseconds),
+                    string.Format("{0:F2} {1}", y, UnitText));
+            }
+            else
+            {
+                toolStripStatus.Text = string.Empty;
+            }
+        }
+
+        private void OnSaveGraph(object sender,
+                                 EventArgs args)
         {
             GraphControl.SaveAs(DefaultFileName);
         }
 
-        private void FormChart_FormClosed(
-            object sender, 
-            FormClosedEventArgs e)
-        {
-            GraphControl.Dispose();
-            GC.Collect();
-        }
-
-        public void Generate(
-            string chartType,
-            TSPlaylistFile playlist,
-            ushort PID,
-            int angleIndex)
+        public void Generate(string chartType,
+                             TSPlaylistFile playlist,
+                             ushort PID,
+                             int angleIndex)
         {
             this.Text = string.Format("{0}: {1}", playlist.Name, chartType);
             GraphControl.GraphPane.Title.Text = chartType;
@@ -146,17 +176,10 @@ namespace BDInfoGUI
             DefaultFileName += ".png";
         }
 
-        private string FixVolumeLabel(string label)
-        {
-            // TODO: Other Volume Label Tweaks?
-            return label.Replace(" ", "_");
-        }
-
-        public void GenerateWindowChart(
-            TSPlaylistFile playlist,
-            ushort PID,
-            int angleIndex,
-            double windowSize)
+        public void GenerateWindowChart(TSPlaylistFile playlist,
+                                        ushort PID,
+                                        int angleIndex,
+                                        double windowSize)
         {
             UnitText = "Mbps";
 
@@ -299,10 +322,9 @@ namespace BDInfoGUI
             GraphControl.AxisChange();
         }
 
-        public void GenerateFrameSizeChart(
-            TSPlaylistFile playlist,
-            ushort PID,
-            int angleIndex)
+        public void GenerateFrameSizeChart(TSPlaylistFile playlist,
+                                           ushort PID,
+                                           int angleIndex)
         {
             UnitText = "KB";
 
@@ -408,11 +430,10 @@ namespace BDInfoGUI
             GraphControl.AxisChange();
         }
 
-        public void GenerateFrameTypeChart(
-            TSPlaylistFile playlist,
-            ushort PID,
-            int angleIndex,
-            bool isSizes)
+        public void GenerateFrameTypeChart(TSPlaylistFile playlist,
+                                           ushort PID,
+                                           int angleIndex,
+                                           bool isSizes)
         {
             IsHoverDisabled = true;
 
@@ -559,12 +580,28 @@ namespace BDInfoGUI
             GraphControl.IsEnableWheelZoom = false;
         }
 
+        private void AddPieSlice(string frameType,
+                 double frameCount,
+                 double totalFrameCount,
+                 int rgb)
+        {
+            string label = string.Format(
+                " {0} Frames \n {1:N0} \n ({2:F2}%) ",
+                frameType, frameCount, frameCount / totalFrameCount * 100);
+
+            Color color = Color.FromArgb(rgb, rgb, rgb);
+            PieItem pieItem = GraphControl.GraphPane.AddPieSlice(
+                frameCount, color, color, 0, 0, label);
+            pieItem.Border.IsVisible = false;
+        }
+
         private class SortableFrameCount : IComparable
         {
             public string Name;
             public double Count;
 
-            public SortableFrameCount(string name, double count)
+            public SortableFrameCount(string name,
+                                      double count)
             {
                 Name = name;
                 Count = count;
@@ -578,51 +615,6 @@ namespace BDInfoGUI
                     return (int)(Count - frameType.Count);
                 }
                 else return Name.CompareTo(frameType.Name);
-            }
-        }
-
-        private void AddPieSlice(
-            string frameType, 
-            double frameCount, 
-            double totalFrameCount, 
-            int rgb)
-        {
-            string label = string.Format(
-                " {0} Frames \n {1:N0} \n ({2:F2}%) ", 
-                frameType, frameCount, frameCount / totalFrameCount * 100);
-
-            Color color = Color.FromArgb(rgb, rgb, rgb);
-            PieItem pieItem = GraphControl.GraphPane.AddPieSlice(
-                frameCount, color, color, 0, 0, label);
-            pieItem.Border.IsVisible = false;
-        }
-
-        private void GraphControl_MouseMove(
-            object sender, 
-            MouseEventArgs e)
-        {
-            ZedGraphControl graph = (ZedGraphControl)sender;
-            PointF pt = new PointF(e.X, e.Y);
-            GraphPane pane = graph.MasterPane.FindChartRect(pt);
-
-            if (!IsHoverDisabled && pane != null)
-            {
-                double x, y;
-                pane.ReverseTransform(pt, out x, out y);
-                
-                TimeSpan time = new TimeSpan(
-                    0, 0, 0, 0, (int)Math.Round(x * 1000 * 60));
-                
-                toolStripStatus.Text = string.Format(
-                    "Time: {0} ({1}) Value: {2}",
-                    string.Format("{0:F3} sec", x),
-                    string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D2}", 
-                    time.Hours, time.Minutes, time.Seconds, time.Milliseconds),
-                    string.Format("{0:F2} {1}", y, UnitText));
-            }
-            else
-            {
-                toolStripStatus.Text = string.Empty;
             }
         }
     }

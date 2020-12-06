@@ -60,9 +60,10 @@ namespace BDInfoGUI
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatus});
             this.statusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.statusStrip.Location = new System.Drawing.Point(0, 385);
+            this.statusStrip.Location = new System.Drawing.Point(0, 445);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(809, 22);
+            this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
+            this.statusStrip.Size = new System.Drawing.Size(944, 25);
             this.statusStrip.TabIndex = 1;
             // 
             // toolStripStatus
@@ -73,28 +74,31 @@ namespace BDInfoGUI
             // 
             // GraphControl
             // 
-            this.GraphControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.GraphControl.Location = new System.Drawing.Point(12, 12);
+            this.GraphControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.GraphControl.Location = new System.Drawing.Point(14, 14);
+            this.GraphControl.Margin = new System.Windows.Forms.Padding(5, 3, 5, 3);
             this.GraphControl.Name = "GraphControl";
-            this.GraphControl.ScrollGrace = 0;
-            this.GraphControl.ScrollMaxX = 0;
-            this.GraphControl.ScrollMaxY = 0;
-            this.GraphControl.ScrollMaxY2 = 0;
-            this.GraphControl.ScrollMinX = 0;
-            this.GraphControl.ScrollMinY = 0;
-            this.GraphControl.ScrollMinY2 = 0;
-            this.GraphControl.Size = new System.Drawing.Size(785, 370);
+            this.GraphControl.ScrollGrace = 0D;
+            this.GraphControl.ScrollMaxX = 0D;
+            this.GraphControl.ScrollMaxY = 0D;
+            this.GraphControl.ScrollMaxY2 = 0D;
+            this.GraphControl.ScrollMinX = 0D;
+            this.GraphControl.ScrollMinY = 0D;
+            this.GraphControl.ScrollMinY2 = 0D;
+            this.GraphControl.Size = new System.Drawing.Size(916, 427);
             this.GraphControl.TabIndex = 0;
+            this.GraphControl.UseExtendedPrintDialog = true;
             // 
             // FormChart
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(809, 407);
+            this.ClientSize = new System.Drawing.Size(944, 470);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.GraphControl);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FormChart";
             this.Text = "FormChart";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormChart_FormClosed);

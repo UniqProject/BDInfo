@@ -24,7 +24,8 @@ namespace BDInfoGUI
 {
     public class ToolBox
     {
-        public static string FormatFileSize(double fSize, bool formatHR = false)
+        public static string FormatFileSize(double fSize,
+                                            bool formatHR = false)
         {
             if (fSize <= 0) return "0";
             var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };

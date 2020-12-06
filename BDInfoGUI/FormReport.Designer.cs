@@ -63,9 +63,10 @@ namespace BDInfoGUI
             // buttonCopy
             // 
             this.buttonCopy.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.buttonCopy.Location = new System.Drawing.Point(285, 457);
+            this.buttonCopy.Location = new System.Drawing.Point(332, 527);
+            this.buttonCopy.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonCopy.Name = "buttonCopy";
-            this.buttonCopy.Size = new System.Drawing.Size(122, 23);
+            this.buttonCopy.Size = new System.Drawing.Size(142, 27);
             this.buttonCopy.TabIndex = 6;
             this.buttonCopy.Text = "Copy to Clipboard";
             this.buttonCopy.UseVisualStyleBackColor = true;
@@ -73,25 +74,27 @@ namespace BDInfoGUI
             // 
             // textBoxReport
             // 
-            this.textBoxReport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxReport.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxReport.Location = new System.Drawing.Point(12, 51);
+            this.textBoxReport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxReport.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxReport.Location = new System.Drawing.Point(14, 59);
+            this.textBoxReport.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBoxReport.MaxLength = 0;
             this.textBoxReport.Multiline = true;
             this.textBoxReport.Name = "textBoxReport";
             this.textBoxReport.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxReport.Size = new System.Drawing.Size(668, 400);
+            this.textBoxReport.Size = new System.Drawing.Size(779, 461);
             this.textBoxReport.TabIndex = 5;
             this.textBoxReport.WordWrap = false;
             this.textBoxReport.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxReport_KeyDown);
             // 
             // buttonChart
             // 
-            this.buttonChart.Location = new System.Drawing.Point(452, 22);
+            this.buttonChart.Location = new System.Drawing.Point(527, 25);
+            this.buttonChart.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.buttonChart.Name = "buttonChart";
-            this.buttonChart.Size = new System.Drawing.Size(122, 23);
+            this.buttonChart.Size = new System.Drawing.Size(142, 27);
             this.buttonChart.TabIndex = 4;
             this.buttonChart.Text = "Generate Chart...";
             this.buttonChart.UseVisualStyleBackColor = true;
@@ -100,9 +103,10 @@ namespace BDInfoGUI
             // labelChartType
             // 
             this.labelChartType.AutoSize = true;
-            this.labelChartType.Location = new System.Drawing.Point(266, 8);
+            this.labelChartType.Location = new System.Drawing.Point(310, 9);
+            this.labelChartType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelChartType.Name = "labelChartType";
-            this.labelChartType.Size = new System.Drawing.Size(62, 13);
+            this.labelChartType.Size = new System.Drawing.Size(66, 15);
             this.labelChartType.TabIndex = 47;
             this.labelChartType.Text = "Chart Type:";
             // 
@@ -117,17 +121,19 @@ namespace BDInfoGUI
             "Video Frame Size (Min / Max)",
             "Video Frame Type Counts",
             "Video Frame Type Sizes"});
-            this.comboBoxChartType.Location = new System.Drawing.Point(266, 24);
+            this.comboBoxChartType.Location = new System.Drawing.Point(310, 28);
+            this.comboBoxChartType.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBoxChartType.Name = "comboBoxChartType";
-            this.comboBoxChartType.Size = new System.Drawing.Size(180, 21);
+            this.comboBoxChartType.Size = new System.Drawing.Size(209, 23);
             this.comboBoxChartType.TabIndex = 3;
             // 
             // labelStream
             // 
             this.labelStream.AutoSize = true;
-            this.labelStream.Location = new System.Drawing.Point(117, 8);
+            this.labelStream.Location = new System.Drawing.Point(136, 9);
+            this.labelStream.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelStream.Name = "labelStream";
-            this.labelStream.Size = new System.Drawing.Size(43, 13);
+            this.labelStream.Size = new System.Drawing.Size(47, 15);
             this.labelStream.TabIndex = 45;
             this.labelStream.Text = "Stream:";
             // 
@@ -135,17 +141,19 @@ namespace BDInfoGUI
             // 
             this.comboBoxStream.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxStream.FormattingEnabled = true;
-            this.comboBoxStream.Location = new System.Drawing.Point(117, 24);
+            this.comboBoxStream.Location = new System.Drawing.Point(136, 28);
+            this.comboBoxStream.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBoxStream.Name = "comboBoxStream";
-            this.comboBoxStream.Size = new System.Drawing.Size(99, 21);
+            this.comboBoxStream.Size = new System.Drawing.Size(115, 23);
             this.comboBoxStream.TabIndex = 1;
             // 
             // labelAngle
             // 
             this.labelAngle.AutoSize = true;
-            this.labelAngle.Location = new System.Drawing.Point(222, 8);
+            this.labelAngle.Location = new System.Drawing.Point(259, 9);
+            this.labelAngle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelAngle.Name = "labelAngle";
-            this.labelAngle.Size = new System.Drawing.Size(37, 13);
+            this.labelAngle.Size = new System.Drawing.Size(41, 15);
             this.labelAngle.TabIndex = 43;
             this.labelAngle.Text = "Angle:";
             // 
@@ -153,17 +161,19 @@ namespace BDInfoGUI
             // 
             this.comboBoxAngle.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxAngle.FormattingEnabled = true;
-            this.comboBoxAngle.Location = new System.Drawing.Point(222, 24);
+            this.comboBoxAngle.Location = new System.Drawing.Point(259, 28);
+            this.comboBoxAngle.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBoxAngle.Name = "comboBoxAngle";
-            this.comboBoxAngle.Size = new System.Drawing.Size(38, 21);
+            this.comboBoxAngle.Size = new System.Drawing.Size(44, 23);
             this.comboBoxAngle.TabIndex = 2;
             // 
             // labelPlaylist
             // 
             this.labelPlaylist.AutoSize = true;
-            this.labelPlaylist.Location = new System.Drawing.Point(12, 8);
+            this.labelPlaylist.Location = new System.Drawing.Point(14, 9);
+            this.labelPlaylist.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPlaylist.Name = "labelPlaylist";
-            this.labelPlaylist.Size = new System.Drawing.Size(42, 13);
+            this.labelPlaylist.Size = new System.Drawing.Size(47, 15);
             this.labelPlaylist.TabIndex = 41;
             this.labelPlaylist.Text = "Playlist:";
             // 
@@ -171,17 +181,18 @@ namespace BDInfoGUI
             // 
             this.comboBoxPlaylist.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxPlaylist.FormattingEnabled = true;
-            this.comboBoxPlaylist.Location = new System.Drawing.Point(12, 24);
+            this.comboBoxPlaylist.Location = new System.Drawing.Point(14, 28);
+            this.comboBoxPlaylist.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.comboBoxPlaylist.Name = "comboBoxPlaylist";
-            this.comboBoxPlaylist.Size = new System.Drawing.Size(99, 21);
+            this.comboBoxPlaylist.Size = new System.Drawing.Size(115, 23);
             this.comboBoxPlaylist.TabIndex = 0;
             this.comboBoxPlaylist.SelectedIndexChanged += new System.EventHandler(this.comboBoxPlaylist_SelectedIndexChanged);
             // 
             // FormReport
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(692, 492);
+            this.ClientSize = new System.Drawing.Size(807, 568);
             this.Controls.Add(this.buttonChart);
             this.Controls.Add(this.labelChartType);
             this.Controls.Add(this.comboBoxChartType);
@@ -193,6 +204,7 @@ namespace BDInfoGUI
             this.Controls.Add(this.comboBoxPlaylist);
             this.Controls.Add(this.buttonCopy);
             this.Controls.Add(this.textBoxReport);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FormReport";
             this.Text = "BDInfo Report";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormReport_FormClosed);

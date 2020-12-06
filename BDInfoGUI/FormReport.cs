@@ -35,10 +35,15 @@ namespace BDInfoGUI
             InitializeComponent();
         }
 
-        public void Generate(
-            BDROM BDROM,
-            List<TSPlaylistFile> playlists,
-            ScanBDROMResult scanResult)
+        private void FormReport_FormClosed(object sender,
+                                           FormClosedEventArgs e)
+        {
+            GC.Collect();
+        }
+
+        public void Generate(BDROM BDROM,
+                             List<TSPlaylistFile> playlists,
+                             ScanBDROMResult scanResult)
         {
             Playlists = playlists;
 
@@ -1102,16 +1107,8 @@ namespace BDInfoGUI
             comboBoxChartType.SelectedIndex = 0;
         }
 
-        private void buttonCopy_Click(
-            object sender, 
-            EventArgs e)
-        {
-            Clipboard.SetText(textBoxReport.Text);
-        }
-
-        private void textBoxReport_KeyDown(
-            object sender, 
-            KeyEventArgs e)
+        private void textBoxReport_KeyDown(object sender,
+                                           KeyEventArgs e)
         {
             if (e.Control && (e.KeyCode == System.Windows.Forms.Keys.A))
             {
@@ -1125,7 +1122,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void comboBoxPlaylist_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxPlaylist_SelectedIndexChanged(object sender,
+                                                           EventArgs e)
         {
             TSPlaylistFile playlist = (TSPlaylistFile)comboBoxPlaylist.SelectedItem;
 
@@ -1150,9 +1148,8 @@ namespace BDInfoGUI
             }
         }
 
-        private void buttonChart_Click(
-            object sender, 
-            EventArgs e)
+        private void buttonChart_Click(object sender,
+                                       EventArgs e)
         {
             if (Playlists == null ||
                 comboBoxPlaylist.SelectedItem == null ||
@@ -1179,11 +1176,10 @@ namespace BDInfoGUI
             chart.Show();
         }
 
-        private void FormReport_FormClosed(
-            object sender, 
-            FormClosedEventArgs e)
+        private void buttonCopy_Click(object sender,
+                                      EventArgs e)
         {
-            GC.Collect();
+            Clipboard.SetText(textBoxReport.Text);
         }
     }
 }
