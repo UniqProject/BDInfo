@@ -18,36 +18,23 @@
 //=============================================================================
 
 using System;
-using System.Globalization;
-using System.Text;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
-namespace BDInfo
+namespace BDInfoGUI
 {
-    public class ToolBox
+    static class Program
     {
-        public static string FormatFileSize(double fSize, bool formatHR = false)
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main(string[] args)
         {
-            if (fSize <= 0) return "0";
-            var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-
-            var digitGroups = 0;
-            if (formatHR)
-                digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
-
-            return string.Format(CultureInfo.InvariantCulture, "{0:N2} {1}", fSize/Math.Pow(1024, digitGroups), units[digitGroups]);
-        }
-
-        public static string ReadString(
-            byte[] data,
-            int count,
-            ref int pos)
-        {
-            string val =
-                Encoding.ASCII.GetString(data, pos, count);
-
-            pos += count;
-
-            return val;
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new FormMain(args));
         }
     }
 }

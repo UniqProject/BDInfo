@@ -12,7 +12,7 @@ namespace BDInfo.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -20,42 +20,6 @@ namespace BDInfo.Properties {
         public static Settings Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool GenerateStreamDiagnostics {
-            get {
-                return ((bool)(this["GenerateStreamDiagnostics"]));
-            }
-            set {
-                this["GenerateStreamDiagnostics"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool GenerateFrameDataFile {
-            get {
-                return ((bool)(this["GenerateFrameDataFile"]));
-            }
-            set {
-                this["GenerateFrameDataFile"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool AutosaveReport {
-            get {
-                return ((bool)(this["AutosaveReport"]));
-            }
-            set {
-                this["AutosaveReport"] = value;
             }
         }
         
@@ -85,30 +49,6 @@ namespace BDInfo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastPath {
-            get {
-                return ((string)(this["LastPath"]));
-            }
-            set {
-                this["LastPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool GenerateTextSummary {
-            get {
-                return ((bool)(this["GenerateTextSummary"]));
-            }
-            set {
-                this["GenerateTextSummary"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool FilterShortPlaylists {
             get {
@@ -133,30 +73,6 @@ namespace BDInfo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseImagePrefix {
-            get {
-                return ((bool)(this["UseImagePrefix"]));
-            }
-            set {
-                this["UseImagePrefix"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("video-")]
-        public string UseImagePrefixValue {
-            get {
-                return ((string)(this["UseImagePrefixValue"]));
-            }
-            set {
-                this["UseImagePrefixValue"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool EnableSSIF {
             get {
@@ -176,66 +92,6 @@ namespace BDInfo.Properties {
             }
             set {
                 this["ExtendedStreamDetails"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
-        public global::System.Drawing.Point WindowLocation {
-            get {
-                return ((global::System.Drawing.Point)(this["WindowLocation"]));
-            }
-            set {
-                this["WindowLocation"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800, 614")]
-        public global::System.Drawing.Size WindowSize {
-            get {
-                return ((global::System.Drawing.Size)(this["WindowSize"]));
-            }
-            set {
-                this["WindowSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DisplayChapterCount {
-            get {
-                return ((bool)(this["DisplayChapterCount"]));
-            }
-            set {
-                this["DisplayChapterCount"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
-        public global::System.Windows.Forms.FormWindowState WindowState {
-            get {
-                return ((global::System.Windows.Forms.FormWindowState)(this["WindowState"]));
-            }
-            set {
-                this["WindowState"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool MainWindowHRSizeFormat {
-            get {
-                return ((bool)(this["MainWindowHRSizeFormat"]));
-            }
-            set {
-                this["MainWindowHRSizeFormat"] = value;
             }
         }
     }

@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDInfo", "BDInfo\BDInfo.csproj", "{3209AF1D-4762-4960-9DE5-13E90E77EE96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfo", "BDInfo\BDInfo.csproj", "{3209AF1D-4762-4960-9DE5-13E90E77EE96}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfoGUI", "BDInfoGUI\BDInfoGUI.csproj", "{EB52CADC-B40A-4645-A119-6F68146FC2DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3209AF1D-4762-4960-9DE5-13E90E77EE96} = {3209AF1D-4762-4960-9DE5-13E90E77EE96}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,11 +23,17 @@ Global
 		{3209AF1D-4762-4960-9DE5-13E90E77EE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3209AF1D-4762-4960-9DE5-13E90E77EE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3209AF1D-4762-4960-9DE5-13E90E77EE96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Beta|Any CPU.ActiveCfg = Beta|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Beta|Any CPU.Build.0 = Beta|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {055192EF-E6AD-4505-AA9B-9FB4F2CB2EA6}
+		SolutionGuid = {105479AD-3870-437C-8F51-BE80D2A1426D}
 	EndGlobalSection
 EndGlobal
