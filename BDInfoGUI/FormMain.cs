@@ -1035,6 +1035,7 @@ namespace BDInfoGUI
         }
 
         private bool AbortScan = false;
+        private TSStreamFile streamFile = null;
 
         private void ScanBDROM()
         {
@@ -1042,6 +1043,7 @@ namespace BDInfoGUI
                 ScanBDROMWorker.IsBusy)
             {
                 AbortScan = true;
+                streamFile.AbortScan = true;
                 return;
             }
 
@@ -1099,9 +1101,8 @@ namespace BDInfoGUI
             ScanBDROMWorker.RunWorkerAsync(streamFiles);
         }
 
-        private void ScanBDROMWork(
-            object sender, 
-            DoWorkEventArgs e)
+        private void ScanBDROMWork(object sender,
+                                   DoWorkEventArgs e)
         {
             ScanResult = new ScanBDROMResult {ScanException = new Exception("Scan is still running.")};
 
@@ -1160,18 +1161,18 @@ namespace BDInfoGUI
                     thread.Start(scanState);
                     while (thread.IsAlive)
                     {
-                        if (AbortScan)
-                        {
-                            ScanResult.ScanException = new Exception("Scan was cancelled.");
-                            thread.Interrupt();
-                            return;
-                        }
+                        Thread.Sleep(1000);
                     }
                     if (streamFile.FileInfo != null)
                         scanState.FinishedBytes += streamFile.FileInfo.Length;
                     if (scanState.Exception != null)
                     {
                         ScanResult.FileExceptions[streamFile.Name] = scanState.Exception;
+                    }
+                    if (AbortScan)
+                    {
+                        ScanResult.ScanException = new Exception("Scan was cancelled.");
+                        return;
                     }
                 }
                 ScanResult.ScanException = null;
@@ -1191,13 +1192,21 @@ namespace BDInfoGUI
             ScanBDROMState scanState = (ScanBDROMState)parameter;
             try
             {
-                TSStreamFile streamFile = scanState.StreamFile;
+                streamFile = scanState.StreamFile;
+                streamFile.AbortScan = false;
                 List<TSPlaylistFile> playlists = scanState.PlaylistMap[streamFile.Name];
                 streamFile.Scan(playlists, true);
             }
             catch (Exception ex)
             {
                 scanState.Exception = ex;
+            }
+            finally
+            {
+                if (streamFile != null)
+                {
+                    streamFile = null;
+                }
             }
         }
 

@@ -20,6 +20,7 @@
 #undef DEBUG
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using BDInfo.IO;
@@ -154,6 +155,7 @@ namespace BDInfo
 
     public class TSStreamFile
     {
+        public bool AbortScan = false;
         public IFileInfo FileInfo = null;
         public string Name = null;
         public long Size = 0;
@@ -490,9 +492,9 @@ namespace BDInfo
                 long fileLength = (uint)fileStream.Length;
                 byte[] buffer = new byte[dataSize];
                 int bufferLength = 0;
-                while ((bufferLength = 
-                    fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bufferLength = fileStream.Read(buffer, 0, buffer.Length)) > 0 && !AbortScan)
                 {
+
                     int offset = 0;
                     for (int i = 0; i < bufferLength; i++)
                     {
@@ -866,6 +868,10 @@ namespace BDInfo
                                                 }
                                                 k += streamInfoLength;
                                             }
+                                        }
+                                        catch (ThreadInterruptedException)
+                                        {
+                                            return;
                                         }
                                         catch (Exception ex)
                                         {
@@ -1476,10 +1482,13 @@ namespace BDInfo
             }
             catch (ThreadInterruptedException)
             {
+                Debug.WriteLine("Thread Interrupted");
+
                 if (fileStream != null)
                 {
                     fileStream.Close();
                 }
+
                 return;
             }
             finally
