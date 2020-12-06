@@ -17,23 +17,23 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System.Text;
+using System;
+using System.Globalization;
 
-namespace BDInfo
+namespace BDInfoGUI
 {
     public class ToolBox
     {
-        public static string ReadString(
-            byte[] data,
-            int count,
-            ref int pos)
+        public static string FormatFileSize(double fSize, bool formatHR = false)
         {
-            string val =
-                Encoding.ASCII.GetString(data, pos, count);
+            if (fSize <= 0) return "0";
+            var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
 
-            pos += count;
+            var digitGroups = 0;
+            if (formatHR)
+                digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
 
-            return val;
+            return string.Format(CultureInfo.InvariantCulture, "{0:N2} {1}", fSize / Math.Pow(1024, digitGroups), units[digitGroups]);
         }
     }
 }
