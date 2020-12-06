@@ -446,32 +446,7 @@ namespace BDInfo
         private string GetVolumeLabel(IDirectoryInfo dir)
         {
             string label = "";
-            if (!IsImage)
-            { 
-                uint serialNumber = 0;
-                uint maxLength = 0;
-                uint volumeFlags = new uint();
-                StringBuilder volumeLabel = new StringBuilder(256);
-                StringBuilder fileSystemName = new StringBuilder(256);
-                
-                try
-                {
-                    long result = GetVolumeInformation(
-                        dir.FullName,
-                        volumeLabel,
-                        (uint)volumeLabel.Capacity,
-                        ref serialNumber,
-                        ref maxLength,
-                        ref volumeFlags,
-                        fileSystemName,
-                        (uint)fileSystemName.Capacity);
 
-                    label = volumeLabel.ToString();
-                }
-                catch { }
-            }
-            else
-=======
             uint serialNumber = 0;
             uint maxLength = 0;
             uint volumeFlags = new uint();
@@ -479,7 +454,6 @@ namespace BDInfo
             StringBuilder fileSystemName = new StringBuilder(256);
 
             try
->>>>>>> 63bc283... Drop dependency to DiscUtils
             {
                 long result = GetVolumeInformation(
                     dir.Name,
@@ -550,17 +524,6 @@ namespace BDInfo
             }
         }
 
-        public void CloseDiscImage()
-        {
-            if (IsImage && CdReader != null)
-            {
-                CdReader.Dispose();
-                CdReader = null;
-                IoStream.Close();
-                IoStream.Dispose();
-                IoStream = null;
-            }
-        }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern long GetVolumeInformation(
