@@ -9,7 +9,7 @@
       <Value Profile="(Default)">0, 0</Value>
     </Setting>
     <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">800, 614</Value>
+      <Value Profile="(Default)">870, 700</Value>
     </Setting>
     <Setting Name="SizeFormatHR" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
