@@ -1034,12 +1034,14 @@ namespace BDInfoGUI
             public Exception Exception = null;
         }
 
+        private bool AbortScan = false;
+
         private void ScanBDROM()
         {
             if (ScanBDROMWorker != null &&
                 ScanBDROMWorker.IsBusy)
             {
-                ScanBDROMWorker.CancelAsync();
+                AbortScan = true;
                 return;
             }
 
@@ -1087,6 +1089,7 @@ namespace BDInfoGUI
                 }
             }
 
+            AbortScan = false;
             ScanBDROMWorker = new BackgroundWorker();
             ScanBDROMWorker.WorkerReportsProgress = true;
             ScanBDROMWorker.WorkerSupportsCancellation = true;
@@ -1157,13 +1160,12 @@ namespace BDInfoGUI
                     thread.Start(scanState);
                     while (thread.IsAlive)
                     {
-                        if (ScanBDROMWorker.CancellationPending)
+                        if (AbortScan)
                         {
                             ScanResult.ScanException = new Exception("Scan was cancelled.");
-                            thread.Abort();
+                            thread.Interrupt();
                             return;
                         }
-                        Thread.Sleep(0);
                     }
                     if (streamFile.FileInfo != null)
                         scanState.FinishedBytes += streamFile.FileInfo.Length;
@@ -1184,8 +1186,7 @@ namespace BDInfoGUI
             }
         }
 
-        private void ScanBDROMThread(
-            object parameter)
+        private void ScanBDROMThread(object parameter)
         {
             ScanBDROMState scanState = (ScanBDROMState)parameter;
             try
@@ -1200,8 +1201,7 @@ namespace BDInfoGUI
             }
         }
 
-        private void ScanBDROMEvent(
-            object state)
+        private void ScanBDROMEvent(object state)
         {
             try
             {
@@ -1214,9 +1214,8 @@ namespace BDInfoGUI
             catch { }
         }
 
-        private void ScanBDROMProgress(
-            object sender, 
-            ProgressChangedEventArgs e)
+        private void ScanBDROMProgress(object sender,
+                                       ProgressChangedEventArgs e)
         {
             ScanBDROMState scanState = (ScanBDROMState)e.UserState;
 

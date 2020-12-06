@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using BDInfo.IO;
 
 namespace BDInfo
@@ -1472,6 +1473,14 @@ namespace BDInfo
                     }
                     UpdateStreamBitrates(stream.PID, PTSLast, PTSDiff);
                 }
+            }
+            catch (ThreadInterruptedException)
+            {
+                if (fileStream != null)
+                {
+                    fileStream.Close();
+                }
+                return;
             }
             finally
             {
