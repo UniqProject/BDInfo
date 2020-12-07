@@ -32,6 +32,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
+    <PackageReference Include="ZedGraph" Version="6.0.0-alpha0001" />
+    <PackageReference Include="ZedGraph.WinForms" Version="6.0.0-alpha0001" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BDInfo\BDInfo.csproj" />
   </ItemGroup>

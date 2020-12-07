@@ -10,15 +10,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Discutils" Version="0.15.1-ci0007" />
-        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-        <PackageReference Include="ZedGraph" Version="5.1.7" />
     </ItemGroup>
-  <PropertyGroup>
-    <ApplicationIcon></ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject></StartupObject>
-  </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Description>Blu-ray Video and Audio Specifications Collection Tool</Description>
