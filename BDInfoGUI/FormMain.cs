@@ -201,7 +201,9 @@ namespace BDInfoGUI
             if (ScanBDROMWorker != null &&
                 ScanBDROMWorker.IsBusy)
             {
-                ScanBDROMWorker.CancelAsync();
+                AbortScan = true;
+                if (streamFile != null)
+                    streamFile.AbortScan = true;
             }
             if (ReportWorker != null &&
                 ReportWorker.IsBusy)
@@ -1106,7 +1108,8 @@ namespace BDInfoGUI
                 ScanBDROMWorker.IsBusy)
             {
                 AbortScan = true;
-                streamFile.AbortScan = true;
+                if (streamFile != null)
+                    streamFile.AbortScan = true;
                 return;
             }
 
