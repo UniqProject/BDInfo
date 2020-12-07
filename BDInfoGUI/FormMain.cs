@@ -28,7 +28,7 @@ using System.Windows.Forms;
 using BDInfo;
 using BDInfo.IO;
 using DiscUtils.Udf;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.WindowsAPICodePack.Taskbar;
 
 namespace BDInfoGUI
 {
@@ -1098,6 +1098,8 @@ namespace BDInfoGUI
         private bool AbortScan = false;
         private TSStreamFile streamFile = null;
 
+        private TaskbarManager tbManager = null;
+
         private void ScanBDROM()
         {
             if (ScanBDROMWorker != null &&
@@ -1117,6 +1119,13 @@ namespace BDInfoGUI
             buttonBrowse.Enabled = false;
             buttonIsoBrowse.Enabled = false;
             buttonRescan.Enabled = false;
+
+            if (TaskbarManager.IsPlatformSupported)
+            {
+                tbManager = TaskbarManager.Instance;
+                tbManager.SetProgressValue(0, 100);
+                tbManager.SetProgressState(TaskbarProgressBarState.Normal);
+            }
 
             List<TSStreamFile> streamFiles = new List<TSStreamFile>();
             if (listViewPlaylistFiles.CheckedItems == null ||
@@ -1309,6 +1318,11 @@ namespace BDInfoGUI
                 if (progressValue > 100) progressValue = 100;
                 progressBarScan.Value = progressValue;
 
+                if (TaskbarManager.IsPlatformSupported && tbManager != null)
+                {
+                    tbManager.SetProgressValue(progressValue, 100);
+                }
+
                 TimeSpan elapsedTime = DateTime.Now.Subtract(scanState.TimeStarted);
                 TimeSpan remainingTime;
                 if (progress > 0 && progress < 1)
@@ -1375,6 +1389,11 @@ namespace BDInfoGUI
             buttonRescan.Enabled = true;
             buttonScan.Enabled = true;
             buttonScan.Text = "Scan Bitrates";
+
+            if (TaskbarManager.IsPlatformSupported && tbManager != null)
+            {
+                tbManager.SetProgressState(TaskbarProgressBarState.NoProgress);
+            }
         }
 
         #endregion
