@@ -176,22 +176,22 @@ namespace BDInfoGUI
                                           FormClosingEventArgs e)
         {
             BDInfoGUISettings.LastPath = textBoxSource.Text;
-            Properties.Settings.Default.WindowState = WindowState;
+            BDInfoGUISettings.WindowState = WindowState;
 
             if (WindowState == FormWindowState.Normal)
             {
-                Properties.Settings.Default.WindowSize = Size;
-                Properties.Settings.Default.WindowLocation = Location;
+                BDInfoGUISettings.WindowSize = Size;
+                BDInfoGUISettings.WindowLocation = Location;
             }
             else
             {
-                Properties.Settings.Default.WindowSize = RestoreBounds.Size;
-                Properties.Settings.Default.WindowLocation = RestoreBounds.Location;
+                BDInfoGUISettings.WindowSize = RestoreBounds.Size;
+                BDInfoGUISettings.WindowLocation = RestoreBounds.Location;
             }
 
 
             BDInfoSettings.SaveSettings();
-            Properties.Settings.Default.Save();
+            BDInfoGUISettings.SaveSettings();
 
             if (InitBDROMWorker != null &&
                 InitBDROMWorker.IsBusy)

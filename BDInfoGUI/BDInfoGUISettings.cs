@@ -17,6 +17,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
+using System.Drawing;
+
 namespace BDInfoGUI
 {
     class BDInfoGUISettings
@@ -136,6 +138,51 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.LastPath = value; }
+                catch { }
+            }
+        }
+
+        public static System.Windows.Forms.FormWindowState WindowState
+        {
+            get
+            {
+                try { return Properties.Settings.Default.WindowState; }
+                catch { return System.Windows.Forms.FormWindowState.Normal; }
+            }
+
+            set
+            {
+                try { Properties.Settings.Default.WindowState = value; }
+                catch { }
+            }
+        }
+
+        public static Size WindowSize
+        {
+            get
+            {
+                try { return Properties.Settings.Default.WindowSize; }
+                catch { return new Size(); }
+            }
+
+            set
+            {
+                try { Properties.Settings.Default.WindowSize = value; }
+                catch { }
+            }
+        }
+
+        public static Point WindowLocation
+        {
+            get
+            {
+                try { return Properties.Settings.Default.WindowLocation; }
+                catch { return new Point(); }
+            }
+
+            set
+            {
+                try { Properties.Settings.Default.WindowLocation = value; }
                 catch { }
             }
         }
