@@ -102,12 +102,17 @@ namespace BDInfoGUI
             }
             if (extraFeatures.Count > 0)
             {
-                report += string.Format(    CultureInfo.InvariantCulture,
-                                            "{0,-16}{1}\r\n", "Extras:", 
-                                            string.Join(", ", extraFeatures.ToArray()));
+                report += string.Format(CultureInfo.InvariantCulture,
+                                        "{0,-16}{1}\r\n",
+                                        "Extras:",
+                                        string.Join(", ", extraFeatures.ToArray()));
             }
             report += string.Format(    CultureInfo.InvariantCulture,
+#if DEBUG
+                                        "{0,-16}{1}b\r\n", "BDInfo:",
+#else
                                         "{0,-16}{1}\r\n", "BDInfo:",
+#endif
                                         Application.ProductVersion);
 
             report += "\r\n";
