@@ -46,6 +46,15 @@ namespace BDInfoGUI
             {
                 GraphControl.ContextMenuBuilder += new ZedGraphControl.ContextMenuBuilderEventHandler(GraphControl_ContextMenuBuilder);
                 GraphControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GraphControl_MouseMove);
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+                {
+                    GraphControl.IsEnableHZoom = false;
+                    GraphControl.IsEnableVZoom = false;
+                    GraphControl.SelectButtons = MouseButtons.None;
+                    GraphControl.LinkButtons = MouseButtons.None;
+                    GraphControl.PanButtons = MouseButtons.None;
+                    GraphControl.ZoomButtons = MouseButtons.None;
+                }
             }
             catch { }
         }

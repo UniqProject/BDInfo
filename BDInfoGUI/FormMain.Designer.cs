@@ -51,10 +51,7 @@ namespace BDInfoGUI
             this.textBoxSource = new System.Windows.Forms.TextBox();
             this.labelSource = new System.Windows.Forms.Label();
             this.buttonSettings = new System.Windows.Forms.Button();
-            this.labelTimeRemainingElapsed = new System.Windows.Forms.Label();
-            this.labelTimeDivider = new System.Windows.Forms.Label();
-            this.labelTimeElapsed = new System.Windows.Forms.Label();
-            this.labelTimeRemaining = new System.Windows.Forms.Label();
+            this.labelScanTime = new System.Windows.Forms.Label();
             this.progressBarScan = new System.Windows.Forms.ProgressBar();
             this.labelPlaylistFiles = new System.Windows.Forms.Label();
             this.buttonViewReport = new System.Windows.Forms.Button();
@@ -136,48 +133,17 @@ namespace BDInfoGUI
             this.buttonSettings.UseVisualStyleBackColor = true;
             this.buttonSettings.Click += new System.EventHandler(this.buttonSettings_Click);
             // 
-            // labelTimeRemainingElapsed
+            // labelScanTime
             // 
-            this.labelTimeRemainingElapsed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelTimeRemainingElapsed.AutoSize = true;
-            this.labelTimeRemainingElapsed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelTimeRemainingElapsed.Location = new System.Drawing.Point(580, 589);
-            this.labelTimeRemainingElapsed.Name = "labelTimeRemainingElapsed";
-            this.labelTimeRemainingElapsed.Size = new System.Drawing.Size(135, 13);
-            this.labelTimeRemainingElapsed.TabIndex = 35;
-            this.labelTimeRemainingElapsed.Text = "Time Remaining / Elapsed:";
-            // 
-            // labelTimeDivider
-            // 
-            this.labelTimeDivider.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelTimeDivider.AutoSize = true;
-            this.labelTimeDivider.Location = new System.Drawing.Point(773, 589);
-            this.labelTimeDivider.Name = "labelTimeDivider";
-            this.labelTimeDivider.Size = new System.Drawing.Size(12, 15);
-            this.labelTimeDivider.TabIndex = 34;
-            this.labelTimeDivider.Text = "/";
-            // 
-            // labelTimeElapsed
-            // 
-            this.labelTimeElapsed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelTimeElapsed.AutoSize = true;
-            this.labelTimeElapsed.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelTimeElapsed.Location = new System.Drawing.Point(791, 589);
-            this.labelTimeElapsed.Name = "labelTimeElapsed";
-            this.labelTimeElapsed.Size = new System.Drawing.Size(49, 13);
-            this.labelTimeElapsed.TabIndex = 33;
-            this.labelTimeElapsed.Text = "00:00:00";
-            // 
-            // labelTimeRemaining
-            // 
-            this.labelTimeRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelTimeRemaining.AutoSize = true;
-            this.labelTimeRemaining.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelTimeRemaining.Location = new System.Drawing.Point(721, 589);
-            this.labelTimeRemaining.Name = "labelTimeRemaining";
-            this.labelTimeRemaining.Size = new System.Drawing.Size(49, 13);
-            this.labelTimeRemaining.TabIndex = 32;
-            this.labelTimeRemaining.Text = "00:00:00";
+            this.labelScanTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelScanTime.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelScanTime.Location = new System.Drawing.Point(438, 587);
+            this.labelScanTime.Name = "labelScanTime";
+            this.labelScanTime.Size = new System.Drawing.Size(402, 15);
+            this.labelScanTime.TabIndex = 33;
+            this.labelScanTime.Tag = "Time Remaining / Elapsed: ";
+            this.labelScanTime.Text = "00:00:00";
+            this.labelScanTime.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // progressBarScan
             // 
@@ -238,10 +204,11 @@ namespace BDInfoGUI
             // 
             this.labelProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.labelProgress.AutoSize = true;
-            this.labelProgress.Location = new System.Drawing.Point(14, 589);
+            this.labelProgress.Location = new System.Drawing.Point(14, 587);
             this.labelProgress.Name = "labelProgress";
             this.labelProgress.Size = new System.Drawing.Size(0, 15);
             this.labelProgress.TabIndex = 37;
+            this.labelProgress.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // buttonSelectAll
             // 
@@ -490,10 +457,7 @@ namespace BDInfoGUI
             this.Controls.Add(this.buttonSelectAll);
             this.Controls.Add(this.labelProgress);
             this.Controls.Add(this.buttonSettings);
-            this.Controls.Add(this.labelTimeRemainingElapsed);
-            this.Controls.Add(this.labelTimeDivider);
-            this.Controls.Add(this.labelTimeElapsed);
-            this.Controls.Add(this.labelTimeRemaining);
+            this.Controls.Add(this.labelScanTime);
             this.Controls.Add(this.progressBarScan);
             this.Controls.Add(this.labelPlaylistFiles);
             this.Controls.Add(this.buttonViewReport);
@@ -532,10 +496,7 @@ namespace BDInfoGUI
         private System.Windows.Forms.TextBox textBoxSource;
         private System.Windows.Forms.Label labelSource;
         private System.Windows.Forms.Button buttonSettings;
-        private System.Windows.Forms.Label labelTimeRemainingElapsed;
-        private System.Windows.Forms.Label labelTimeDivider;
-        private System.Windows.Forms.Label labelTimeElapsed;
-        private System.Windows.Forms.Label labelTimeRemaining;
+        private System.Windows.Forms.Label labelScanTime;
         private System.Windows.Forms.ProgressBar progressBarScan;
         private System.Windows.Forms.Label labelPlaylistFiles;
         private System.Windows.Forms.Button buttonViewReport;

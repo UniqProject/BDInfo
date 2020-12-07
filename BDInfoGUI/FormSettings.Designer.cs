@@ -164,7 +164,7 @@ namespace BDInfoGUI
             // 
             // textBoxFilterShortPlaylistsValue
             // 
-            this.textBoxFilterShortPlaylistsValue.Location = new System.Drawing.Point(187, 201);
+            this.textBoxFilterShortPlaylistsValue.Location = new System.Drawing.Point(191, 201);
             this.textBoxFilterShortPlaylistsValue.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBoxFilterShortPlaylistsValue.MaxLength = 4;
             this.textBoxFilterShortPlaylistsValue.Name = "textBoxFilterShortPlaylistsValue";
@@ -175,7 +175,7 @@ namespace BDInfoGUI
             // labelPlaylistLength
             // 
             this.labelPlaylistLength.AutoSize = true;
-            this.labelPlaylistLength.Location = new System.Drawing.Point(236, 205);
+            this.labelPlaylistLength.Location = new System.Drawing.Point(244, 205);
             this.labelPlaylistLength.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPlaylistLength.Name = "labelPlaylistLength";
             this.labelPlaylistLength.Size = new System.Drawing.Size(24, 15);
@@ -195,7 +195,7 @@ namespace BDInfoGUI
             // 
             // textBoxUseImagePrefixValue
             // 
-            this.textBoxUseImagePrefixValue.Location = new System.Drawing.Point(132, 227);
+            this.textBoxUseImagePrefixValue.Location = new System.Drawing.Point(138, 227);
             this.textBoxUseImagePrefixValue.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.textBoxUseImagePrefixValue.MaxLength = 4;
             this.textBoxUseImagePrefixValue.Name = "textBoxUseImagePrefixValue";
@@ -252,8 +252,8 @@ namespace BDInfoGUI
             // FormSettings
             // 
             this.AcceptButton = this.buttonOK;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(284, 346);
             this.Controls.Add(this.checkBoxSizeFormatHR);
@@ -272,6 +272,7 @@ namespace BDInfoGUI
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.checkBoxGenerateStreamDiagnostics);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;

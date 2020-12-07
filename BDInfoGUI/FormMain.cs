@@ -105,7 +105,7 @@ namespace BDInfoGUI
             listViewPlaylistFiles.Columns[1].Width =
                 (int)(listViewPlaylistFiles.ClientSize.Width * 0.07);
             listViewPlaylistFiles.Columns[2].Width =
-                (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
+                (int)(listViewPlaylistFiles.ClientSize.Width * 0.19);
             listViewPlaylistFiles.Columns[3].Width =
                 (int)(listViewPlaylistFiles.ClientSize.Width * 0.21);
             listViewPlaylistFiles.Columns[4].Width =
@@ -116,7 +116,7 @@ namespace BDInfoGUI
             listViewStreamFiles.Columns[1].Width =
                 (int)(listViewStreamFiles.ClientSize.Width * 0.08);
             listViewStreamFiles.Columns[2].Width =
-                (int)(listViewStreamFiles.ClientSize.Width * 0.23);
+                (int)(listViewStreamFiles.ClientSize.Width * 0.21);
             listViewStreamFiles.Columns[3].Width =
                 (int)(listViewStreamFiles.ClientSize.Width * 0.23);
             listViewStreamFiles.Columns[4].Width =
@@ -129,7 +129,7 @@ namespace BDInfoGUI
             listViewStreams.Columns[2].Width =
                 (int)(listViewStreams.ClientSize.Width * 0.10);
             listViewStreams.Columns[3].Width =
-                (int)(listViewStreams.ClientSize.Width * 0.58);
+                (int)(listViewStreams.ClientSize.Width * 0.56);
         }
 
         public void OnCustomPlaylistAdded()
@@ -162,6 +162,8 @@ namespace BDInfoGUI
             Size = Properties.Settings.Default.WindowSize;
             Location = Properties.Settings.Default.WindowLocation;
             WindowState = Properties.Settings.Default.WindowState;
+
+            labelScanTime.Text = $" {labelScanTime.Tag} 00:00:00 / 00:00:00";
         }
 
         private void FormMain_Load(object sender,
@@ -264,27 +266,44 @@ namespace BDInfoGUI
             string path = null;
             try
             {
-                CommonOpenFileDialog openDialog = new CommonOpenFileDialog();
-                if (((Button) sender).Name == "buttonBrowse")
+                if (((Button)sender).Name == "buttonBrowse")
                 {
-                    openDialog.IsFolderPicker = true;
-                    openDialog.Title = "Select a BluRay BDMV Folder:";
+                    using (var dialog = new FolderBrowserDialog())
+                    {
+                        dialog.Description = "Select a BluRay BDMV Folder:";
+#if NETCOREAPP3_1
+                        dialog.UseDescriptionForTitle = true;
+#endif
+                        if (!string.IsNullOrEmpty(textBoxSource.Text))
+                        {
+                            dialog.SelectedPath = textBoxSource.Text;
+                        }
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            path = dialog.SelectedPath;
+                        }
+                    }
                 }
                 else
                 {
-                    openDialog.IsFolderPicker = false;
-                    openDialog.Title = "Select a BluRay .ISO file:";
-                    openDialog.Filters.Add(new CommonFileDialogFilter("ISO-Image", "iso"));
+                    using (var dialog = new OpenFileDialog())
+                    {
+                        dialog.Title = "Select a BluRay .ISO file:";
+                        dialog.Filter = "ISO-Image|*.iso";
+                        dialog.RestoreDirectory = true;
+                        if (!string.IsNullOrEmpty(textBoxSource.Text))
+                        {
+                            dialog.InitialDirectory = textBoxSource.Text;
+                        }
+                        if (dialog.ShowDialog() == DialogResult.OK)
+                        {
+                            path = dialog.FileName;
+                        }
+                    }
                 }
-                
 
-                if (!string.IsNullOrEmpty(textBoxSource.Text))
+                if (!string.IsNullOrEmpty(path))
                 {
-                    openDialog.InitialDirectory = textBoxSource.Text;
-                }
-                if (openDialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    path = openDialog.FileName;
                     textBoxSource.Text = path;
                     InitBDROM(path);
                 }
@@ -545,8 +564,7 @@ namespace BDInfoGUI
             listViewStreams.Enabled = true;
             progressBarScan.Value = 0;
             labelProgress.Text = "";
-            labelTimeElapsed.Text = "00:00:00";
-            labelTimeRemaining.Text = "00:00:00";
+            labelScanTime.Text = $" {labelScanTime.Tag} 00:00:00 / 00:00:00";
 
             if (!string.IsNullOrEmpty(BDROM.DiscTitle))
             {
@@ -1095,8 +1113,7 @@ namespace BDInfoGUI
             progressBarScan.Minimum = 0;
             progressBarScan.Maximum = 100;
             labelProgress.Text = "Scanning disc...";
-            labelTimeElapsed.Text = "00:00:00";
-            labelTimeRemaining.Text = "00:00:00";
+            labelScanTime.Text = $" {labelScanTime.Tag} 00:00:00 / 00:00:00";
             buttonBrowse.Enabled = false;
             buttonIsoBrowse.Enabled = false;
             buttonRescan.Enabled = false;
@@ -1304,21 +1321,13 @@ namespace BDInfoGUI
                     remainingTime = new TimeSpan(0);
                 }
 
-                labelTimeElapsed.Text = string.Format(CultureInfo.InvariantCulture,
-                    "{0:D2}:{1:D2}:{2:D2}",
-                    elapsedTime.Hours,
-                    elapsedTime.Minutes,
-                    elapsedTime.Seconds);
-
-                labelTimeRemaining.Text = string.Format(CultureInfo.InvariantCulture,
-                    "{0:D2}:{1:D2}:{2:D2}",
-                    remainingTime.Hours,
-                    remainingTime.Minutes,
-                    remainingTime.Seconds);
+                labelScanTime.Text = $" {labelScanTime.Tag} { elapsedTime.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture) } / { remainingTime.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture) }";
 
                 UpdatePlaylistBitrates();
             }
-            catch { }
+            catch 
+            { 
+            }
         }
 
         private void ScanBDROMCompleted(
@@ -1331,7 +1340,8 @@ namespace BDInfoGUI
 
             labelProgress.Text = "Scan complete.";
             progressBarScan.Value = 100;
-            labelTimeRemaining.Text = "00:00:00";
+
+            labelScanTime.Text = $" {labelScanTime.Tag} 00:00:00 / 00:00:00";
 
             if (ScanResult.ScanException != null)
             {
@@ -1470,6 +1480,8 @@ namespace BDInfoGUI
             {
                 AutoSize = true,
                 Font = new Font(Font.SystemFontName, 12),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
                 Text = text
             };
 
@@ -1481,7 +1493,7 @@ namespace BDInfoGUI
                 FormBorderStyle = FormBorderStyle.Fixed3D
             };
             FormNotification.Controls.Add(label);
-            FormNotification.Size = new Size(label.Width + 10, 18);
+            FormNotification.Size = new Size(label.Width + 10, label.Height + 10);
             FormNotification.Show(this);
             FormNotification.Location = new Point(
                 this.Location.X + this.Width / 2 - FormNotification.Width / 2,
