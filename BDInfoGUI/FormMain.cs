@@ -462,7 +462,6 @@ namespace BDInfoGUI
         {
             try
             {
-                IFileInfo pathInfo = FileInfo.FromFullName((string)e.Argument);
                 BDROM = new BDROM((string)e.Argument);
 
                 BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
