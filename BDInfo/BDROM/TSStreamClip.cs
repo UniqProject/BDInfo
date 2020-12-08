@@ -32,6 +32,7 @@ namespace BDInfo
         public double RelativeTimeIn;
         public double RelativeTimeOut;
         public double Length;
+        public double RelativeLength;
 
         public ulong FileSize = 0;
         public ulong InterleavedFileSize = 0;
