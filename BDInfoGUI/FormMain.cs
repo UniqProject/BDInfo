@@ -27,7 +27,6 @@ using System.Threading;
 using System.Windows.Forms;
 using BDInfo;
 using BDInfo.IO;
-using DiscUtils.Udf;
 using Microsoft.WindowsAPICodePack.Taskbar;
 
 namespace BDInfoGUI
@@ -461,22 +460,11 @@ namespace BDInfoGUI
         private void InitBDROMWork(object sender,
                                    DoWorkEventArgs e)
         {
-            System.IO.Stream fileStream = null;
             try
             {
                 IFileInfo pathInfo = FileInfo.FromFullName((string)e.Argument);
-                BDROM = null;
-                if (pathInfo.IsDir)
-                {
-                    BDROM = new BDROM(DirectoryInfo.FromDirectoryName(pathInfo.FullName));
-                }
-                else
-                {
-                    IsImage = true;
-                    fileStream = System.IO.File.OpenRead(pathInfo.FullName);
-                    UdfReader cdReader = new UdfReader(fileStream);
-                    BDROM = new BDROM(DiscDirectoryInfo.FromImage(cdReader, "BDMV"));
-                }
+                BDROM = new BDROM((string)e.Argument);
+
                 BDROM.StreamClipFileScanError += new BDROM.OnStreamClipFileScanError(BDROM_StreamClipFileScanError);
                 BDROM.StreamFileScanError += new BDROM.OnStreamFileScanError(BDROM_StreamFileScanError);
                 BDROM.PlaylistFileScanError += new BDROM.OnPlaylistFileScanError(BDROM_PlaylistFileScanError);
@@ -486,13 +474,6 @@ namespace BDInfoGUI
             catch (Exception ex)
             {
                 e.Result = ex;
-            }
-            finally
-            {
-                if (fileStream != null)
-                {
-                    fileStream.Close();
-                }
             }
         }
 

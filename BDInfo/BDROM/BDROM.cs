@@ -25,11 +25,13 @@ using System.Text;
 using System.Xml;
 
 using BDInfo.IO;
+using DiscUtils.Udf;
 
 namespace BDInfo
 {
     public class BDROM
     {
+        private Stream _fileStream = null;
         public IDirectoryInfo DirectoryRoot = null;
         public IDirectoryInfo DirectoryBDMV = null;
 
@@ -78,12 +80,22 @@ namespace BDInfo
 
         public event OnPlaylistFileScanError PlaylistFileScanError;
 
-        public BDROM(IDirectoryInfo path)
+        public BDROM(string path)
         {
             //
             // Locate BDMV directories.
             //
-            DirectoryBDMV = GetDirectoryBDMV(path);
+            IFileInfo pathInfo = IO.FileInfo.FromFullName(path);
+            IDirectoryInfo tempPath = null;
+            if (pathInfo.IsDir)
+                tempPath = IO.DirectoryInfo.FromDirectoryName(pathInfo.FullName);
+            else
+            {
+                _fileStream = File.OpenRead(pathInfo.FullName);
+                UdfReader cdReader = new UdfReader(_fileStream);
+                tempPath = DiscDirectoryInfo.FromImage(cdReader, "BDMV");
+            }
+            DirectoryBDMV = GetDirectoryBDMV(tempPath);
 
             if (DirectoryBDMV == null)
             {
