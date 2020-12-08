@@ -1048,7 +1048,8 @@ namespace BDInfo
                 foreach (TSStreamFile streamFile
                     in BDROM.StreamFiles.Values)
                 {
-                    streamFiles.Add(streamFile);
+                    if (streamFile != null)
+                        streamFiles.Add(streamFile);
                 }
             }
             else
@@ -1065,7 +1066,7 @@ namespace BDInfo
                         foreach (TSStreamClip clip
                             in playlist.StreamClips)
                         {
-                            if (!streamFiles.Contains(clip.StreamFile))
+                            if (clip.StreamFile != null && !streamFiles.Contains(clip.StreamFile))
                             {
                                 streamFiles.Add(clip.StreamFile);
                             }
