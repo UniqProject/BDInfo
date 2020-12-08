@@ -126,7 +126,7 @@ namespace SampleCopy
             string targetPath = Path.Combine(textBoxTarget.Text, BDROM.VolumeLabel);
             DirectoryInfo target = new DirectoryInfo(targetPath);
             if (target.Exists)
-            if (MessageBox.Show("This will delete all files in the target directory! Do you want to continue", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2, MessageBoxOptions.ServiceNotification) != DialogResult.Yes) return;
+            if (MessageBox.Show("This will delete all files in the target directory! Do you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2, MessageBoxOptions.ServiceNotification) != DialogResult.Yes) return;
 
             buttonBrowseSource.Enabled = false;
             buttonBrowseTarget.Enabled = false;
