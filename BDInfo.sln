@@ -10,6 +10,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfoGUI", "BDInfoGUI\BDIn
 		{3209AF1D-4762-4960-9DE5-13E90E77EE96} = {3209AF1D-4762-4960-9DE5-13E90E77EE96}
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleCopy", "SampleCopy\SampleCopy.csproj", "{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3209AF1D-4762-4960-9DE5-13E90E77EE96} = {3209AF1D-4762-4960-9DE5-13E90E77EE96}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Beta|Any CPU = Beta|Any CPU
@@ -29,6 +34,12 @@ Global
 		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB52CADC-B40A-4645-A119-6F68146FC2DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Beta|Any CPU.ActiveCfg = Beta|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Beta|Any CPU.Build.0 = Beta|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD0EC28A-C62E-4673-BDA6-4FD74E9592AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
