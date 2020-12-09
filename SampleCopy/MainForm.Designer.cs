@@ -58,6 +58,7 @@ namespace SampleCopy
             this.label4 = new System.Windows.Forms.Label();
             this.comboBoxSampleSize = new System.Windows.Forms.ComboBox();
             this.buttonCreateSample = new System.Windows.Forms.Button();
+            this.buttonBrowseISOSource = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -166,11 +167,22 @@ namespace SampleCopy
             this.buttonCreateSample.UseVisualStyleBackColor = true;
             this.buttonCreateSample.Click += new System.EventHandler(this.buttonCreateSample_Click);
             // 
+            // buttonBrowseISOSource
+            // 
+            this.buttonBrowseISOSource.Location = new System.Drawing.Point(438, 59);
+            this.buttonBrowseISOSource.Name = "buttonBrowseISOSource";
+            this.buttonBrowseISOSource.Size = new System.Drawing.Size(75, 23);
+            this.buttonBrowseISOSource.TabIndex = 11;
+            this.buttonBrowseISOSource.Text = "ISO";
+            this.buttonBrowseISOSource.UseVisualStyleBackColor = true;
+            this.buttonBrowseISOSource.Click += new System.EventHandler(this.buttonBrowseSource_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(526, 261);
+            this.Controls.Add(this.buttonBrowseISOSource);
             this.Controls.Add(this.buttonCreateSample);
             this.Controls.Add(this.comboBoxSampleSize);
             this.Controls.Add(this.label4);
@@ -205,6 +217,7 @@ namespace SampleCopy
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox comboBoxSampleSize;
         private System.Windows.Forms.Button buttonCreateSample;
+        private System.Windows.Forms.Button buttonBrowseISOSource;
     }
 }
 

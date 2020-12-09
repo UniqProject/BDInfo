@@ -17,15 +17,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 using BDInfo.IO;
 
 namespace BDInfo
 {
-    class DiscFileInfo : IFileInfo
+    public class DiscFileInfo : IFileInfo
     {
         private readonly DiscUtils.DiscFileInfo _impl;
         public string Name => _impl.Name;
@@ -37,6 +33,8 @@ namespace BDInfo
         public long Length => _impl.Length;
 
         public bool IsDir => _impl.Attributes.HasFlag(System.IO.FileAttributes.Directory);
+
+        public bool IsImage => true;
 
         public DiscFileInfo(DiscUtils.DiscFileInfo impl)
         {

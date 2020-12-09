@@ -37,8 +37,8 @@ namespace SampleCopy
             public long FinishedBytes = 0;
             public DateTime TimeStarted = DateTime.Now;
             public string FileCopy = "";
-            public Dictionary<string, string> FileMap =
-                new Dictionary<string, string>();
+            public Dictionary<BDInfo.IO.IFileInfo, string> FileMap =
+                new Dictionary<BDInfo.IO.IFileInfo, string>();
             public Exception Exception = null;
         }
 
@@ -55,19 +55,40 @@ namespace SampleCopy
         private void buttonBrowseSource_Click(object sender, EventArgs e)
         {
             string path = "";
-            using (var dialog = new FolderBrowserDialog())
+
+            if (((Button)sender).Name == "buttonBrowseSource")
             {
-                dialog.Description = "Select a BluRay BDMV Folder:";
+                using (var dialog = new FolderBrowserDialog())
+                {
+                    dialog.Description = "Select a BluRay BDMV Folder:";
 #if NETCOREAPP3_1
-                dialog.UseDescriptionForTitle = true;
+                    dialog.UseDescriptionForTitle = true;
 #endif
-                if (!string.IsNullOrEmpty(textBoxSource.Text))
-                {
-                    dialog.SelectedPath = textBoxSource.Text;
+                    if (!string.IsNullOrEmpty(textBoxSource.Text))
+                    {
+                        dialog.SelectedPath = textBoxSource.Text;
+                    }
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        path = dialog.SelectedPath;
+                    }
                 }
-                if (dialog.ShowDialog() == DialogResult.OK)
+            }
+            else
+            {
+                using (var dialog = new OpenFileDialog())
                 {
-                    path = dialog.SelectedPath;
+                    dialog.Title = "Select a BluRay .ISO file:";
+                    dialog.Filter = "ISO-Image|*.iso";
+                    dialog.RestoreDirectory = true;
+                    if (!string.IsNullOrEmpty(textBoxSource.Text))
+                    {
+                        dialog.InitialDirectory = textBoxSource.Text;
+                    }
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        path = dialog.FileName;
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(path))
@@ -129,6 +150,7 @@ namespace SampleCopy
             if (MessageBox.Show("This will delete all files in the target directory! Do you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2, MessageBoxOptions.ServiceNotification) != DialogResult.Yes) return;
 
             buttonBrowseSource.Enabled = false;
+            buttonBrowseISOSource.Enabled = false;
             buttonBrowseTarget.Enabled = false;
             textBoxSource.Enabled = false;
             textBoxTarget.Enabled = false;
@@ -166,80 +188,92 @@ namespace SampleCopy
                 }
 
                 CopyFileState copyState = new CopyFileState();
-                
+
+                if (BDROM.DirectorySSIF != null)
+                {
+                    foreach (var file in BDROM.DirectorySSIF?.GetFiles(_selectedStream.Replace("M2TS","SSIF")))
+                    {
+                        copyState.TotalBytes += file.Length > _sampleSize ? _sampleSize : file.Length;
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
+                    }
+                }
+
                 if (BDROM.DirectorySTREAM != null)
                 {
-                    foreach (var file in BDROM.DirectorySTREAM?.GetFiles(_selectedStream, System.IO.SearchOption.TopDirectoryOnly))
+                    foreach (var file in BDROM.DirectorySTREAM?.GetFiles(_selectedStream))
                     {
-                        copyState.TotalBytes += _sampleSize;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.TotalBytes += file.Length > _sampleSize ? _sampleSize : file.Length;
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 if (BDROM.DirectoryBDMV != null)
                 {
-                    foreach (var file in BDROM.DirectoryBDMV?.GetFiles("*.bdmv", System.IO.SearchOption.TopDirectoryOnly))
+                    foreach (var file in BDROM.DirectoryBDMV?.GetFiles())
                     {
                         copyState.TotalBytes += file.Length;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 if (BDROM.DirectoryBDJO != null)
                 {
-                    foreach (var file in BDROM.DirectoryBDJO?.GetFiles("*", System.IO.SearchOption.AllDirectories))
+                    foreach (var file in BDROM.DirectoryBDJO?.GetFiles())
                     {
                         copyState.TotalBytes += file.Length;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 if (BDROM.DirectoryCLIPINF != null)
                 {
-                    foreach (var file in BDROM.DirectoryCLIPINF?.GetFiles("*", System.IO.SearchOption.AllDirectories))
+                    foreach (var file in BDROM.DirectoryCLIPINF?.GetFiles())
                     {
                         copyState.TotalBytes += file.Length;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 if (BDROM.DirectoryMETA != null)
                 {
-                    foreach (var file in BDROM.DirectoryMETA?.GetFiles("*", System.IO.SearchOption.AllDirectories))
+                    foreach (var file in BDROM.DirectoryMETA?.GetFiles())
                     {
                         copyState.TotalBytes += file.Length;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 if (BDROM.DirectoryPLAYLIST != null)
                 {
-                    foreach (var file in BDROM.DirectoryPLAYLIST?.GetFiles("*", System.IO.SearchOption.AllDirectories))
+                    foreach (var file in BDROM.DirectoryPLAYLIST?.GetFiles())
                     {
                         copyState.TotalBytes += file.Length;
-                        copyState.FileMap.Add(file.FullName, file.FullName.Replace(textBoxSource.Text, targetPath));
+                        copyState.FileMap.Add(file, file.IsImage ? Path.Combine(targetPath, BDROM.VolumeLabel, file.FullName) : file.FullName.Replace(textBoxSource.Text, targetPath));
                     }
                 }
 
                 foreach (var file in copyState.FileMap)
                 {
-                    copyState.FileCopy = file.Key;
-                    var fileIn = new FileInfo(file.Key);
-                    var fileOut = new FileInfo(file.Value);
-                    if (!fileOut.Directory.Exists)
+                    using (var fileIn = file.Key.OpenRead())
                     {
-                        fileOut.Directory.Create();
+                        var fileOut = new FileInfo(file.Value);
+                        if (!fileOut.Directory.Exists)
+                        {
+                            fileOut.Directory.Create();
+                        }
+                        var cancelToken = new CancellationToken();
+                        await CopyFile(fileIn, fileOut, _sampleSize, cancelToken);
                     }
-                    var cancelToken = new CancellationToken();
-                    await CopyFile(fileIn, fileOut, _sampleSize, cancelToken);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
             ValidateButtonCreate();
+
             buttonBrowseSource.Enabled = true;
+            buttonBrowseISOSource.Enabled = true;
             buttonBrowseTarget.Enabled = true;
             textBoxSource.Enabled = true;
             textBoxTarget.Enabled = true;
@@ -264,6 +298,7 @@ namespace SampleCopy
             textBoxSource.Enabled = false;
             buttonBrowseSource.Enabled = false;
             buttonBrowseSource.Text = "Scanning...";
+            buttonBrowseISOSource.Enabled = false;
             comboBoxStreamFile.Enabled = false;
             textBoxTarget.Enabled = false;
             buttonBrowseTarget.Enabled = false;
@@ -366,6 +401,7 @@ namespace SampleCopy
             textBoxSource.Enabled = true;
             buttonBrowseSource.Enabled = true;
             buttonBrowseSource.Text = "Browse";
+            buttonBrowseISOSource.Enabled = true;
             comboBoxStreamFile.Enabled = true;
             textBoxTarget.Enabled = true;
             buttonBrowseTarget.Enabled = true;
@@ -374,12 +410,12 @@ namespace SampleCopy
             ValidateButtonCreate();
         }
 
-        public static async Task CopyFile(FileInfo fileIn, FileInfo fileOut, long maxSize, CancellationToken cancellationToken)
+        public static async Task CopyFile(Stream fileIn, FileInfo fileOut, long maxSize, CancellationToken cancellationToken)
         {
             var fileOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
             var bufferSize = 81920;
 
-            using (var sourceStream = new FileStream(fileIn.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, fileOptions))
+            using (var sourceStream = fileIn)
             {
                 using (var destinationStream = new FileStream(fileOut.FullName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, fileOptions))
                 {
