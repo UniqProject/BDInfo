@@ -347,7 +347,8 @@ namespace BDInfoGUI
                                           EventArgs e)
         {
             FormSettings settings = new FormSettings();
-            settings.ShowDialog();
+            if (settings.ShowDialog() == DialogResult.OK)
+                LoadPlaylists(); 
         }
 
         private void buttonSelectAll_Click(object sender,
