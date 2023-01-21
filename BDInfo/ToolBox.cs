@@ -49,5 +49,21 @@ namespace BDInfo
 
             return val;
         }
+
+        public static string GetSafeFileName(string fileName)
+        {
+            string outFileName = fileName;
+
+            foreach (char lDisallowed in System.IO.Path.GetInvalidFileNameChars())
+            {
+                outFileName = outFileName.Replace(lDisallowed.ToString(), "");
+            }
+            foreach (char lDisallowed in System.IO.Path.GetInvalidPathChars())
+            {
+                outFileName = outFileName.Replace(lDisallowed.ToString(), "");
+            }
+
+            return outFileName;
+        }
     }
 }

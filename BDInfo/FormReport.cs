@@ -47,6 +47,8 @@ namespace BDInfo
                 string reportName = string.Format(  CultureInfo.InvariantCulture,
                                                     "BDINFO.{0}.txt",
                                                     BDROM.VolumeLabel);
+
+                reportName = ToolBox.GetSafeFileName(reportName);
                 
                 reportFile = File.CreateText(Path.Combine(Environment.CurrentDirectory, reportName));
             }
