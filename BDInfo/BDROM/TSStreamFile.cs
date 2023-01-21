@@ -1110,6 +1110,12 @@ namespace BDInfo
                                     headerFound = true;
                                 }
                                 if (stream.IsAudioStream &&
+                                    streamState.Parse >= 0x000001C0 &&
+                                    streamState.Parse <= 0x000001DF)
+                                {
+                                    headerFound = true;
+                                }
+                                if (stream.IsAudioStream &&
                                     (streamState.Parse == 0x000001FA ||
                                      streamState.Parse == 0x000001FD))
                                 {
