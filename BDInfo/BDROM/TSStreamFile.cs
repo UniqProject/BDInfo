@@ -475,7 +475,7 @@ namespace BDInfo
             }
 
             Playlists = playlists;
-            int dataSize = 16384;
+            int dataSize = isFullScan ? 262144 : 16384;
             Stream fileStream = null;
             try
             {                
