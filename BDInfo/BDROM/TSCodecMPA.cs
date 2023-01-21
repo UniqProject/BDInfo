@@ -19,11 +19,6 @@
 
 #undef DEBUG
 
-using System;
-using System.Collections;
-using System.Collections.Specialized;
-using System.IO;
-
 namespace BDInfo
 {
     public abstract class TSCodecMPA
@@ -108,6 +103,22 @@ namespace BDInfo
             (byte)TSAudioMode.Mono
         };
 
+        private static readonly string[] MPAVersion =
+        {
+            "MPEG 2.5",
+            "Unknown MPEG",
+            "MPEG 2",
+            "MPEG 1"
+        };
+
+        private static readonly string[] MPALayer =
+        {
+            "Unknown Layer",
+            "Layer III",
+            "Layer II",
+            "Layer I"
+        };
+
         private static readonly byte[] MPAChannels = {2, 2, 2, 1};
 
         public static void Scan(TSAudioStream stream, TSStreamBuffer buffer, ref string tag)
@@ -136,6 +147,9 @@ namespace BDInfo
 
             stream.ChannelCount = MPAChannels[channelMode];
             stream.LFE = 0;
+            
+            stream.ExtendedData = $"{MPAVersion[audioVersionID]} {MPALayer[layerIndex]}";
+
             stream.IsVBR = false;
             stream.IsInitialized = true;
         }
