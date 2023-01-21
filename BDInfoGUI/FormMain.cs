@@ -272,7 +272,7 @@ namespace BDInfoGUI
                     using (var dialog = new FolderBrowserDialog())
                     {
                         dialog.Description = "Select a BluRay BDMV Folder:";
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
                         dialog.UseDescriptionForTitle = true;
 #endif
                         if (!string.IsNullOrEmpty(textBoxSource.Text))
@@ -282,6 +282,7 @@ namespace BDInfoGUI
                         if (dialog.ShowDialog() == DialogResult.OK)
                         {
                             path = dialog.SelectedPath;
+                            IsImage = false;
                         }
                     }
                 }
@@ -299,6 +300,7 @@ namespace BDInfoGUI
                         if (dialog.ShowDialog() == DialogResult.OK)
                         {
                             path = dialog.FileName;
+                            IsImage = true;
                         }
                     }
                 }
