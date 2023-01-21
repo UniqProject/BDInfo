@@ -42,7 +42,6 @@ namespace BDInfo
 
             for (int i = 0; i < buffer.Length; i++)
             {
-                if (stream.IsInitialized) return;
                 parse = (parse << 8) + buffer.ReadByte(true);
 
                 if (parse == 0x00000109)
