@@ -269,6 +269,12 @@ namespace BDInfo
                         (TSVideoStream)stream, buffer, ref streamState.StreamTag);
                     break;
 
+                case TSStreamType.MPEG1_AUDIO:
+                case TSStreamType.MPEG2_AUDIO:
+                    TSCodecMPA.Scan(
+                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                    break;
+
                 case TSStreamType.AC3_AUDIO:
                     TSCodecAC3.Scan(
                         (TSAudioStream)stream, buffer, ref streamState.StreamTag);

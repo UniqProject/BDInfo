@@ -76,6 +76,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BDROM\TSCodecMPA.cs" />
     <Compile Include="BDROM\TSCodecAC3.cs" />
     <Compile Include="BDROM\TSCodecAVC.cs" />
     <Compile Include="BDROM\BDROM.cs" />
