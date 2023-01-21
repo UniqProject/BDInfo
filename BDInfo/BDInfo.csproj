@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+        <TargetFramework>net7.0-windows10.0.17763.0</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
         <PackageId>BDInfo</PackageId>
         <Product>BDInfo</Product>
@@ -22,6 +22,7 @@
     <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
