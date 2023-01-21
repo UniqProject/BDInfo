@@ -1438,7 +1438,10 @@ namespace BDInfo
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
-                                            streamState.PTSDiff = streamState.DTSTemp - streamState.DTSPrev;
+                                            if (streamState.DTSPrev < streamState.DTSTemp)
+                                                streamState.PTSDiff = streamState.DTSTemp - streamState.DTSPrev;
+                                            else
+                                                streamState.PTSDiff = 0;
 
                                             if (streamState.PTSCount > 0 &&
                                                 stream.IsVideoStream)
