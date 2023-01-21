@@ -519,7 +519,7 @@ namespace BDInfo
 
                 TSPacketParser parser = 
                     new TSPacketParser();
-                
+
                 long fileLength = (uint)fileStream.Length;
                 byte[] buffer = new byte[dataSize];
                 int bufferLength = 0;
@@ -678,7 +678,7 @@ namespace BDInfo
                                 }
                                 parser.PCRCount++;
                             }
-                            if (parser.PacketLength == 0)
+                            if (parser.PacketLength <= 0)
                             {
                                 parser.SyncState = false;
                             }
@@ -804,7 +804,7 @@ namespace BDInfo
                                     }
                                 }
                             }
-                            if (parser.PacketLength == 0)
+                            if (parser.PacketLength <= 0)
                             {
                                 parser.SyncState = false;
                             }
@@ -1050,7 +1050,7 @@ namespace BDInfo
                                     }
                                 }
                             }
-                            if (parser.PacketLength == 0)
+                            if (parser.PacketLength <= 0)
                             {
                                 parser.SyncState = false;
                             }
@@ -1471,7 +1471,7 @@ namespace BDInfo
                                     }
                                 }
                             }
-                            if (parser.PacketLength == 0)
+                            if (parser.PacketLength <= 0)
                             {
                                 parser.SyncState = false;
                             }
@@ -1489,7 +1489,7 @@ namespace BDInfo
                                 parser.PacketLength -= (byte)((bufferLength - i) + 1);
                                 i = bufferLength;
                             }
-                            if (parser.PacketLength == 0)
+                            if (parser.PacketLength <= 0)
                             {
                                 parser.SyncState = false;
                             }
