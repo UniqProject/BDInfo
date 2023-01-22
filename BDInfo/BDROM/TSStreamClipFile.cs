@@ -186,7 +186,9 @@ namespace BDInfo
                         case TSStreamType.LPCM_AUDIO:
                         case TSStreamType.MPEG1_AUDIO:
                         case TSStreamType.MPEG2_AUDIO:
-                        {
+                        case TSStreamType.MPEG2_AAC_AUDIO:
+                        case TSStreamType.MPEG4_AAC_AUDIO:
+                            {
                             byte[] languageBytes = new byte[3];
                             Array.Copy(clipData, streamOffset + 3,
                                 languageBytes, 0, languageBytes.Length);

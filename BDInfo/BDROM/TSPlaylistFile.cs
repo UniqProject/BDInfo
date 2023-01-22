@@ -694,6 +694,8 @@ namespace BDInfo
                 case TSStreamType.LPCM_AUDIO:
                 case TSStreamType.MPEG1_AUDIO:
                 case TSStreamType.MPEG2_AUDIO:
+                case TSStreamType.MPEG2_AAC_AUDIO:
+                case TSStreamType.MPEG4_AAC_AUDIO:
 
                     int audioFormat = ReadByte(data, ref pos);
 
@@ -1313,14 +1315,18 @@ namespace BDInfo
                     return 6;
                 case TSStreamType.AC3_PLUS_AUDIO:
                     return 7;
-                case TSStreamType.DTS_HD_AUDIO:
+                case TSStreamType.MPEG2_AAC_AUDIO:
                     return 8;
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
+                case TSStreamType.MPEG4_AAC_AUDIO:
                     return 9;
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
+                case TSStreamType.DTS_HD_AUDIO:
                     return 10;
-                case TSStreamType.LPCM_AUDIO:
+                case TSStreamType.AC3_TRUE_HD_AUDIO:
                     return 11;
+                case TSStreamType.DTS_HD_MASTER_AUDIO:
+                    return 12;
+                case TSStreamType.LPCM_AUDIO:
+                    return 13;
 
                 case TSStreamType.SUBTITLE:
                     return 1;
