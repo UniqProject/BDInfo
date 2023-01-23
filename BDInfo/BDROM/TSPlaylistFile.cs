@@ -796,11 +796,14 @@ namespace BDInfo
             }
             foreach (TSStreamClip clip in StreamClips)
             {
+                if (referenceClip.StreamFile == null && clip.StreamFile != null)
+                    referenceClip = clip;
+
                 if (clip.StreamClipFile.Streams.Count > referenceClip.StreamClipFile.Streams.Count && clip.RelativeLength > 0.01)
                 {
                     referenceClip = clip;
                 }
-                else if (clip.Length > referenceClip.Length)
+                else if (clip.Length > referenceClip.Length && clip.StreamFile != null)
                 {
                     referenceClip = clip;
                 }
