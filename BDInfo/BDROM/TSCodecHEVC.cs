@@ -452,6 +452,7 @@ namespace BDInfo
 
             do
             {
+                var syncByteFound = false;
                 do
                 {
                     var streamPos = buffer.Position;
@@ -459,17 +460,24 @@ namespace BDInfo
                         buffer.ReadByte(true) == 0x0 &&
                         buffer.ReadByte(true) == 0x0 &&
                         buffer.ReadByte(true) == 0x1)
+                    {
+                        syncByteFound = true;
                         break;
-
+                    }
+                        
                     buffer.BSSkipBytes((int) (streamPos - buffer.Position), true);
                     if (buffer.ReadByte(true) == 0x0 &&
                         buffer.ReadByte(true) == 0x0 &&
                         buffer.ReadByte(true) == 0x1)
+                    {
+                        syncByteFound = true;
                         break;
-                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
-                } while (buffer.Position < buffer.Length);
+                    }
 
-                if (buffer.Position < buffer.Length)
+                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
+                } while (buffer.Position < buffer.Length - 3);
+
+                if (buffer.Position < buffer.Length && syncByteFound)
                 {
                     var lastStreamPos = buffer.Position;
 
@@ -482,27 +490,27 @@ namespace BDInfo
                     switch (nalUnitType)
                     {
                         case 32:
-                            VideoParameterSet(buffer);
+                                VideoParameterSet(buffer);
                             break;
                         case 33:
-                            SeqParameterSet(buffer);
+                                SeqParameterSet(buffer); 
                             break;
                         case 34:
-                            PicParameterSet(buffer);
+                                PicParameterSet(buffer);
                             break;
                         case 35:
-                            AccessUnitDelimiter(buffer);
+                                AccessUnitDelimiter(buffer);
                             break;
                         case 39:
                         case 40:
-                            Sei(buffer);
+                                Sei(buffer);
                             break;
                     }
 
                     buffer.BSSkipNextByte();
                     buffer.BSSkipBytes((int) (lastStreamPos - buffer.Position), true);
                 }
-            } while (buffer.Position < buffer.Length);
+            } while (buffer.Position < buffer.Length - 3);
 
             ExtendedData.PreferredTransferCharacteristics = PreferredTransferCharacteristics;
 
@@ -666,7 +674,7 @@ namespace BDInfo
             for (var layerSetPos = 1; layerSetPos <= vpsNumLayerSetsMinus1; layerSetPos++)
                 for (var layerId = 0; layerId <= vpsMaxLayerID; layerId++)
                     buffer.BSSkipBits(1, true); //layer_id_included_flag
-
+                    
             var vpsTimingInfoPresentFlag = buffer.ReadBool(true);
             if (vpsTimingInfoPresentFlag)
             {

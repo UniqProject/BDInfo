@@ -35,7 +35,7 @@ namespace BDInfo
 
         public TSStreamBuffer()
         {
-            _buffer = new byte[20480];
+            _buffer = new byte[1048576];
             _stream = new MemoryStream(_buffer);
         }
 
@@ -343,12 +343,13 @@ namespace BDInfo
 
         public long DataBitStreamRemain()
         {
-            return (_stream.Length - _stream.Position)*8 - _skipBits;
+            var remain = (_bufferLength - _stream.Position) * 8 - _skipBits;
+            return remain;
         }
 
         public long DataBitStreamRemainBytes()
         {
-            return (_stream.Length - _stream.Position);
+            return (_bufferLength - _stream.Position);
         }
     }
 }

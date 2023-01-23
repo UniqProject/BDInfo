@@ -51,6 +51,7 @@ namespace BDInfo
         public bool TransferState = false;
         public int TransferLength = 0;
         public int PacketLength = 0;
+        public bool PacketLengthVariable = false;
         public byte PacketLengthParse = 0;
         public byte PacketParse = 0;
 
@@ -93,6 +94,7 @@ namespace BDInfo
         public bool AdaptionFieldState = false;
         public byte AdaptionFieldParse = 0;
         public byte AdaptionFieldLength = 0;
+        public bool VariablePacketEnd = false;
 
         public ushort PCRPID = 0xFFFF;
         public byte PCRParse = 0;
@@ -666,6 +668,7 @@ namespace BDInfo
                             parser.AdaptionFieldParse = buffer[i];
                             parser.AdaptionFieldLength = buffer[i];
                             parser.AdaptionFieldState = false;
+                            parser.VariablePacketEnd = true;
                         }
                         else if (parser.AdaptionFieldParse > 0)
                         {
@@ -1080,10 +1083,15 @@ namespace BDInfo
 
                             if (streamState.TransferState)
                             {
-                                if ((bufferLength - i) >= streamState.PacketLength && 
-                                    streamState.PacketLength > 0)
+                                if ((bufferLength - i) >= streamState.PacketLength &&
+                                    streamState.PacketLength > 0 && !streamState.PacketLengthVariable)
                                 {
                                     offset = streamState.PacketLength;
+                                }
+                                else if ((bufferLength - i) >= parser.PacketLength && 
+                                        parser.PacketLength > 0 && streamState.PacketLengthVariable)
+                                {
+                                    offset = parser.PacketLength;
                                 }
                                 else
                                 {
@@ -1112,6 +1120,13 @@ namespace BDInfo
 
                                 streamState.TotalBytes += (ulong)streamState.TransferLength;
                                 streamState.WindowBytes += (ulong)streamState.TransferLength;
+
+                                if (parser.VariablePacketEnd && streamState.PacketLengthVariable)
+                                {
+                                    streamState.PacketLength = 0;
+                                    parser.VariablePacketEnd = false;
+                                    streamState.PacketLengthVariable = false;
+                                }
 
                                 if (streamState.PacketLength == 0)
                                 {
@@ -1203,6 +1218,13 @@ namespace BDInfo
                                         case 0:
                                             streamState.PacketLength =
                                                 (int)(streamState.Parse & 0xFFFF);
+                                            if (streamState.PacketLength == 0)
+                                            {
+                                                parser.VariablePacketEnd = false;
+                                                streamState.PacketLengthVariable = true;
+                                            }
+                                                
+                                            
                                             streamState.PacketParse = 3;
 #if DEBUG
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
@@ -1320,7 +1342,7 @@ namespace BDInfo
 
                                             // TODO: Frame reorder for streams encoded with b-pyramid > 0
                                             streamState.PTSDiff = streamState.PTS - streamState.DTSPrev;
-
+                                                
                                             if (streamState.PTSCount > 0 && 
                                                 stream.IsVideoStream)
                                             {
@@ -1448,9 +1470,7 @@ namespace BDInfo
 #endif
 
                                             // TODO: Frame reorder for streams encoded with b-pyramid > 0
-                                                streamState.PTSDiff = streamState.DTSTemp - streamState.DTSPrev;
-                                            else
-                                                streamState.PTSDiff = 0;
+                                            streamState.PTSDiff = streamState.DTSTemp - streamState.DTSPrev;
 
                                             if (streamState.PTSCount > 0 &&
                                                 stream.IsVideoStream)
