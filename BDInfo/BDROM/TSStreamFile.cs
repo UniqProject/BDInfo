@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using DiscUtils;
 using DiscUtils.Udf;
+using System.Numerics;
 
 namespace BDInfo
 {
@@ -54,17 +55,17 @@ namespace BDInfo
         public byte PacketParse = 0;
 
         public byte PTSParse = 0;
-        public ulong PTS = 0;
+        public BigInteger PTS = 0;
         public ulong PTSTemp = 0;
-        public ulong PTSLast = 0;
-        public ulong PTSPrev = 0;
-        public ulong PTSDiff = 0;
+        public BigInteger PTSLast = 0;
+        public BigInteger PTSPrev = 0;
+        public BigInteger PTSDiff = 0;
         public ulong PTSCount = 0;
-        public ulong PTSTransfer = 0;
+        public BigInteger PTSTransfer = 0;
 
         public byte DTSParse = 0;
-        public ulong DTSTemp = 0;
-        public ulong DTSPrev = 0;
+        public BigInteger DTSTemp = 0;
+        public BigInteger DTSPrev = 0;
 
         public byte PESHeaderLength = 0;
         public byte PESHeaderFlags = 0;
@@ -95,12 +96,12 @@ namespace BDInfo
 
         public ushort PCRPID = 0xFFFF;
         public byte PCRParse = 0;
-        public ulong PreviousPCR = 0;
-        public ulong PCR = 0;
-        public ulong PCRCount = 0;
-        public ulong PTSFirst = ulong.MaxValue;
-        public ulong PTSLast = ulong.MinValue;
-        public ulong PTSDiff = 0;
+        public BigInteger PreviousPCR = 0;
+        public BigInteger PCR = 0;
+        public BigInteger PCRCount = 0;
+        public BigInteger PTSFirst = ulong.MaxValue;
+        public BigInteger PTSLast = ulong.MinValue;
+        public BigInteger PTSDiff = 0;
 
         public byte[] PAT = new byte[1024];
         public bool PATSectionStart = false;
@@ -347,8 +348,8 @@ namespace BDInfo
 
         private void UpdateStreamBitrates(
             ushort PTSPID,
-            ulong PTS,
-            ulong PTSDiff)
+            BigInteger PTS,
+            BigInteger PTSDiff)
         {
             if (Playlists == null) return;
 
@@ -394,8 +395,8 @@ namespace BDInfo
         private void UpdateStreamBitrate(
             ushort PID,
             ushort PTSPID,
-            ulong PTS,
-            ulong PTSDiff)
+            BigInteger PTS,
+            BigInteger PTSDiff)
         {
             if (Playlists == null) return;
 
@@ -1308,7 +1309,7 @@ namespace BDInfo
 #endif                                        
                                             streamState.PTS = streamState.PTSTemp;
 
-                                            if (streamState.PTS > streamState.PTSLast)
+                                            if (streamState.PTS != streamState.PTSLast)
                                             {
                                                 if (streamState.PTSLast > 0)
                                                 {
@@ -1317,6 +1318,7 @@ namespace BDInfo
                                                 streamState.PTSLast = streamState.PTS;
                                             }
 
+                                            // TODO: Frame reorder for streams encoded with b-pyramid > 0
                                             streamState.PTSDiff = streamState.PTS - streamState.DTSPrev;
 
                                             if (streamState.PTSCount > 0 && 
@@ -1444,7 +1446,8 @@ namespace BDInfo
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
-                                            if (streamState.DTSPrev < streamState.DTSTemp)
+
+                                            // TODO: Frame reorder for streams encoded with b-pyramid > 0
                                                 streamState.PTSDiff = streamState.DTSTemp - streamState.DTSPrev;
                                             else
                                                 streamState.PTSDiff = 0;
@@ -1513,8 +1516,9 @@ namespace BDInfo
                     Size += bufferLength;
                 }
 
-                ulong PTSLast = 0;
-                ulong PTSDiff = 0;
+                // TODO: Frame reorder for streams encoded with b-pyramid > 0
+                BigInteger PTSLast = 0;
+                BigInteger PTSDiff = 0;
                 foreach (TSStream stream in Streams.Values)
                 {
                     if (!stream.IsVideoStream) continue;
