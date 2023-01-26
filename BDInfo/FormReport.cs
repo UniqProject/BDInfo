@@ -538,9 +538,8 @@ namespace BDInfo
                                                 stream.Description);
 
                         summary += string.Format(CultureInfo.InvariantCulture,
-                                                "{0}{1,-16}{2} / {3} / {4}\r\n",
-                                                (stream.IsHidden ? "* " : ""),
-                                                "Video:",
+                                                "{0,-16}{1} / {2} / {3}\r\n",
+                                                (stream.IsHidden ? "* " : "") + "Video:",
                                                 streamName,
                                                 streamBitrate,
                                                 stream.Description);
@@ -581,9 +580,8 @@ namespace BDInfo
                                                 stream.Description);
 
                         summary += string.Format(
-                            "{0}{1,-16}{2} / {3} / {4}\r\n",
-                            (stream.IsHidden ? "* " : ""),
-                            "Audio:",
+                            "{0,-16}{1} / {2} / {3}\r\n",
+                            (stream.IsHidden ? "* " : "") + "Audio:",
                             stream.LanguageName,
                             stream.CodecName,
                             stream.Description);
@@ -624,9 +622,8 @@ namespace BDInfo
                                                 stream.Description);
 
                         summary += string.Format(CultureInfo.InvariantCulture,
-                                                 "{0}{1,-16}{2} / {3}\r\n",
-                                                 (stream.IsHidden ? "* " : ""),
-                                                 "Subtitle:",
+                                                 "{0,-16}{1} / {2}\r\n",
+                                                 (stream.IsHidden ? "* " : "") + "Subtitle:",
                                                  stream.LanguageName,
                                                  streamBitrate.Trim(),
                                                  stream.Description);
