@@ -71,7 +71,7 @@ namespace BDInfo
             this.Icon = BDInfo.Properties.Resources.Bluray_disc;
 
             Text += $" v{Application.ProductVersion}";
-#if DEBUG
+#if DEBUG && BETA
             Text += "b";
 #endif
             Size = BDInfo.Properties.Settings.Default.WindowSize;

@@ -176,7 +176,7 @@ namespace BDInfo
             new Dictionary<ushort, List<TSStreamDiagnostics>>();
 
         private List<TSPlaylistFile> Playlists = null;
-#if DEBUG
+#if DEBUG && !BETA
         private FileStream logFile = null;
         private TextWriter logTextWriter = null;
 #endif
@@ -449,7 +449,7 @@ namespace BDInfo
                                 stream.ActiveBitRate = (long)Math.Round(
                                     ((stream.PayloadBytes * 8.0) /
                                     stream.PacketSeconds));
-#if DEBUG
+#if DEBUG && !BETA
                                 logTextWriter.WriteLine($"{PID,6}\t{stream.ActiveBitRate,16:000000.000}\t{streamState.WindowBytes,16}\t{stream.PayloadBytes,16}\t{streamState.WindowPackets,16}\t{stream.PacketCount,16}\t{stream.PacketSeconds,16:000000.000}\t{streamInterval,16:000000.000}");
 #endif
                             }
@@ -567,8 +567,8 @@ namespace BDInfo
                 long fileLength = (uint)fileStream.Length;
                 byte[] buffer = new byte[dataSize];
                 int bufferLength = 0;
-#if DEBUG
 
+#if DEBUG && !BETA
                 var appPath = this.GetType().Assembly.Location;
                 var appDirectory = Path.GetDirectoryName(appPath);
                 var logDir = Path.Combine(appDirectory, "StreamLogs");
@@ -588,6 +588,7 @@ namespace BDInfo
                 logTextWriter = new StreamWriter(logFile);
                 logTextWriter.WriteLine(String.Format("{0,6}\t{1,16}\t{2,16}\t{3,16}\t{4,16}\t{5,16}\t{6,16}\t{7,16}", "PID", "Active Bitrate", "Window Bytes", "Payload Bytes", "Window Packets", "Packet Count", "Packet Seconds", "Stream Interval"));
 #endif
+
                 while ((bufferLength =
                 fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -1603,7 +1604,7 @@ namespace BDInfo
             }
             finally
             {
-#if DEBUG
+#if DEBUG && !BETA
                 logTextWriter?.Close();
                 logFile?.Close();
 #endif
