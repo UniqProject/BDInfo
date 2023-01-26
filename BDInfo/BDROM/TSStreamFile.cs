@@ -17,7 +17,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-#undef DEBUG
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -177,6 +176,10 @@ namespace BDInfo
             new Dictionary<ushort, List<TSStreamDiagnostics>>();
 
         private List<TSPlaylistFile> Playlists = null;
+#if DEBUG
+        private FileStream logFile = null;
+        private TextWriter logTextWriter = null;
+#endif
 
         public TSStreamFile(FileInfo fileInfo)
         {
@@ -446,6 +449,9 @@ namespace BDInfo
                                 stream.ActiveBitRate = (long)Math.Round(
                                     ((stream.PayloadBytes * 8.0) /
                                     stream.PacketSeconds));
+#if DEBUG
+                                logTextWriter.WriteLine($"{PID,6}\t{stream.ActiveBitRate,16:000000.000}\t{streamState.WindowBytes,16}\t{stream.PayloadBytes,16}\t{streamState.WindowPackets,16}\t{stream.PacketCount,16}\t{stream.PacketSeconds,16:000000.000}\t{streamInterval,16:000000.000}");
+#endif
                             }
 
                             if (stream.StreamType == TSStreamType.AC3_TRUE_HD_AUDIO &&
@@ -495,20 +501,43 @@ namespace BDInfo
             try
             {                
                 string fileName;
+#if DEBUG
+                string logFileName;
+#endif
                 if (BDInfoSettings.EnableSSIF &&
                     InterleavedFile != null)
                 {
                     if (InterleavedFile.FileInfo != null)
+                    { 
                         fileName = InterleavedFile.FileInfo.FullName;
+#if DEBUG
+                        logFileName = InterleavedFile.FileInfo.Name;
+#endif
+                    }
                     else
+                    {
                         fileName = InterleavedFile.DFileInfo.FullName;
+#if DEBUG
+                        logFileName = InterleavedFile.DFileInfo.Name;
+#endif
+                    } 
                 }
                 else
                 {
                     if (FileInfo != null)
+                    {
                         fileName = FileInfo.FullName;
+#if DEBUG
+                        logFileName = FileInfo.Name;
+#endif
+                    }
                     else
+                    {
                         fileName = DFileInfo.FullName;
+#if DEBUG
+                        logFileName = DFileInfo.Name;
+#endif
+                    }
                 }
 
                 if (CdReader == null)
@@ -538,8 +567,29 @@ namespace BDInfo
                 long fileLength = (uint)fileStream.Length;
                 byte[] buffer = new byte[dataSize];
                 int bufferLength = 0;
-                while ((bufferLength = 
-                    fileStream.Read(buffer, 0, buffer.Length)) > 0)
+#if DEBUG
+
+                var appPath = this.GetType().Assembly.Location;
+                var appDirectory = Path.GetDirectoryName(appPath);
+                var logDir = Path.Combine(appDirectory, "StreamLogs");
+                try
+                {
+                    if (!Directory.Exists(logDir))
+                    {
+                        Directory.CreateDirectory(logDir);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                
+                logFile = new FileStream(Path.ChangeExtension(Path.Combine(logDir, logFileName), "txt"), FileMode.Create, FileAccess.Write);
+                logTextWriter = new StreamWriter(logFile);
+                logTextWriter.WriteLine(String.Format("{0,6}\t{1,16}\t{2,16}\t{3,16}\t{4,16}\t{5,16}\t{6,16}\t{7,16}", "PID", "Active Bitrate", "Window Bytes", "Payload Bytes", "Window Packets", "Packet Count", "Packet Seconds", "Stream Interval"));
+#endif
+                while ((bufferLength =
+                fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     int offset = 0;
                     for (int i = 0; i < bufferLength; i++)
@@ -554,7 +604,7 @@ namespace BDInfo
                                     case 3:
                                         parser.TimeCode = 0;
                                         parser.TimeCode |=
-                                            ((uint)buffer[i] & 0x3F) << 24;
+                                        ((uint)buffer[i] & 0x3F) << 24;
                                         break;
                                     case 2:
                                         parser.TimeCode |=
@@ -1123,7 +1173,6 @@ namespace BDInfo
 
                                 if (parser.VariablePacketEnd && streamState.PacketLengthVariable)
                                 {
-                                    streamState.PacketLength = 0;
                                     parser.VariablePacketEnd = false;
                                     streamState.PacketLengthVariable = false;
                                 }
@@ -1328,7 +1377,7 @@ namespace BDInfo
 #if DEBUG
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
-#endif                                        
+#endif
                                             streamState.PTS = streamState.PTSTemp;
 
                                             if (streamState.PTS != streamState.PTSLast)
@@ -1554,10 +1603,11 @@ namespace BDInfo
             }
             finally
             {
-                if (fileStream != null)
-                {
-                    fileStream.Close();
-                }
+#if DEBUG
+                logTextWriter?.Close();
+                logFile?.Close();
+#endif
+                fileStream?.Close();
             }
         }
 
