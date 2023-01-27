@@ -89,6 +89,7 @@
     <Compile Include="BDROM\TSCodecHEVC.cs" />
     <Compile Include="BDROM\TSCodecLPCM.cs" />
     <Compile Include="BDROM\TSCodecMPEG2.cs" />
+    <Compile Include="BDROM\TSCodecPGS.cs" />
     <Compile Include="BDROM\TSCodecMVC.cs" />
     <Compile Include="BDROM\TSCodecTrueHD.cs" />
     <Compile Include="BDROM\TSInterleavedFile.cs" />

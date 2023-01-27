@@ -898,7 +898,7 @@ namespace BDInfo
                                 ((TSVideoStream) clipStream).ExtendedData;
                         }
                         else if (stream.IsAudioStream &&
-                            clipStream.IsAudioStream)
+                                clipStream.IsAudioStream)
                         {
                             TSAudioStream audioStream = (TSAudioStream)stream;
                             TSAudioStream clipAudioStream = (TSAudioStream)clipStream;
@@ -941,6 +941,18 @@ namespace BDInfo
                                 audioStream.CoreStream = (TSAudioStream)
                                     clipAudioStream.CoreStream.Clone();
                             }
+                        }
+                        else if (stream.IsGraphicsStream &&
+                                clipStream.IsGraphicsStream)
+                        {
+                            TSGraphicsStream graphicsStream = (TSGraphicsStream)stream;
+                            TSGraphicsStream clipGraphicsStream = (TSGraphicsStream)clipStream;
+                            
+                            graphicsStream.Captions = clipGraphicsStream.Captions;
+                            graphicsStream.ForcedCaptions = clipGraphicsStream.ForcedCaptions;
+                            graphicsStream.Width = clipGraphicsStream.Width;
+                            graphicsStream.Height = clipGraphicsStream.Height;
+                            graphicsStream.CaptionIDs = clipGraphicsStream.CaptionIDs;
                         }
                     }
                 }

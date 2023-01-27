@@ -863,17 +863,61 @@ namespace BDInfo
 
     public class TSGraphicsStream : TSStream
     {
+        public int Width;
+        public int Height;
+        public int Captions;
+        public int ForcedCaptions;
+        public Dictionary<int, TSCodecPGS.Frame> CaptionIDs;
+        public TSCodecPGS.Frame LastFrame;
+
         public TSGraphicsStream()
         {
             IsVBR = true;
-            IsInitialized = true;
+            IsInitialized = false;
+            Width = 0;
+            Height = 0;
+            Captions = 0;
+            ForcedCaptions = 0;
+            CaptionIDs = new Dictionary<int, TSCodecPGS.Frame>();
+            LastFrame = new TSCodecPGS.Frame();
         }
 
         public override TSStream Clone()
         {
             TSGraphicsStream stream = new TSGraphicsStream();
             CopyTo(stream);
+            stream.Width = Width;
+            stream.Height = Height;
+            stream.Captions = Captions;
+            stream.ForcedCaptions = ForcedCaptions;
+            stream.CaptionIDs = CaptionIDs;
+            stream.LastFrame = LastFrame;
             return stream;
+        }
+
+        public override string Description
+        {
+            get
+            {
+                string description = string.Empty;
+                if (Width > 0 || Height > 0)
+                {
+                    description = string.Format(CultureInfo.InvariantCulture, "{0:D}x{1:D}", Width, Height);
+                }
+                if (Captions > 0 || ForcedCaptions > 0)
+                {
+                    if (Captions > 0)
+                    {
+                        description += string.Format(CultureInfo.InvariantCulture, " / {0:D} Caption{1}", Captions, Captions > 1 ? "s" : "");
+                    }
+
+                    if (ForcedCaptions > 0)
+                    {
+                        description += string.Format(CultureInfo.InvariantCulture, " ( + {0:D} Forced Caption{1})", ForcedCaptions, ForcedCaptions > 1 ? "s" : "");
+                    }
+                }
+                return description;
+            }
         }
     }
 
