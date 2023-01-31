@@ -618,12 +618,12 @@ namespace BDInfo
                     }
                     if (seqParameterSet.LevelIDC > 0)
                     {
-                        var calcLevel = (float) _levelIDC/30;
-                        var dec = _levelIDC%10;
+                        var calcLevel = (float)seqParameterSet.LevelIDC / 30;
+                        var dec = seqParameterSet.LevelIDC % 10;
                         profile += " @ Level " +
                                    string.Format(CultureInfo.InvariantCulture, dec >= 1 ? "{0:0.0}" : "{0:0}", calcLevel) +
                                    " @ ";
-                        if (_tierFlag) profile += "High";
+                        if (seqParameterSet.TierFlag) profile += "High";
                         else profile += "Main";
                     }
 
