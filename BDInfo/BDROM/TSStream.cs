@@ -913,7 +913,7 @@ namespace BDInfo
 
                     if (ForcedCaptions > 0)
                     {
-                        description += string.Format(CultureInfo.InvariantCulture, " ( + {0:D} Forced Caption{1})", ForcedCaptions, ForcedCaptions > 1 ? "s" : "");
+                        description += string.Format(CultureInfo.InvariantCulture, (Captions > 0 ? " ( + " : " / ") + "{0:D} Forced Caption{1}" + (Captions > 0 ? ")" : ""), ForcedCaptions, ForcedCaptions > 1 ? "s" : "");
                     }
                 }
                 return description;
