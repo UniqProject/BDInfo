@@ -23,6 +23,7 @@ using System.IO;
 using DiscUtils;
 using DiscUtils.Udf;
 using System.Numerics;
+using System.Diagnostics;
 
 namespace BDInfo
 {
@@ -69,7 +70,7 @@ namespace BDInfo
 
         public byte PESHeaderLength = 0;
         public byte PESHeaderFlags = 0;
-#if DEBUG
+#if DEBUG && !BETA
         public byte PESHeaderIndex = 0;
         public byte[] PESHeader = new byte[256 + 9];
 #endif
@@ -510,7 +511,7 @@ namespace BDInfo
             try
             {                
                 string fileName;
-#if DEBUG
+#if DEBUG && !BETA
                 string logFileName;
 #endif
                 if (BDInfoSettings.EnableSSIF &&
@@ -519,14 +520,14 @@ namespace BDInfo
                     if (InterleavedFile.FileInfo != null)
                     { 
                         fileName = InterleavedFile.FileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = InterleavedFile.FileInfo.Name;
 #endif
                     }
                     else
                     {
                         fileName = InterleavedFile.DFileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = InterleavedFile.DFileInfo.Name;
 #endif
                     } 
@@ -536,14 +537,14 @@ namespace BDInfo
                     if (FileInfo != null)
                     {
                         fileName = FileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = FileInfo.Name;
 #endif
                     }
                     else
                     {
                         fileName = DFileInfo.FullName;
-#if DEBUG
+#if DEBUG && !BETA
                         logFileName = DFileInfo.Name;
 #endif
                     }
@@ -597,7 +598,6 @@ namespace BDInfo
                 logTextWriter = new StreamWriter(logFile);
                 logTextWriter.WriteLine(String.Format("{0,6}\t{1,16}\t{2,16}\t{3,16}\t{4,16}\t{5,16}\t{6,16}\t{7,16}", "PID", "Active Bitrate", "Window Bytes", "Payload Bytes", "Window Packets", "Packet Count", "Packet Seconds", "Stream Interval"));
 #endif
-
                 while ((bufferLength =
                 fileStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -1253,7 +1253,7 @@ namespace BDInfo
                                 if (headerFound)
                                 {
                                     streamState.PacketLengthParse = 2;
-#if DEBUG
+#if DEBUG && !BETA
                                     streamState.PESHeaderIndex = 0;
                                     streamState.PESHeader[streamState.PESHeaderIndex++] =
                                         (byte)((streamState.Parse >> 24) & 0xFF);
@@ -1271,7 +1271,7 @@ namespace BDInfo
                                     switch (streamState.PacketLengthParse)
                                     {
                                         case 1:
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1288,7 +1288,7 @@ namespace BDInfo
                                                 
                                             
                                             streamState.PacketParse = 3;
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1303,7 +1303,7 @@ namespace BDInfo
                                     switch (streamState.PacketParse)
                                     {
                                         case 2:
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1312,7 +1312,7 @@ namespace BDInfo
                                         case 1:
                                             streamState.PESHeaderFlags = 
                                                 (byte)(streamState.Parse & 0xFF);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1321,7 +1321,7 @@ namespace BDInfo
                                         case 0:
                                             streamState.PESHeaderLength = 
                                                 (byte)(streamState.Parse & 0xFF);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1351,7 +1351,7 @@ namespace BDInfo
                                         case 4:
                                             streamState.PTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1360,7 +1360,7 @@ namespace BDInfo
                                         case 3:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1369,7 +1369,7 @@ namespace BDInfo
                                         case 2:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1378,7 +1378,7 @@ namespace BDInfo
                                         case 1:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1387,7 +1387,7 @@ namespace BDInfo
                                         case 0:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1440,7 +1440,7 @@ namespace BDInfo
                                         case 9:
                                             streamState.PTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1449,7 +1449,7 @@ namespace BDInfo
                                         case 8:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1458,7 +1458,7 @@ namespace BDInfo
                                         case 7:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1467,7 +1467,7 @@ namespace BDInfo
                                         case 6:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1476,7 +1476,7 @@ namespace BDInfo
                                         case 5:
                                             streamState.PTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1490,7 +1490,7 @@ namespace BDInfo
                                         case 4:
                                             streamState.DTSTemp = 
                                                 ((streamState.Parse & 0xE) << 29);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1499,7 +1499,7 @@ namespace BDInfo
                                         case 3:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 22);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1508,7 +1508,7 @@ namespace BDInfo
                                         case 2:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFE) << 14);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1517,7 +1517,7 @@ namespace BDInfo
                                         case 1:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFF) << 7);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
@@ -1526,7 +1526,7 @@ namespace BDInfo
                                         case 0:
                                             streamState.DTSTemp |= 
                                                 ((streamState.Parse & 0xFE) >> 1);
-#if DEBUG
+#if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
@@ -1561,7 +1561,7 @@ namespace BDInfo
                                 {
                                     --streamState.PacketLength;
                                     --streamState.PESHeaderLength;
-#if DEBUG
+#if DEBUG && !BETA
                                     streamState.PESHeader[streamState.PESHeaderIndex++] =
                                         (byte)(streamState.Parse & 0xFF);
 #endif
