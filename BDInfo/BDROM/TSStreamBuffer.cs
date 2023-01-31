@@ -250,7 +250,7 @@ namespace BDInfo
             for (var i = 0; i < 4; i++)
             {
                 if (pos + i >= _bufferLength) break;
-                data += (_stream.ReadByte() << shift);
+                data += (ReadByte(skipH26xEmulationByte) << shift);
                 shift -= 8;
             }
 
