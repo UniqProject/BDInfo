@@ -27,6 +27,37 @@ namespace BDInfo
     public abstract class TSCodecHEVC
     {
 
+        public class MasteringMetadata2086
+        {
+            public ushort[] Primaries;
+            public uint[] Luminance;
+
+            public MasteringMetadata2086()
+            {
+                Primaries = new ushort[8];
+                Luminance = new uint[2];
+            }
+        }
+
+        public class MasteringDisplayColorVolumeValue
+        {
+            public byte Code; // ISO code
+            public ushort[] Values; // G, B, R, W pairs (x values then y values)
+
+            public MasteringDisplayColorVolumeValue()
+            {
+                Code = 0;
+                Values = new ushort[8];
+            }
+        };
+        public static MasteringDisplayColorVolumeValue[] MasteringDisplayColorVolumeValues =
+        {
+            new MasteringDisplayColorVolumeValue{ Code =  1, Values = new ushort[] {15000, 30000,  7500,  3000, 32000, 16500, 15635, 16450} }, // BT.709
+            new MasteringDisplayColorVolumeValue{ Code =  9, Values = new ushort[] { 8500, 39850,  6550,  2300, 35400, 14600, 15635, 16450} }, // BT.2020
+            new MasteringDisplayColorVolumeValue{ Code = 11, Values = new ushort[] {13250, 34500,  7500,  3000, 34000, 16000, 15700, 17550} }, // DCI P3
+            new MasteringDisplayColorVolumeValue{ Code = 12, Values = new ushort[] {13250, 34500,  7500,  3000, 34000, 16000, 15635, 16450} }, // Display P3
+        };
+
         public class VideoParamSetStruct
         {
             public ushort VPSMaxSubLayers;
@@ -1185,29 +1216,27 @@ namespace BDInfo
         // SEI - 137
         private static void SeiMessageMasteringDisplayColourVolume(TSStreamBuffer buffer)
         {
-            uint max, min;
-            ushort[] x = new ushort[4];
-            ushort[] y = new ushort[4];
-
+            // TODO: Color Reading sometimes off.
+            MasteringMetadata2086 Meta = new MasteringMetadata2086();
+            buffer.BSResetBits();
             for (int i = 0; i < 3; i++)
             {
-                x[i] = buffer.ReadBits2(16, true);
-                y[i] = buffer.ReadBits2(16, true);
+                Meta.Primaries[i * 2] = buffer.ReadBits2(16, true); // x
+                Meta.Primaries[(i * 2) + 1] = buffer.ReadBits2(16, true); // y
             }
-            x[3] = buffer.ReadBits2(16, true);
-            y[3] = buffer.ReadBits2(16, true);
+            Meta.Primaries[3 * 2] = buffer.ReadBits2(16, true);
+            Meta.Primaries[(3 * 2) + 1] = buffer.ReadBits2(16, true);
 
+            Meta.Luminance[1] = buffer.ReadBits4(32, true);
+            Meta.Luminance[0] = buffer.ReadBits4(32, true);
             
-            max = buffer.ReadBits4(32, true);
-            min = buffer.ReadBits4(32, true);
-
             //Reordering to RGB
-            byte R = 4, G = 4, B = 4;
-            for (byte c = 0; c < 3; c++)
+            int R = 4, G = 4, B = 4;
+            for (int c = 0; c < 3; c++)
             {
-                if (x[c] < 17500 && y[c] < 17500)
+                if (Meta.Primaries[c*2] < 17500 && Meta.Primaries[(c * 2) + 1] < 17500)
                     B = c;
-                else if (y[c] - x[c] >= 0)
+                else if ((int)(Meta.Primaries[(c * 2) + 1]) - (int)(Meta.Primaries[c * 2]) >= 0)
                     G = c;
                 else
                     R = c;
@@ -1220,41 +1249,59 @@ namespace BDInfo
                 R = 2;
             }
 
+            bool notValid = false;
+
+            for (int c = 0; c < 8; c++)
+            {
+                if (Meta.Primaries[c] == ushort.MaxValue)
+                    notValid = true;
+            }
+
             MasteringDisplayColorPrimaries = string.Empty;
             bool humanReadablePrimaries = false;
-            if (x[G] == 15000 && x[B] == 7500 && x[R] == 32000 && x[3] == 15635 && 
-                y[G] == 30000 && y[B] == 3000 && y[R] == 16500 && y[3] == 16450)
+
+            if (!notValid)
             {
-                MasteringDisplayColorPrimaries = "BT.709";
-                humanReadablePrimaries = true;
+                for (int i = 0; i < MasteringDisplayColorVolumeValues.Length; i++)
+                {
+                    byte code = MasteringDisplayColorVolumeValues[i].Code;
+                    for (int j = 0; j < 2; j++)
+            {
+                        // +/- 0.0005 (3 digits after comma)
+                        if (Meta.Primaries[G * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[0 * 2 + j] - 25 || (Meta.Primaries[G * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[0 * 2 + j] + 25))
+                            code = 0;
+                        if (Meta.Primaries[B * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[1 * 2 + j] - 25 || (Meta.Primaries[B * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[1 * 2 + j] + 25))
+                            code = 0;
+                        if (Meta.Primaries[R * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[2 * 2 + j] - 25 || (Meta.Primaries[R * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[2 * 2 + j] + 25))
+                            code = 0;
+                        // +/- 0.00005 (4 digits after comma)
+                        if (Meta.Primaries[3 * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[3 * 2 + j] - 2 || (Meta.Primaries[3 * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[3 * 2 + j] + 3))
+                            code = 0;
             }
-            else if (x[G] == 8500 && x[B] == 6550 && x[R] == 35400 && x[3] == 15635 &&
-                     y[G] == 39850 && y[B] == 2300 && y[R] == 14600 && y[3] == 16450)
+                    if (code > 0)
             {
-                MasteringDisplayColorPrimaries = "BT.2020";
+                        MasteringDisplayColorPrimaries = ColourPrimaries(code);
                 humanReadablePrimaries = true;
+                        break;
             }
-            else if (x[G] == 13250 && x[B] == 7500 && x[R] == 34000 && x[3] == 15635 && 
-                     y[G] == 34500 && y[B] == 3000 && y[R] == 16000 && y[3] == 16450)
-            {
-                MasteringDisplayColorPrimaries = "Display P3";
-                humanReadablePrimaries = true;
             }
 
             if (!humanReadablePrimaries)
                 MasteringDisplayColorPrimaries += string.Format(CultureInfo.InvariantCulture,
                                                            "R: x={0:0.000000} y={1:0.000000}, G: x={2:0.000000} y={3:0.000000}" +
                                                            ", B: x={4:0.000000} y={5:0.000000}, White point: x={6:0.000000} y={7:0.000000}",
-                                                           (double)x[R] / 50000, (double)y[R] / 50000,
-                                                           (double)x[G] / 50000, (double)y[G] / 50000,
-                                                           (double)x[B] / 50000, (double)y[B] / 50000,
-                                                           (double)x[3] / 50000, (double)y[3] / 50000);
+                                                               (double)Meta.Primaries[R * 2] / 50000, (double)Meta.Primaries[(R * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[G * 2] / 50000, (double)Meta.Primaries[(G * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[B * 2] / 50000, (double)Meta.Primaries[(B * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[3 * 2] / 50000, (double)Meta.Primaries[(3 * 2) + 1] / 50000);
+            }
+                            
 
             MasteringDisplayLuminance = string.Format(CultureInfo.InvariantCulture,
                                                       "min: {0:0.0000} cd/m2, max: " + 
-                                                      ((max - ((int) max) == 0) ? "{1:0}" : "{1:0.0000}") +
+                                                      ((Meta.Luminance[1] - ((int)Meta.Luminance[1]) == 0) ? "{1:0}" : "{1:0.0000}") +
                                                       " cd/m2",
-                                                      (double) min / 10000, (double) max / 10000);
+                                                      (double)Meta.Luminance[0] / 10000, (double)Meta.Luminance[1] / 10000);
         }
 
         // SEI - 144

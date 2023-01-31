@@ -313,6 +313,11 @@ namespace BDInfo
                 BSSkipBits(8 - _skipBits);
         }
 
+        public void BSResetBits()
+        {
+            _skipBits = 0;
+        }
+
         public void BSSkipBytes(int bytes, bool skipH26xEmulationByte)
         {
             if (bytes > 0)
