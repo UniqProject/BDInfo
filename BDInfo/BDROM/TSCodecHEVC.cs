@@ -424,9 +424,11 @@ namespace BDInfo
 
         public static bool IsHdr10Plus;
 
+        private static bool _isInitialized;
+
         public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
         {
-            if (stream.IsInitialized) return;
+            _isInitialized = stream.IsInitialized;
 
             if (stream.ExtendedData == null)
                 stream.ExtendedData = new ExtendedDataSet();
@@ -450,32 +452,37 @@ namespace BDInfo
 
             ExtendedFormatInfo = ExtendedData.ExtendedFormatInfo;
 
+            bool frameTypeRead = false;
+
             do
             {
                 var syncByteFound = false;
                 do
                 {
                     var streamPos = buffer.Position;
-                    if (buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x1)
+                    if (buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x1)
                     {
                         syncByteFound = true;
                         break;
                     }
                         
-                    buffer.BSSkipBytes((int) (streamPos - buffer.Position), true);
-                    if (buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x1)
+                    buffer.BSSkipBytes((int) (streamPos - buffer.Position));
+
+                    if (buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x1)
                     {
                         syncByteFound = true;
                         break;
                     }
 
-                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
-                } while (buffer.Position < buffer.Length - 3);
+                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1));
+
+                } while ((buffer.Position < buffer.Length - 3) &&
+                        (!_isInitialized || (_isInitialized && !frameTypeRead)));
 
                 if (buffer.Position < buffer.Length && syncByteFound)
                 {
@@ -489,6 +496,25 @@ namespace BDInfo
 
                     switch (nalUnitType)
                     {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 16:
+                        case 17:
+                        case 18:
+                        case 19:
+                        case 20:
+                        case 21:
+                            tag = SliceSegmentLayer(buffer, nalUnitType);
+                            frameTypeRead = tag != null;
+                            break;
                         case 32:
                                 VideoParameterSet(buffer);
                             break;
@@ -508,9 +534,9 @@ namespace BDInfo
                     }
 
                     buffer.BSSkipNextByte();
-                    buffer.BSSkipBytes((int) (lastStreamPos - buffer.Position), true);
                 }
-            } while (buffer.Position < buffer.Length - 3);
+            } while ((buffer.Position < buffer.Length - 3) &&
+                     (!_isInitialized || (_isInitialized && !frameTypeRead)));
 
             ExtendedData.PreferredTransferCharacteristics = PreferredTransferCharacteristics;
 
@@ -532,7 +558,7 @@ namespace BDInfo
             stream.ExtendedData = ExtendedData;
             
             // TODO: profile to string
-            if (SeqParameterSets.Count > 0)
+            if (SeqParameterSets.Count > 0 && !stream.IsInitialized)
             {
                 SeqParameterSetStruct seqParameterSet = SeqParameterSets[0];
                 if (seqParameterSet.ProfileSpace == 0)
@@ -626,7 +652,7 @@ namespace BDInfo
                 }
             }
 
-            if (BDInfoSettings.ExtendedStreamDiagnostics)
+            if (BDInfoSettings.ExtendedStreamDiagnostics && !stream.IsInitialized)
             {
                 if (MasteringDisplayColorPrimaries != string.Empty)
                 {
@@ -649,9 +675,64 @@ namespace BDInfo
                 stream.IsInitialized = true;
         }
 
+        private static string SliceSegmentLayer(TSStreamBuffer buffer, long nalUnitType)
+        {
+            bool tempBool;
+
+            string tag = null;
+
+            // slice headers
+            bool dependentSliceSegmentFlag = false;
+
+            _firstSliceSegmentInPicFlag = buffer.ReadBool();
+            
+            if (nalUnitType >= 16 && nalUnitType <= 23)
+                tempBool = buffer.ReadBool(); // no_output_of_prior_pics_flag
+
+            _slicePicParameterSetId = buffer.ReadExp(true);
+
+            if (_slicePicParameterSetId >= PicParameterSets.Count)
+            {
+                _slicePicParameterSetId = uint.MaxValue;
+                return tag;
+            }
+
+            if (!_firstSliceSegmentInPicFlag)
+            {
+                if (PicParameterSets[(int)_slicePicParameterSetId].DependentSliceSegmentsEnabledFlag)
+                {
+                    dependentSliceSegmentFlag = buffer.ReadBool(true);
+                }
+                return tag;
+            }
+
+            if (!dependentSliceSegmentFlag)
+            {
+                buffer.BSSkipBits(PicParameterSets[(int)_slicePicParameterSetId].NumExtraSliceHeaderBits);
+                uint sliceType = buffer.ReadExp(true);
+                switch (sliceType)
+                {
+                    case 0: 
+                        tag = "P";
+                        break;
+                    case 1:
+                        tag = "B";
+                        break;
+                    case 2: 
+                        tag = "I";
+                        break;
+                    default: 
+                        break;
+                }
+            }
+            return tag;
+        }
+
         // packet 32
         private static void VideoParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             int vpsVideoParameterSetID = buffer.ReadBits2(4, true);
 
             buffer.BSSkipBits(8, true); //vps_reserved_three_2bits, vps_reserved_zero_6bits
@@ -709,6 +790,8 @@ namespace BDInfo
         // packet 33
         private static void SeqParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             VUIParametersStruct vuiParametersItem = new VUIParametersStruct();
             VideoParamSetStruct videoParamSetItem = new VideoParamSetStruct();
 
@@ -816,6 +899,8 @@ namespace BDInfo
         // packet 34
         private static void PicParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             var ppsPicParameterSetID = buffer.ReadExp(true);
             if (ppsPicParameterSetID >= 64)
                 return;
@@ -888,6 +973,8 @@ namespace BDInfo
         // packet 39 & 40
         private static void Sei(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             long elementStart = buffer.Position;
 
             int numBytes;
@@ -897,29 +984,29 @@ namespace BDInfo
             {
                 var streamPos = buffer.Position;
                 numBytes = 0;
-                if (buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x1)
+                if (buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x1)
                 {
                     numBytes = 4;
                     break;
                 }
 
-                buffer.BSSkipBytes((int)(streamPos - buffer.Position), true);
-                if (buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x1)
+                buffer.BSSkipBytes((int)(streamPos - buffer.Position));
+                if (buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x1)
                 {
                     numBytes = 3;
                     break;
                 }
-                buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
+                buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1));
             } while (buffer.Position < buffer.Length);
 
             var elementSize = buffer.Position - elementStart;
 
-            buffer.BSSkipBytes((int) (elementSize *-1), true);
+            buffer.BSSkipBytes((int) (elementSize *-1));
 
             elementSize -= numBytes+1;
 
