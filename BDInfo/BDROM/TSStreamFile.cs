@@ -506,7 +506,7 @@ namespace BDInfo
             }
 
             Playlists = playlists;
-            int dataSize = isFullScan ? 262144 : 16384;
+            int dataSize = 5242880;
             Stream fileStream = null;
             try
             {                
@@ -530,7 +530,7 @@ namespace BDInfo
 #if DEBUG && !BETA
                         logFileName = InterleavedFile.DFileInfo.Name;
 #endif
-                    } 
+                    }
                 }
                 else
                 {

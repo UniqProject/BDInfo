@@ -35,7 +35,7 @@ namespace BDInfo
 
         public TSStreamBuffer()
         {
-            _buffer = new byte[1048576];
+            _buffer = new byte[5242880];
             _stream = new MemoryStream(_buffer);
         }
 
