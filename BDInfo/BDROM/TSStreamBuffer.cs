@@ -156,6 +156,7 @@ namespace BDInfo
 #else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
 #endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -192,6 +193,7 @@ namespace BDInfo
 #else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
 #endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -228,6 +230,7 @@ namespace BDInfo
 #else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
 #endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -275,6 +278,7 @@ namespace BDInfo
 #else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
 #endif
+            _skipBits %= 8;
 
             return value;
         }
