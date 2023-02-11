@@ -973,6 +973,8 @@ namespace BDInfo
                                                     }
                                                     */
                                                     CreateStream(streamPID, streamType, streamDescriptors);
+                                                    if (Streams[streamPID].IsGraphicsStream)
+                                                        Streams[streamPID].IsInitialized = !isFullScan;
                                                 }
                                                 k += streamInfoLength;
                                             }

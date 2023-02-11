@@ -565,6 +565,7 @@ namespace BDInfo
                     }
 
                     buffer.BSSkipNextByte();
+                    buffer.BSSkipBytes((int)(lastStreamPos - buffer.Position), true);
                 }
             } while ((buffer.Position < buffer.Length - 3) &&
                      (!_isInitialized || (_isInitialized && !frameTypeRead)));
