@@ -53,6 +53,8 @@ namespace BDInfoGUI
                 string reportName = string.Format(  CultureInfo.InvariantCulture,
                                                     "BDINFO.{0}.txt",
                                                     BDROM.VolumeLabel);
+
+                reportName = ToolBox.GetSafeFileName(reportName);
                 
                 reportFile = File.CreateText(Path.Combine(Environment.CurrentDirectory, reportName));
             }
@@ -108,7 +110,7 @@ namespace BDInfoGUI
                                         string.Join(", ", extraFeatures.ToArray()));
             }
             report += string.Format(    CultureInfo.InvariantCulture,
-#if DEBUG
+#if DEBUG && BETA
                                         "{0,-16}{1}b\r\n", "BDInfo:",
 #else
                                         "{0,-16}{1}\r\n", "BDInfo:",
@@ -246,14 +248,14 @@ namespace BDInfoGUI
                         {
                             angleBitrate = Math.Round((double)(angleSize * 8) / angleLength / 10000) / 100;
                         }
-                        angleBitrates.Add(string.Format(CultureInfo.InvariantCulture, "{0:F2}", angleBitrate));
+                        angleBitrates.Add(string.Format(CultureInfo.InvariantCulture, "{0:F2} kbps", angleBitrate));
 
                         double angleTotalBitrate = 0;
                         if (playlist.TotalLength > 0)
                         {
                             angleTotalBitrate = Math.Round((double)(angleTotalSize * 8) / playlist.TotalLength / 10000) / 100;
                         }
-                        angleTotalBitrates.Add(string.Format(CultureInfo.InvariantCulture, "{0:F2}", angleTotalBitrate));
+                        angleTotalBitrates.Add(string.Format(CultureInfo.InvariantCulture, "{0:F2} kbps", angleTotalBitrate));
                     }
                 }
 
@@ -279,7 +281,7 @@ namespace BDInfoGUI
                     if (audioStream.BitRate > 0)
                     {
                         audio1 += string.Format(    CultureInfo.InvariantCulture, 
-                                                    " {0}Kbps",
+                                                    " {0} kbps",
                                                     (int)Math.Round((double)audioStream.BitRate/ 1000));
                     }
 
@@ -313,7 +315,7 @@ namespace BDInfoGUI
                             if (audioStream.BitRate > 0)
                             {
                                 audio2 += string.Format(    CultureInfo.InvariantCulture,
-                                    " {0}Kbps",
+                                    " {0} kbps",
                                     (int)Math.Round((double)audioStream.BitRate / 1000));
                             }
 
@@ -339,7 +341,7 @@ namespace BDInfoGUI
                 report += "[code]\r\n";
 
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-16}{5,-8}{6,-8}{7,-42}{8}\r\n",
+                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-18}{5,-13}{6,-13}{7,-42}{8}\r\n",
                                         "",
                                         "",
                                         "",
@@ -351,7 +353,7 @@ namespace BDInfoGUI
                                         "");
 
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-16}{5,-8}{6,-8}{7,-42}{8}\r\n",
+                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-18}{5,-13}{6,-13}{7,-42}{8}\r\n",
                                         "Title",
                                         "Codec",
                                         "Length",
@@ -363,26 +365,26 @@ namespace BDInfoGUI
                                         "Secondary Audio Track");
 
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-16}{5,-8}{6,-8}{7,-42}{8}\r\n",
+                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-18}{5,-13}{6,-13}{7,-42}{8}\r\n",
                                         "-----",
                                         "------",
                                         "-------",
                                         "--------------",
-                                        "--------------",
-                                        "-------",
-                                        "-------",
+                                        "----------------",
+                                        "-----------",
+                                        "-----------",
                                         "------------------",
                                         "---------------------");
 
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-16}{5,-8}{6,-8}{7,-42}{8}\r\n",
+                                        "{0,-64}{1,-8}{2,-8}{3,-16}{4,-18}{5,-13}{6,-13}{7,-42}{8}\r\n",
                                         title,
                                         videoCodec,
                                         totalLengthShort,
                                         totalSize,
                                         discSize,
-                                        totalBitrate,
-                                        videoBitrate,
+                                        totalBitrate + " Mbps",
+                                        videoBitrate + " Mbps",
                                         audio1,
                                         audio2);
 
@@ -413,7 +415,12 @@ namespace BDInfoGUI
                                             "{0,-16}{1}\r\n", "Extras:", string.Join(", ", extraFeatures.ToArray()));
                 }
                 report += string.Format(CultureInfo.InvariantCulture,
-                                        "{0,-16}{1}\r\n", "BDInfo:", Application.ProductVersion);
+#if DEBUG && BETA
+                                        "{0,-16}{1}b\r\n", "BDInfo:",
+#else
+                                        "{0,-16}{1}\r\n", "BDInfo:",
+#endif
+                                        Application.ProductVersion);
 
                 report += "\r\n";
                 report += "PLAYLIST REPORT:\r\n";
@@ -465,28 +472,28 @@ namespace BDInfoGUI
                  */
                 if (!string.IsNullOrEmpty(BDROM.DiscTitle))
                     summary += string.Format(CultureInfo.InvariantCulture,
-                                            "Disc Title: {0}\r\n", BDROM.DiscTitle);
+                                            "{0,-16}{1}\r\n", "Disc Title:", BDROM.DiscTitle);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Disc Label: {0}\r\n", BDROM.VolumeLabel);
+                                         "{0,-16}{1}\r\n", "Disc Label:", BDROM.VolumeLabel);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Disc Size: {0:N0} bytes\r\n", BDROM.Size);
+                                         "{0,-16}{1:N0} bytes\r\n", "Disc Size:", BDROM.Size);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Protection: {0}\r\n", protection);
+                                         "{0,-16}{1}\r\n", "Protection:", protection);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Playlist: {0}\r\n", title);
+                                         "{0,-16}{1}\r\n", "Playlist:", title);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Size: {0:N0} bytes\r\n", totalSize);
+                                         "{0,-16}{1:N0} bytes\r\n", "Size:", totalSize);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Length: {0}\r\n", totalLength);
+                                         "{0,-16}{1}\r\n", "Length:", totalLength);
 
                 summary += string.Format(CultureInfo.InvariantCulture,
-                                         "Total Bitrate: {0} Mbps\r\n", totalBitrate);
+                                         "{0,-16}{1} Mbps\r\n", "Total Bitrate:", totalBitrate);
 
                 if (playlist.HasHiddenTracks)
                 {
@@ -505,8 +512,8 @@ namespace BDInfoGUI
                                             "Description");
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-24}{1,-20}{2,-16}\r\n",
-                                            "-----",
-                                            "-------",
+                                            "---------------",
+                                            "-------------",
                                             "-----------");
 
                     foreach (TSStream stream in playlist.SortedStreams)
@@ -521,7 +528,7 @@ namespace BDInfoGUI
                         }
 
                         string streamBitrate = string.Format(CultureInfo.InvariantCulture,
-                                                            "{0:D}",
+                                                            "{0:N0}",
                                                             (int)Math.Round((double)stream.BitRate / 1000));
                         if (stream.AngleIndex > 0)
                         {
@@ -538,7 +545,8 @@ namespace BDInfoGUI
                                                 stream.Description);
 
                         summary += string.Format(CultureInfo.InvariantCulture,
-                                                (stream.IsHidden ? "* " : "") + "Video: {0} / {1} / {2}\r\n",
+                                                "{0,-16}{1} / {2} / {3}\r\n",
+                                                (stream.IsHidden ? "* " : "") + "Video:",
                                                 streamName,
                                                 streamBitrate,
                                                 stream.Description);
@@ -558,9 +566,9 @@ namespace BDInfoGUI
                                             "Description");
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                                            "-----",
-                                            "--------",
-                                            "-------",
+                                            "---------------",
+                                            "-------------",
+                                            "-------------",
                                             "-----------");
 
                     foreach (TSStream stream in playlist.SortedStreams)
@@ -568,7 +576,7 @@ namespace BDInfoGUI
                         if (!stream.IsAudioStream) continue;
 
                         string streamBitrate = string.Format(CultureInfo.InvariantCulture,
-                                                            "{0:D} kbps",
+                                                            "{0,5:D} kbps",
                                                             (int)Math.Round((double)stream.BitRate / 1000));
 
                         report += string.Format(CultureInfo.InvariantCulture,
@@ -579,7 +587,8 @@ namespace BDInfoGUI
                                                 stream.Description);
 
                         summary += string.Format(
-                            (stream.IsHidden ? "* " : "") + "Audio: {0} / {1} / {2}\r\n",
+                            "{0,-16}{1} / {2} / {3}\r\n",
+                            (stream.IsHidden ? "* " : "") + "Audio:",
                             stream.LanguageName,
                             stream.CodecName,
                             stream.Description);
@@ -599,9 +608,9 @@ namespace BDInfoGUI
                                             "Description");
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                                            "-----",
-                                            "--------",
-                                            "-------",
+                                            "---------------",
+                                            "-------------",
+                                            "-------------",
                                             "-----------");
 
                     foreach (TSStream stream in playlist.SortedStreams)
@@ -609,7 +618,7 @@ namespace BDInfoGUI
                         if (!stream.IsGraphicsStream) continue;
 
                         string streamBitrate = string.Format(CultureInfo.InvariantCulture,
-                                                             "{0:F3} kbps",
+                                                             "{0,5:F2} kbps",
                                                              (double)stream.BitRate / 1000);
 
                         report += string.Format(CultureInfo.InvariantCulture,
@@ -620,9 +629,10 @@ namespace BDInfoGUI
                                                 stream.Description);
 
                         summary += string.Format(CultureInfo.InvariantCulture,
-                                                 (stream.IsHidden ? "* " : "") + "Subtitle: {0} / {1}\r\n",
+                                                 "{0,-16}{1} / {2}\r\n",
+                                                 (stream.IsHidden ? "* " : "") + "Subtitle:",
                                                  stream.LanguageName,
-                                                 streamBitrate,
+                                                 streamBitrate.Trim(),
                                                  stream.Description);
                     }
                 }
@@ -640,9 +650,9 @@ namespace BDInfoGUI
                                             "Description");
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-32}{1,-16}{2,-16}{3,-16}\r\n",
-                                            "-----",
-                                            "--------",
-                                            "-------",
+                                            "---------------",
+                                            "-------------",
+                                            "-------------",
                                             "-----------");
 
                     foreach (TSStream stream in playlist.SortedStreams)
@@ -650,7 +660,7 @@ namespace BDInfoGUI
                         if (!stream.IsTextStream) continue;
 
                         string streamBitrate = string.Format(CultureInfo.InvariantCulture,
-                                                             "{0:F3} kbps",
+                                                             "{0,5:F2} kbps",
                                                              (double)stream.BitRate / 1000);
 
                         report += string.Format(CultureInfo.InvariantCulture,
@@ -674,10 +684,10 @@ namespace BDInfoGUI
                                         "Total Bitrate");
                 report += string.Format(CultureInfo.InvariantCulture,
                                         "{0,-16}{1,-16}{2,-16}{3,-16}{4,-16}\r\n",
-                                        "----",
-                                        "-------",
-                                        "------",
-                                        "----",
+                                        "---------------",
+                                        "-------------",
+                                        "-------------",
+                                        "-------------",
                                         "-------------");
 
                 foreach (TSStreamClip clip in playlist.StreamClips)
@@ -713,8 +723,7 @@ namespace BDInfoGUI
                                                       clipLengthSpan.Seconds,
                                                       clipLengthSpan.Milliseconds);
 
-                    string clipBitrate = Math.Round(
-                        (double)clip.PacketBitRate / 1000).ToString("N0", CultureInfo.InvariantCulture);
+                    string clipBitrate = string.Format(CultureInfo.InvariantCulture, "{0,6:N0} kbps", Math.Round((double)clip.PacketBitRate / 1000));
 
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-16}{1,-16}{2,-16}{3,-16}{4,-16}\r\n",
@@ -746,8 +755,8 @@ namespace BDInfoGUI
                 report += string.Format(CultureInfo.InvariantCulture,
                                         "{0,-16}{1,-16}{2,-16}{3,-16}{4,-16}{5,-16}{6,-16}{7,-16}{8,-16}{9,-16}{10,-16}{11,-16}{12,-16}\r\n",
                                         "------",
-                                        "-------",
-                                        "------",
+                                        "-------------",
+                                        "-------------",
                                         "--------------",
                                         "--------------",
                                         "--------------",
@@ -951,15 +960,15 @@ namespace BDInfoGUI
                                                 chapterIndex,
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D1}:{1:D2}:{2:D2}.{3:D3}", chapterStartSpan.Hours, chapterStartSpan.Minutes, chapterStartSpan.Seconds, chapterStartSpan.Milliseconds),
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D1}:{1:D2}:{2:D2}.{3:D3}", chapterLengthSpan.Hours, chapterLengthSpan.Minutes, chapterLengthSpan.Seconds, chapterLengthSpan.Milliseconds),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} kbps", Math.Round(chapterBitrate / 1000)),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} kbps", Math.Round(window1PeakBitrate / 1000)),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,6:N0} kbps", Math.Round(chapterBitrate / 1000)),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,6:N0} kbps", Math.Round(window1PeakBitrate / 1000)),
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D2}:{1:D2}:{2:D2}.{3:D3}", window1PeakSpan.Hours, window1PeakSpan.Minutes, window1PeakSpan.Seconds, window1PeakSpan.Milliseconds),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} kbps", Math.Round(window5PeakBitrate / 1000)),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,6:N0} kbps", Math.Round(window5PeakBitrate / 1000)),
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D2}:{1:D2}:{2:D2}.{3:D3}", window5PeakSpan.Hours, window5PeakSpan.Minutes, window5PeakSpan.Seconds, window5PeakSpan.Milliseconds),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} kbps", Math.Round(window10PeakBitrate / 1000)),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,6:N0} kbps", Math.Round(window10PeakBitrate / 1000)),
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D2}:{1:D2}:{2:D2}.{3:D3}", window10PeakSpan.Hours, window10PeakSpan.Minutes, window10PeakSpan.Seconds, window10PeakSpan.Milliseconds),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} bytes", chapterAvgFrameSize),
-                                                string.Format(CultureInfo.InvariantCulture, "{0:N0} bytes", chapterMaxFrameSize),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,7:N0} bytes", chapterAvgFrameSize),
+                                                string.Format(CultureInfo.InvariantCulture, "{0,7:N0} bytes", chapterMaxFrameSize),
                                                 string.Format(CultureInfo.InvariantCulture, "{0:D2}:{1:D2}:{2:D2}.{3:D3}", chapterMaxFrameSpan.Hours, chapterMaxFrameSpan.Minutes, chapterMaxFrameSpan.Seconds, chapterMaxFrameSpan.Milliseconds));
 
                         window1Bits = new Queue<double>();
@@ -1004,21 +1013,20 @@ namespace BDInfoGUI
                                             "Codec",
                                             "Language",
                                             "Seconds",
-                                            "Bitrate",
-                                            "Bytes",
-                                            "Packets");
+                                            string.Format(CultureInfo.InvariantCulture, "{0,11}", "Bitrate"),
+                                            string.Format(CultureInfo.InvariantCulture, "{0,10}", "Bytes"),
+                                            string.Format(CultureInfo.InvariantCulture, "{0,9}", "Packets"));
                     report += string.Format(CultureInfo.InvariantCulture,
                                             "{0,-16}{1,-16}{2,-16}{3,-16}{4,-24}{5,-24}{6,-24}{7,-16}{8,-16}\r\n",
-                                            "----",
-                                            "---",
-                                            "----",
-                                            "-----",
-                                            "--------",
-                                            "--------------",
-                                            "--------------",
+                                            "----------",
                                             "-------------",
                                             "-----",
-                                            "-------");
+                                            "----------",
+                                            "-------------",
+                                            "--------------",
+                                            "---------------",
+                                            "--------------",
+                                            "-----------");
 
                     Dictionary<string, TSStreamClip> reportedClips = new Dictionary<string, TSStreamClip>();
                     foreach (TSStreamClip clip in playlist.StreamClips)
@@ -1039,16 +1047,18 @@ namespace BDInfoGUI
                             TSStream playlistStream = 
                                 playlist.Streams[clipStream.PID];
 
-                            string clipBitRate = "0";
+                            string clipBitRate = string.Format( CultureInfo.InvariantCulture,
+                                                                "{0,7:N0} kbps",
+                                                                0);
                             string clipSeconds = "0";
 
                             if (clip.StreamFile.Length > 0)
                             {
                                 clipSeconds =
                                     clip.StreamFile.Length.ToString("F3", CultureInfo.InvariantCulture);
-                                clipBitRate = Math.Round(
-                                     (double)clipStream.PayloadBytes * 8 /
-                                     clip.StreamFile.Length / 1000).ToString("N0", CultureInfo.InvariantCulture);
+                                clipBitRate = string.Format(CultureInfo.InvariantCulture, 
+                                                            "{0,7:N0} kbps", 
+                                                            Math.Round((double)clipStream.PayloadBytes * 8 / clip.StreamFile.Length / 1000));
                             }
                             string language = "";
                             if (!string.IsNullOrEmpty(playlistStream.LanguageCode))
@@ -1066,8 +1076,8 @@ namespace BDInfoGUI
                                                     language,                                
                                                     clipSeconds,
                                                     clipBitRate,
-                                                    clipStream.PayloadBytes.ToString("N0", CultureInfo.InvariantCulture),
-                                                    clipStream.PacketCount.ToString("N0", CultureInfo.InvariantCulture));
+                                                    string.Format(CultureInfo.InvariantCulture, "{0,14:N0}", clipStream.PayloadBytes),
+                                                    string.Format(CultureInfo.InvariantCulture, "{0,11:N0}", clipStream.PacketCount));
                         }
                     }
                 }

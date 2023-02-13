@@ -155,7 +155,7 @@ namespace BDInfoGUI
             this.Icon = Properties.Resources.Bluray_Disc;
 
             Text += $" v{Application.ProductVersion}";
-#if DEBUG
+#if DEBUG && BETA
             Text += "b";
 #endif
             Size = Properties.Settings.Default.WindowSize;
@@ -958,6 +958,47 @@ namespace BDInfoGUI
             ResetColumnWidths();
         }
 
+        private void UpdateSubtitleChapterCount()
+        {
+            foreach (ListViewItem item in listViewPlaylistFiles.Items)
+            {
+                string playlistName = (string)item.SubItems[0].Tag;
+                if (BDROM.PlaylistFiles.ContainsKey(playlistName))
+                {
+                    TSPlaylistFile playlist = BDROM.PlaylistFiles[playlistName];
+
+                    foreach (TSStream stream in playlist.Streams.Values)
+                    {
+                        if (!stream.IsGraphicsStream) continue;
+
+                        ((TSGraphicsStream)stream).ForcedCaptions = 0;
+                        ((TSGraphicsStream)stream).Captions = 0;
+                    }
+
+                    foreach (TSStreamClip clip in playlist.StreamClips)
+                    {
+                        if (clip.StreamFile == null) continue;
+                        foreach (TSStream stream in clip.StreamFile?.Streams.Values)
+                        {
+                            if (!stream.IsGraphicsStream) continue;
+                            if (!playlist.Streams.ContainsKey(stream.PID)) continue;
+
+                            TSGraphicsStream plStream = (TSGraphicsStream)playlist.Streams[stream.PID];
+                            TSGraphicsStream clipStream = (TSGraphicsStream)stream;
+
+                            plStream.ForcedCaptions += clipStream.ForcedCaptions;
+                            plStream.Captions += clipStream.Captions;
+
+                            if (plStream.Width == 0 && clipStream.Width > 0)
+                                plStream.Width = clipStream.Width;
+                            if (plStream.Height == 0 && clipStream.Height > 0)
+                                plStream.Height = clipStream.Height;
+                        }
+                    }
+                }
+            }
+        }
+
         private void UpdatePlaylistBitrates()
         {
             foreach (ListViewItem item in listViewPlaylistFiles.Items)
@@ -1324,6 +1365,7 @@ namespace BDInfoGUI
 
                 labelScanTime.Text = $" {labelScanTime.Tag} { elapsedTime.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture) } / { remainingTime.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture) }";
 
+                UpdateSubtitleChapterCount();
                 UpdatePlaylistBitrates();
             }
             catch 
@@ -1337,6 +1379,7 @@ namespace BDInfoGUI
         {
             buttonScan.Enabled = false;
 
+            UpdateSubtitleChapterCount();
             UpdatePlaylistBitrates();
 
             labelProgress.Text = "Scan complete.";

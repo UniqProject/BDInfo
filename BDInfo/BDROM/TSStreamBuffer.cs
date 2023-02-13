@@ -35,7 +35,7 @@ namespace BDInfo
 
         public TSStreamBuffer()
         {
-            _buffer = new byte[20480];
+            _buffer = new byte[5242880];
             _stream = new MemoryStream(_buffer);
         }
 
@@ -94,6 +94,23 @@ namespace BDInfo
 
         public byte ReadByte(bool skipH26xEmulationByte)
         {
+#if BETA || DEBUG
+            long streamPos = _stream.Position;
+            byte tempByte = _buffer[streamPos];
+
+            if (skipH26xEmulationByte && tempByte == 0x03)
+            {
+                if (streamPos > 2 && _buffer[streamPos - 2] == 0x00 && _buffer[streamPos - 1] == 0x00)
+                {
+                    streamPos++;
+                    tempByte = _buffer[streamPos];
+                    _skippedBytes++;
+                }
+            }
+            
+            _stream.Position = streamPos + 1;
+            return tempByte;
+#else
             byte tempByte = (byte)_stream.ReadByte();
             var tempPosition = _stream.Position;
 
@@ -112,6 +129,8 @@ namespace BDInfo
                 }
             }
             return tempByte;
+#endif
+
         }
 
         public byte ReadByte()
@@ -132,8 +151,12 @@ namespace BDInfo
             var value = vector[1 << (8 - _skipBits - 1)];
 
             _skipBits += 1;
+#if BETA || DEBUG
+            _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
+#else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-            _skipBits = _skipBits % 8;
+#endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -165,8 +188,12 @@ namespace BDInfo
                 value += (ushort)(vector[1 << (16 - i - 1)] ? 1 : 0);
             }
             _skipBits += bits;
+#if BETA || DEBUG
+            _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
+#else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-            _skipBits = _skipBits % 8;
+#endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -198,8 +225,12 @@ namespace BDInfo
                 value += (uint)(vector[1<<(32 - i - 1)] ? 1 : 0);
             }
             _skipBits += bits;
+#if BETA || DEBUG
+            _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
+#else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-            _skipBits = _skipBits % 8;
+#endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -219,7 +250,7 @@ namespace BDInfo
             for (var i = 0; i < 4; i++)
             {
                 if (pos + i >= _bufferLength) break;
-                data += (_stream.ReadByte() << shift);
+                data += (ReadByte(skipH26xEmulationByte) << shift);
                 shift -= 8;
             }
 
@@ -242,8 +273,12 @@ namespace BDInfo
             }
 
             _skipBits += bits;
+#if BETA || DEBUG
+            _stream.Position = pos + (_skipBits >> 3) + _skippedBytes;
+#else
             _stream.Seek(pos + (_skipBits >> 3) + _skippedBytes, SeekOrigin.Begin);
-            _skipBits = _skipBits % 8;
+#endif
+            _skipBits %= 8;
 
             return value;
         }
@@ -278,6 +313,11 @@ namespace BDInfo
                 BSSkipBits(8 - _skipBits);
         }
 
+        public void BSResetBits()
+        {
+            _skipBits = 0;
+        }
+
         public void BSSkipBytes(int bytes, bool skipH26xEmulationByte)
         {
             if (bytes > 0)
@@ -288,7 +328,11 @@ namespace BDInfo
             else
             {
                 var pos = _stream.Position;
+#if BETA || DEBUG
+                _stream.Position = pos + (_skipBits >> 3) + bytes;
+#else
                 _stream.Seek(pos + (_skipBits >> 3) + bytes, SeekOrigin.Begin);
+#endif
             }
         }
 
@@ -343,12 +387,13 @@ namespace BDInfo
 
         public long DataBitStreamRemain()
         {
-            return (_stream.Length - _stream.Position)*8 - _skipBits;
+            var remain = (_bufferLength - _stream.Position) * 8 - _skipBits;
+            return remain;
         }
 
         public long DataBitStreamRemainBytes()
         {
-            return (_stream.Length - _stream.Position);
+            return (_bufferLength - _stream.Position);
         }
     }
 }

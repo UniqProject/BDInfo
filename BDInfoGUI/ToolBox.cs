@@ -36,5 +36,21 @@ namespace BDInfoGUI
 
             return string.Format(CultureInfo.InvariantCulture, "{0:N2} {1}", fSize / Math.Pow(1024, digitGroups), units[digitGroups]);
         }
+
+        public static string GetSafeFileName(string fileName)
+        {
+            string outFileName = fileName;
+
+            foreach (char lDisallowed in System.IO.Path.GetInvalidFileNameChars())
+            {
+                outFileName = outFileName.Replace(lDisallowed.ToString(), "");
+            }
+            foreach (char lDisallowed in System.IO.Path.GetInvalidPathChars())
+            {
+                outFileName = outFileName.Replace(lDisallowed.ToString(), "");
+            }
+
+            return outFileName;
+        }
     }
 }

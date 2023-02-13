@@ -31,7 +31,7 @@ namespace BDInfoGUI
         [STAThread]
         static void Main(string[] args)
         {
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 #endif
             Application.EnableVisualStyles();

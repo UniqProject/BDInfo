@@ -27,6 +27,37 @@ namespace BDInfo
     public abstract class TSCodecHEVC
     {
 
+        public class MasteringMetadata2086
+        {
+            public ushort[] Primaries;
+            public uint[] Luminance;
+
+            public MasteringMetadata2086()
+            {
+                Primaries = new ushort[8];
+                Luminance = new uint[2];
+            }
+        }
+
+        public class MasteringDisplayColorVolumeValue
+        {
+            public byte Code; // ISO code
+            public ushort[] Values; // G, B, R, W pairs (x values then y values)
+
+            public MasteringDisplayColorVolumeValue()
+            {
+                Code = 0;
+                Values = new ushort[8];
+            }
+        };
+        public static MasteringDisplayColorVolumeValue[] MasteringDisplayColorVolumeValues =
+        {
+            new MasteringDisplayColorVolumeValue{ Code =  1, Values = new ushort[] {15000, 30000,  7500,  3000, 32000, 16500, 15635, 16450} }, // BT.709
+            new MasteringDisplayColorVolumeValue{ Code =  9, Values = new ushort[] { 8500, 39850,  6550,  2300, 35400, 14600, 15635, 16450} }, // BT.2020
+            new MasteringDisplayColorVolumeValue{ Code = 11, Values = new ushort[] {13250, 34500,  7500,  3000, 34000, 16000, 15700, 17550} }, // DCI P3
+            new MasteringDisplayColorVolumeValue{ Code = 12, Values = new ushort[] {13250, 34500,  7500,  3000, 34000, 16000, 15635, 16450} }, // Display P3
+        };
+
         public class VideoParamSetStruct
         {
             public ushort VPSMaxSubLayers;
@@ -424,9 +455,14 @@ namespace BDInfo
 
         public static bool IsHdr10Plus;
 
+        private static bool _firstSliceSegmentInPicFlag;
+        private static uint _slicePicParameterSetId;
+
+        private static bool _isInitialized;
+
         public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
         {
-            if (stream.IsInitialized) return;
+            _isInitialized = stream.IsInitialized;
 
             if (stream.ExtendedData == null)
                 stream.ExtendedData = new ExtendedDataSet();
@@ -450,26 +486,39 @@ namespace BDInfo
 
             ExtendedFormatInfo = ExtendedData.ExtendedFormatInfo;
 
+            bool frameTypeRead = false;
+
             do
             {
+                var syncByteFound = false;
                 do
                 {
                     var streamPos = buffer.Position;
-                    if (buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x1)
+                    if (buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x1)
+                    {
+                        syncByteFound = true;
                         break;
+                    }
+                        
+                    buffer.BSSkipBytes((int) (streamPos - buffer.Position));
 
-                    buffer.BSSkipBytes((int) (streamPos - buffer.Position), true);
-                    if (buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x0 &&
-                        buffer.ReadByte(true) == 0x1)
+                    if (buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x0 &&
+                        buffer.ReadByte() == 0x1)
+                    {
+                        syncByteFound = true;
                         break;
-                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
-                } while (buffer.Position < buffer.Length);
+                    }
 
-                if (buffer.Position < buffer.Length)
+                    buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1));
+
+                } while ((buffer.Position < buffer.Length - 3) &&
+                        (!_isInitialized || (_isInitialized && !frameTypeRead)));
+
+                if (buffer.Position < buffer.Length && syncByteFound)
                 {
                     var lastStreamPos = buffer.Position;
 
@@ -481,28 +530,48 @@ namespace BDInfo
 
                     switch (nalUnitType)
                     {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 16:
+                        case 17:
+                        case 18:
+                        case 19:
+                        case 20:
+                        case 21:
+                            tag = SliceSegmentLayer(buffer, nalUnitType);
+                            frameTypeRead = tag != null;
+                            break;
                         case 32:
-                            VideoParameterSet(buffer);
+                                VideoParameterSet(buffer);
                             break;
                         case 33:
-                            SeqParameterSet(buffer);
+                                SeqParameterSet(buffer); 
                             break;
                         case 34:
-                            PicParameterSet(buffer);
+                                PicParameterSet(buffer);
                             break;
                         case 35:
-                            AccessUnitDelimiter(buffer);
+                                AccessUnitDelimiter(buffer);
                             break;
                         case 39:
                         case 40:
-                            Sei(buffer);
+                                Sei(buffer);
                             break;
                     }
 
                     buffer.BSSkipNextByte();
-                    buffer.BSSkipBytes((int) (lastStreamPos - buffer.Position), true);
+                    buffer.BSSkipBytes((int)(lastStreamPos - buffer.Position), true);
                 }
-            } while (buffer.Position < buffer.Length);
+            } while ((buffer.Position < buffer.Length - 3) &&
+                     (!_isInitialized || (_isInitialized && !frameTypeRead)));
 
             ExtendedData.PreferredTransferCharacteristics = PreferredTransferCharacteristics;
 
@@ -524,7 +593,7 @@ namespace BDInfo
             stream.ExtendedData = ExtendedData;
             
             // TODO: profile to string
-            if (SeqParameterSets.Count > 0)
+            if (SeqParameterSets.Count > 0 && !stream.IsInitialized)
             {
                 SeqParameterSetStruct seqParameterSet = SeqParameterSets[0];
                 if (seqParameterSet.ProfileSpace == 0)
@@ -553,12 +622,12 @@ namespace BDInfo
                     }
                     if (seqParameterSet.LevelIDC > 0)
                     {
-                        var calcLevel = (float) _levelIDC/30;
-                        var dec = _levelIDC%10;
+                        var calcLevel = (float)seqParameterSet.LevelIDC / 30;
+                        var dec = seqParameterSet.LevelIDC % 10;
                         profile += " @ Level " +
                                    string.Format(CultureInfo.InvariantCulture, dec >= 1 ? "{0:0.0}" : "{0:0}", calcLevel) +
                                    " @ ";
-                        if (_tierFlag) profile += "High";
+                        if (seqParameterSet.TierFlag) profile += "High";
                         else profile += "Main";
                     }
 
@@ -618,7 +687,7 @@ namespace BDInfo
                 }
             }
 
-            if (BDInfoSettings.ExtendedStreamDiagnostics)
+            if (BDInfoSettings.ExtendedStreamDiagnostics && !stream.IsInitialized)
             {
                 if (MasteringDisplayColorPrimaries != string.Empty)
                 {
@@ -641,9 +710,64 @@ namespace BDInfo
                 stream.IsInitialized = true;
         }
 
+        private static string SliceSegmentLayer(TSStreamBuffer buffer, long nalUnitType)
+        {
+            bool tempBool;
+
+            string tag = null;
+
+            // slice headers
+            bool dependentSliceSegmentFlag = false;
+
+            _firstSliceSegmentInPicFlag = buffer.ReadBool();
+            
+            if (nalUnitType >= 16 && nalUnitType <= 23)
+                tempBool = buffer.ReadBool(); // no_output_of_prior_pics_flag
+
+            _slicePicParameterSetId = buffer.ReadExp(true);
+
+            if (_slicePicParameterSetId >= PicParameterSets.Count)
+            {
+                _slicePicParameterSetId = uint.MaxValue;
+                return tag;
+            }
+
+            if (!_firstSliceSegmentInPicFlag)
+            {
+                if (PicParameterSets[(int)_slicePicParameterSetId].DependentSliceSegmentsEnabledFlag)
+                {
+                    dependentSliceSegmentFlag = buffer.ReadBool(true);
+                }
+                return tag;
+            }
+
+            if (!dependentSliceSegmentFlag)
+            {
+                buffer.BSSkipBits(PicParameterSets[(int)_slicePicParameterSetId].NumExtraSliceHeaderBits);
+                uint sliceType = buffer.ReadExp(true);
+                switch (sliceType)
+                {
+                    case 0: 
+                        tag = "P";
+                        break;
+                    case 1:
+                        tag = "B";
+                        break;
+                    case 2: 
+                        tag = "I";
+                        break;
+                    default: 
+                        break;
+                }
+            }
+            return tag;
+        }
+
         // packet 32
         private static void VideoParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             int vpsVideoParameterSetID = buffer.ReadBits2(4, true);
 
             buffer.BSSkipBits(8, true); //vps_reserved_three_2bits, vps_reserved_zero_6bits
@@ -666,7 +790,7 @@ namespace BDInfo
             for (var layerSetPos = 1; layerSetPos <= vpsNumLayerSetsMinus1; layerSetPos++)
                 for (var layerId = 0; layerId <= vpsMaxLayerID; layerId++)
                     buffer.BSSkipBits(1, true); //layer_id_included_flag
-
+                    
             var vpsTimingInfoPresentFlag = buffer.ReadBool(true);
             if (vpsTimingInfoPresentFlag)
             {
@@ -701,6 +825,8 @@ namespace BDInfo
         // packet 33
         private static void SeqParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             VUIParametersStruct vuiParametersItem = new VUIParametersStruct();
             VideoParamSetStruct videoParamSetItem = new VideoParamSetStruct();
 
@@ -808,6 +934,8 @@ namespace BDInfo
         // packet 34
         private static void PicParameterSet(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             var ppsPicParameterSetID = buffer.ReadExp(true);
             if (ppsPicParameterSetID >= 64)
                 return;
@@ -880,6 +1008,8 @@ namespace BDInfo
         // packet 39 & 40
         private static void Sei(TSStreamBuffer buffer)
         {
+            if (_isInitialized) return;
+
             long elementStart = buffer.Position;
 
             int numBytes;
@@ -889,29 +1019,29 @@ namespace BDInfo
             {
                 var streamPos = buffer.Position;
                 numBytes = 0;
-                if (buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x1)
+                if (buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x1)
                 {
                     numBytes = 4;
                     break;
                 }
 
-                buffer.BSSkipBytes((int)(streamPos - buffer.Position), true);
-                if (buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x0 &&
-                    buffer.ReadByte(true) == 0x1)
+                buffer.BSSkipBytes((int)(streamPos - buffer.Position));
+                if (buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x0 &&
+                    buffer.ReadByte() == 0x1)
                 {
                     numBytes = 3;
                     break;
                 }
-                buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1), true);
+                buffer.BSSkipBytes((int)(streamPos - buffer.Position + 1));
             } while (buffer.Position < buffer.Length);
 
             var elementSize = buffer.Position - elementStart;
 
-            buffer.BSSkipBytes((int) (elementSize *-1), true);
+            buffer.BSSkipBytes((int) (elementSize *-1));
 
             elementSize -= numBytes+1;
 
@@ -1090,29 +1220,27 @@ namespace BDInfo
         // SEI - 137
         private static void SeiMessageMasteringDisplayColourVolume(TSStreamBuffer buffer)
         {
-            uint max, min;
-            ushort[] x = new ushort[4];
-            ushort[] y = new ushort[4];
-
+            // TODO: Color Reading sometimes off.
+            MasteringMetadata2086 Meta = new MasteringMetadata2086();
+            buffer.BSResetBits();
             for (int i = 0; i < 3; i++)
             {
-                x[i] = buffer.ReadBits2(16, true);
-                y[i] = buffer.ReadBits2(16, true);
+                Meta.Primaries[i * 2] = buffer.ReadBits2(16, true); // x
+                Meta.Primaries[(i * 2) + 1] = buffer.ReadBits2(16, true); // y
             }
-            x[3] = buffer.ReadBits2(16, true);
-            y[3] = buffer.ReadBits2(16, true);
+            Meta.Primaries[3 * 2] = buffer.ReadBits2(16, true);
+            Meta.Primaries[(3 * 2) + 1] = buffer.ReadBits2(16, true);
 
+            Meta.Luminance[1] = buffer.ReadBits4(32, true);
+            Meta.Luminance[0] = buffer.ReadBits4(32, true);
             
-            max = buffer.ReadBits4(32, true);
-            min = buffer.ReadBits4(32, true);
-
             //Reordering to RGB
-            byte R = 4, G = 4, B = 4;
-            for (byte c = 0; c < 3; c++)
+            int R = 4, G = 4, B = 4;
+            for (int c = 0; c < 3; c++)
             {
-                if (x[c] < 17500 && y[c] < 17500)
+                if (Meta.Primaries[c*2] < 17500 && Meta.Primaries[(c * 2) + 1] < 17500)
                     B = c;
-                else if (y[c] - x[c] >= 0)
+                else if ((int)(Meta.Primaries[(c * 2) + 1]) - (int)(Meta.Primaries[c * 2]) >= 0)
                     G = c;
                 else
                     R = c;
@@ -1125,41 +1253,59 @@ namespace BDInfo
                 R = 2;
             }
 
+            bool notValid = false;
+
+            for (int c = 0; c < 8; c++)
+            {
+                if (Meta.Primaries[c] == ushort.MaxValue)
+                    notValid = true;
+            }
+
             MasteringDisplayColorPrimaries = string.Empty;
             bool humanReadablePrimaries = false;
-            if (x[G] == 15000 && x[B] == 7500 && x[R] == 32000 && x[3] == 15635 && 
-                y[G] == 30000 && y[B] == 3000 && y[R] == 16500 && y[3] == 16450)
+
+            if (!notValid)
             {
-                MasteringDisplayColorPrimaries = "BT.709";
-                humanReadablePrimaries = true;
+                for (int i = 0; i < MasteringDisplayColorVolumeValues.Length; i++)
+                {
+                    byte code = MasteringDisplayColorVolumeValues[i].Code;
+                    for (int j = 0; j < 2; j++)
+            {
+                        // +/- 0.0005 (3 digits after comma)
+                        if (Meta.Primaries[G * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[0 * 2 + j] - 25 || (Meta.Primaries[G * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[0 * 2 + j] + 25))
+                            code = 0;
+                        if (Meta.Primaries[B * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[1 * 2 + j] - 25 || (Meta.Primaries[B * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[1 * 2 + j] + 25))
+                            code = 0;
+                        if (Meta.Primaries[R * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[2 * 2 + j] - 25 || (Meta.Primaries[R * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[2 * 2 + j] + 25))
+                            code = 0;
+                        // +/- 0.00005 (4 digits after comma)
+                        if (Meta.Primaries[3 * 2 + j] < MasteringDisplayColorVolumeValues[i].Values[3 * 2 + j] - 2 || (Meta.Primaries[3 * 2 + j] >= MasteringDisplayColorVolumeValues[i].Values[3 * 2 + j] + 3))
+                            code = 0;
             }
-            else if (x[G] == 8500 && x[B] == 6550 && x[R] == 35400 && x[3] == 15635 &&
-                     y[G] == 39850 && y[B] == 2300 && y[R] == 14600 && y[3] == 16450)
+                    if (code > 0)
             {
-                MasteringDisplayColorPrimaries = "BT.2020";
+                        MasteringDisplayColorPrimaries = ColourPrimaries(code);
                 humanReadablePrimaries = true;
+                        break;
             }
-            else if (x[G] == 13250 && x[B] == 7500 && x[R] == 34000 && x[3] == 15635 && 
-                     y[G] == 34500 && y[B] == 3000 && y[R] == 16000 && y[3] == 16450)
-            {
-                MasteringDisplayColorPrimaries = "Display P3";
-                humanReadablePrimaries = true;
             }
 
             if (!humanReadablePrimaries)
                 MasteringDisplayColorPrimaries += string.Format(CultureInfo.InvariantCulture,
                                                            "R: x={0:0.000000} y={1:0.000000}, G: x={2:0.000000} y={3:0.000000}" +
                                                            ", B: x={4:0.000000} y={5:0.000000}, White point: x={6:0.000000} y={7:0.000000}",
-                                                           (double)x[R] / 50000, (double)y[R] / 50000,
-                                                           (double)x[G] / 50000, (double)y[G] / 50000,
-                                                           (double)x[B] / 50000, (double)y[B] / 50000,
-                                                           (double)x[3] / 50000, (double)y[3] / 50000);
+                                                               (double)Meta.Primaries[R * 2] / 50000, (double)Meta.Primaries[(R * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[G * 2] / 50000, (double)Meta.Primaries[(G * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[B * 2] / 50000, (double)Meta.Primaries[(B * 2) + 1] / 50000,
+                                                               (double)Meta.Primaries[3 * 2] / 50000, (double)Meta.Primaries[(3 * 2) + 1] / 50000);
+            }
+                            
 
             MasteringDisplayLuminance = string.Format(CultureInfo.InvariantCulture,
                                                       "min: {0:0.0000} cd/m2, max: " + 
-                                                      ((max - ((int) max) == 0) ? "{1:0}" : "{1:0.0000}") +
+                                                      ((Meta.Luminance[1] - ((int)Meta.Luminance[1]) == 0) ? "{1:0}" : "{1:0.0000}") +
                                                       " cd/m2",
-                                                      (double) min / 10000, (double) max / 10000);
+                                                      (double)Meta.Luminance[0] / 10000, (double)Meta.Luminance[1] / 10000);
         }
 
         // SEI - 144

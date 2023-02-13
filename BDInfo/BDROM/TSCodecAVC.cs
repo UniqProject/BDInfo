@@ -42,7 +42,6 @@ namespace BDInfo
 
             for (int i = 0; i < buffer.Length; i++)
             {
-                if (stream.IsInitialized) return;
                 parse = (parse << 8) + buffer.ReadByte(true);
 
                 if (parse == 0x00000109)
@@ -83,67 +82,68 @@ namespace BDInfo
                 else if (sequenceParameterSetParse > 0)
                 {
                     --sequenceParameterSetParse;
-                    switch (sequenceParameterSetParse)
-                    {
-                        case 2:
-                            switch (parse & 0xFF)
-                            {
-                                case 66:
-                                    profile = "Baseline Profile";
-                                    break;
-                                case 77:
-                                    profile = "Main Profile";
-                                    break;
-                                case 88:
-                                    profile = "Extended Profile";
-                                    break;
-                                case 100:
-                                    profile = "High Profile";
-                                    break;
-                                case 110:
-                                    profile = "High 10 Profile";
-                                    break;
-                                case 122:
-                                    profile = "High 4:2:2 Profile";
-                                    break;
-                                case 144:
-                                    profile = "High 4:4:4 Profile";
-                                    break;
-                                default:
-                                    profile = "Unknown Profile";
-                                    break;
-                            }
-                            break;
+                    if (!stream.IsInitialized)
+                        switch (sequenceParameterSetParse)
+                        {
+                            case 2:
+                                switch (parse & 0xFF)
+                                {
+                                    case 66:
+                                        profile = "Baseline Profile";
+                                        break;
+                                    case 77:
+                                        profile = "Main Profile";
+                                        break;
+                                    case 88:
+                                        profile = "Extended Profile";
+                                        break;
+                                    case 100:
+                                        profile = "High Profile";
+                                        break;
+                                    case 110:
+                                        profile = "High 10 Profile";
+                                        break;
+                                    case 122:
+                                        profile = "High 4:2:2 Profile";
+                                        break;
+                                    case 144:
+                                        profile = "High 4:4:4 Profile";
+                                        break;
+                                    default:
+                                        profile = "Unknown Profile";
+                                        break;
+                                }
+                                break;
 
-                        case 1:
-                            constraintSet0Flag = (byte)
-                                ((parse & 0x80) >> 7);
-                            constraintSet1Flag = (byte)
-                                ((parse & 0x40) >> 6);
-                            constraintSet2Flag = (byte)
-                                ((parse & 0x20) >> 5);
-                            constraintSet3Flag = (byte)
-                                ((parse & 0x10) >> 4);
-                            break;
+                            case 1:
+                                constraintSet0Flag = (byte)
+                                    ((parse & 0x80) >> 7);
+                                constraintSet1Flag = (byte)
+                                    ((parse & 0x40) >> 6);
+                                constraintSet2Flag = (byte)
+                                    ((parse & 0x20) >> 5);
+                                constraintSet3Flag = (byte)
+                                    ((parse & 0x10) >> 4);
+                                break;
 
-                        case 0:
-                            byte b = (byte)(parse & 0xFF);
-                            if (b == 11 && constraintSet3Flag == 1)
-                            {
-                                level = "1b";
-                            }
-                            else
-                            {
-                                level = string.Format(
-                                    "{0:D}.{1:D}",
-                                    b / 10, (b - ((b / 10) * 10)));
-                            }
-                            stream.EncodingProfile = string.Format(
-                                "{0} {1}", profile, level);
-                            stream.IsVBR = true;
-                            stream.IsInitialized = true;
-                            break;
-                    }
+                            case 0:
+                                byte b = (byte)(parse & 0xFF);
+                                if (b == 11 && constraintSet3Flag == 1)
+                                {
+                                    level = "1b";
+                                }
+                                else
+                                {
+                                    level = string.Format(
+                                        "{0:D}.{1:D}",
+                                        b / 10, (b - ((b / 10) * 10)));
+                                }
+                                stream.EncodingProfile = string.Format(
+                                    "{0} {1}", profile, level);
+                                stream.IsVBR = true;
+                                stream.IsInitialized = true;
+                                break;
+                        }
                 }
             }
             return;

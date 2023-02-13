@@ -659,6 +659,8 @@ namespace BDInfo
                 case TSStreamType.LPCM_AUDIO:
                 case TSStreamType.MPEG1_AUDIO:
                 case TSStreamType.MPEG2_AUDIO:
+                case TSStreamType.MPEG2_AAC_AUDIO:
+                case TSStreamType.MPEG4_AAC_AUDIO:
 
                     int audioFormat = ReadByte(data, ref pos);
 
@@ -759,11 +761,14 @@ namespace BDInfo
             }
             foreach (TSStreamClip clip in StreamClips)
             {
+                if (referenceClip.StreamFile == null && clip.StreamFile != null)
+                    referenceClip = clip;
+
                 if (clip.StreamClipFile.Streams.Count > referenceClip.StreamClipFile.Streams.Count && clip.RelativeLength > 0.01)
                 {
                     referenceClip = clip;
                 }
-                else if (clip.Length > referenceClip.Length)
+                else if (clip.Length > referenceClip.Length && clip.StreamFile != null)
                 {
                     referenceClip = clip;
                 }
@@ -858,7 +863,7 @@ namespace BDInfo
                                 ((TSVideoStream) clipStream).ExtendedData;
                         }
                         else if (stream.IsAudioStream &&
-                            clipStream.IsAudioStream)
+                                clipStream.IsAudioStream)
                         {
                             TSAudioStream audioStream = (TSAudioStream)stream;
                             TSAudioStream clipAudioStream = (TSAudioStream)clipStream;
@@ -891,12 +896,28 @@ namespace BDInfo
                             {
                                 audioStream.HasExtensions = clipAudioStream.HasExtensions;
                             }
+                            if (clipAudioStream.ExtendedData != audioStream.ExtendedData)
+                            {
+                                audioStream.ExtendedData = clipAudioStream.ExtendedData;
+                            }
                             if (clipAudioStream.CoreStream != null &&
                                 audioStream.CoreStream == null)
                             {
                                 audioStream.CoreStream = (TSAudioStream)
                                     clipAudioStream.CoreStream.Clone();
                             }
+                        }
+                        else if (stream.IsGraphicsStream &&
+                                clipStream.IsGraphicsStream)
+                        {
+                            TSGraphicsStream graphicsStream = (TSGraphicsStream)stream;
+                            TSGraphicsStream clipGraphicsStream = (TSGraphicsStream)clipStream;
+                            
+                            graphicsStream.Captions = clipGraphicsStream.Captions;
+                            graphicsStream.ForcedCaptions = clipGraphicsStream.ForcedCaptions;
+                            graphicsStream.Width = clipGraphicsStream.Width;
+                            graphicsStream.Height = clipGraphicsStream.Height;
+                            graphicsStream.CaptionIDs = clipGraphicsStream.CaptionIDs;
                         }
                     }
                 }
@@ -1274,14 +1295,18 @@ namespace BDInfo
                     return 6;
                 case TSStreamType.AC3_PLUS_AUDIO:
                     return 7;
-                case TSStreamType.DTS_HD_AUDIO:
+                case TSStreamType.MPEG2_AAC_AUDIO:
                     return 8;
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
+                case TSStreamType.MPEG4_AAC_AUDIO:
                     return 9;
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
+                case TSStreamType.DTS_HD_AUDIO:
                     return 10;
-                case TSStreamType.LPCM_AUDIO:
+                case TSStreamType.AC3_TRUE_HD_AUDIO:
                     return 11;
+                case TSStreamType.DTS_HD_MASTER_AUDIO:
+                    return 12;
+                case TSStreamType.LPCM_AUDIO:
+                    return 13;
 
                 case TSStreamType.SUBTITLE:
                     return 1;

@@ -34,6 +34,8 @@ namespace BDInfo
         VC1_VIDEO = 0xea,
         MPEG1_AUDIO = 0x03,
         MPEG2_AUDIO = 0x04,
+        MPEG2_AAC_AUDIO = 0x0F,
+        MPEG4_AAC_AUDIO = 0x11,
         LPCM_AUDIO = 0x80,
         AC3_AUDIO = 0x81,
         AC3_PLUS_AUDIO = 0x84,
@@ -191,6 +193,8 @@ namespace BDInfo
                 {
                     case TSStreamType.MPEG1_AUDIO:
                     case TSStreamType.MPEG2_AUDIO:
+                    case TSStreamType.MPEG2_AAC_AUDIO:
+                    case TSStreamType.MPEG4_AAC_AUDIO:
                     case TSStreamType.LPCM_AUDIO:
                     case TSStreamType.AC3_AUDIO:
                     case TSStreamType.AC3_PLUS_AUDIO:
@@ -258,9 +262,10 @@ namespace BDInfo
                     case TSStreamType.VC1_VIDEO:
                         return "VC-1 Video";
                     case TSStreamType.MPEG1_AUDIO:
-                        return "MP1 Audio";
                     case TSStreamType.MPEG2_AUDIO:
-                        return "MP2 Audio";
+                    case TSStreamType.MPEG2_AAC_AUDIO:
+                    case TSStreamType.MPEG4_AAC_AUDIO:
+                        return (string)((TSAudioStream)this).ExtendedData;
                     case TSStreamType.LPCM_AUDIO:
                         return "LPCM Audio";
                     case TSStreamType.AC3_AUDIO:
@@ -331,6 +336,10 @@ namespace BDInfo
                         return "MP1";
                     case TSStreamType.MPEG2_AUDIO:
                         return "MP2";
+                    case TSStreamType.MPEG2_AAC_AUDIO:
+                        return "MPEG-2 AAC";
+                    case TSStreamType.MPEG4_AAC_AUDIO:
+                        return "MPEG-4 AAC";
                     case TSStreamType.LPCM_AUDIO:
                         return "LPCM";
                     case TSStreamType.AC3_AUDIO:
@@ -391,6 +400,10 @@ namespace BDInfo
                         return "MP1";
                     case TSStreamType.MPEG2_AUDIO:
                         return "MP2";
+                    case TSStreamType.MPEG2_AAC_AUDIO:
+                        return "MPEG-2 AAC";
+                    case TSStreamType.MPEG4_AAC_AUDIO:
+                        return "MPEG-4 AAC";
                     case TSStreamType.LPCM_AUDIO:
                         return "LPCM";
                     case TSStreamType.AC3_AUDIO:
@@ -654,7 +667,9 @@ namespace BDInfo
         DualMono,
         Stereo,
         Surround,
-        Extended
+        Extended,
+        JointStereo,
+        Mono
     }
 
     public class TSAudioStream : TSStream
@@ -670,6 +685,8 @@ namespace BDInfo
         public int DialNorm;
 
         public bool HasExtensions = false;
+
+        public object ExtendedData;
 
         public TSAudioMode AudioMode;
         public TSAudioStream CoreStream;
@@ -787,6 +804,10 @@ namespace BDInfo
                         case TSAudioMode.Surround:
                             description += " / Dolby Surround";
                             break;
+
+                        case TSAudioMode.JointStereo:
+                            description += " / Joint Stereo";
+                            break;
                     }
                 }
                 if (description.EndsWith(" / "))
@@ -829,6 +850,7 @@ namespace BDInfo
             stream.LFE = LFE;
             stream.DialNorm = DialNorm;
             stream.AudioMode = AudioMode;
+            stream.ExtendedData = ExtendedData;
 
             if (CoreStream != null)
             {
@@ -841,17 +863,61 @@ namespace BDInfo
 
     public class TSGraphicsStream : TSStream
     {
+        public int Width;
+        public int Height;
+        public int Captions;
+        public int ForcedCaptions;
+        public Dictionary<int, TSCodecPGS.Frame> CaptionIDs;
+        public TSCodecPGS.Frame LastFrame;
+
         public TSGraphicsStream()
         {
             IsVBR = true;
-            IsInitialized = true;
+            IsInitialized = false;
+            Width = 0;
+            Height = 0;
+            Captions = 0;
+            ForcedCaptions = 0;
+            CaptionIDs = new Dictionary<int, TSCodecPGS.Frame>();
+            LastFrame = new TSCodecPGS.Frame();
         }
 
         public override TSStream Clone()
         {
             TSGraphicsStream stream = new TSGraphicsStream();
             CopyTo(stream);
+            stream.Width = Width;
+            stream.Height = Height;
+            stream.Captions = Captions;
+            stream.ForcedCaptions = ForcedCaptions;
+            stream.CaptionIDs = CaptionIDs;
+            stream.LastFrame = LastFrame;
             return stream;
+        }
+
+        public override string Description
+        {
+            get
+            {
+                string description = string.Empty;
+                if (Width > 0 || Height > 0)
+                {
+                    description = string.Format(CultureInfo.InvariantCulture, "{0:D}x{1:D}", Width, Height);
+                }
+                if (Captions > 0 || ForcedCaptions > 0)
+                {
+                    if (Captions > 0)
+                    {
+                        description += string.Format(CultureInfo.InvariantCulture, " / {0:D} Caption{1}", Captions, Captions > 1 ? "s" : "");
+                    }
+
+                    if (ForcedCaptions > 0)
+                    {
+                        description += string.Format(CultureInfo.InvariantCulture, (Captions > 0 ? " ( + " : " / ") + "{0:D} Forced Caption{1}" + (Captions > 0 ? ")" : ""), ForcedCaptions, ForcedCaptions > 1 ? "s" : "");
+                    }
+                }
+                return description;
+            }
         }
     }
 

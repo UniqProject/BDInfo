@@ -248,17 +248,27 @@ namespace BDInfo
 
         private void ReadDiscTitle(StreamReader fileStream)
         {
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.Load(fileStream);
-            var xNsMgr = new XmlNamespaceManager(xDoc.NameTable);
-            xNsMgr.AddNamespace("di", "urn:BDA:bdmv;discinfo");
-            var xNode = xDoc.DocumentElement?.SelectSingleNode("di:discinfo/di:title/di:name", xNsMgr);
-            DiscTitle = xNode?.InnerText;
+            try
+            {
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.Load(fileStream);
+                var xNsMgr = new XmlNamespaceManager(xDoc.NameTable);
+                xNsMgr.AddNamespace("di", "urn:BDA:bdmv;discinfo");
+                var xNode = xDoc.DocumentElement?.SelectSingleNode("di:discinfo/di:title/di:name", xNsMgr);
+                DiscTitle = xNode?.InnerText;
 
-            if (!string.IsNullOrEmpty(DiscTitle) && DiscTitle.ToLowerInvariant() == "blu-ray")
+                if (!string.IsNullOrEmpty(DiscTitle) && DiscTitle.ToLowerInvariant() == "blu-ray")
+                    DiscTitle = null;
+            }
+            catch (Exception)
+            {
                 DiscTitle = null;
-
-            fileStream.Close();
+            }
+            finally 
+            {
+                fileStream.Close();
+            }
+            
         }
 
         public void Scan()
@@ -284,7 +294,7 @@ namespace BDInfo
                             break;
                         }
                     }
-                    else throw ex;
+                    else throw;
                 }
             }
 
@@ -322,7 +332,7 @@ namespace BDInfo
                             break;
                         }
                     }
-                    else throw ex;
+                    else throw;
                 }
             }
 
@@ -359,7 +369,7 @@ namespace BDInfo
                             break;
                         }
                     }
-                    else throw ex;
+                    else throw;
                 }
             }
 

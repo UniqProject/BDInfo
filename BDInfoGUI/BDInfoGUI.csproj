@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -11,7 +11,7 @@
     <Company>Cinema Squid &amp; UniqProject</Company>
     <Authors>Cinema Squid &amp; UniqProject</Authors>
     <Version>0.8.0.0</Version>
-    <Copyright>Copyright © Cinema Squid 2011 &amp; UniqProject 2017-2020</Copyright>
+    <Copyright>Copyright © Cinema Squid 2011 &amp; UniqProject 2017-2023</Copyright>
     <PackageProjectUrl>https://github.com/UniqProject/BDInfo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -23,15 +23,15 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
     <OutputPath>bin\Beta\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <Optimize>False</Optimize>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
