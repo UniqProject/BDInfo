@@ -455,6 +455,9 @@ namespace BDInfo
 
         public static bool IsHdr10Plus;
 
+        private static bool _firstSliceSegmentInPicFlag;
+        private static uint _slicePicParameterSetId;
+
         private static bool _isInitialized;
 
         public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
