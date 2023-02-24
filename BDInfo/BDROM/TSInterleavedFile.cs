@@ -17,21 +17,20 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using BDInfo.IO;
+using BDInfoLib.BDROM.IO;
 
 // TODO: Do more interesting things here...
 
-namespace BDInfo
-{
-    public class TSInterleavedFile
-    {
-        public IFileInfo FileInfo = null;
-        public string Name = null;
+namespace BDInfoLib.BDROM;
 
-        public TSInterleavedFile(IFileInfo fileInfo)
-        {
-            FileInfo = fileInfo;
-            Name = fileInfo.Name.ToUpper();
-        }
+public class TSInterleavedFile
+{
+    public IFileInfo FileInfo;
+    public string Name;
+
+    public TSInterleavedFile(IFileInfo fileInfo)
+    {
+        FileInfo = fileInfo;
+        Name = fileInfo.Name.ToUpper();
     }
 }

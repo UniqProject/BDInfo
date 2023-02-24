@@ -17,17 +17,16 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-namespace BDInfo.IO
-{
-    public interface IDirectoryInfo
-    {
-        string Name { get; }
-        string FullName { get; }
-        IDirectoryInfo Parent { get; }
-        IFileInfo[] GetFiles();
-        IFileInfo[] GetFiles(string searchPattern);
-        IFileInfo[] GetFiles(string searchPattern, System.IO.SearchOption searchOption);
+namespace BDInfoLib.BDROM.IO;
 
-        IDirectoryInfo[] GetDirectories();
-    }
+public interface IDirectoryInfo
+{
+    string Name { get; }
+    string FullName { get; }
+    IDirectoryInfo Parent { get; }
+    IFileInfo[] GetFiles();
+    IFileInfo[] GetFiles(string searchPattern);
+    IFileInfo[] GetFiles(string searchPattern, SearchOption searchOption);
+    string GetVolumeLabel();
+    IDirectoryInfo[] GetDirectories();
 }

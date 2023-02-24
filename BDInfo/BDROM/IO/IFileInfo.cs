@@ -17,19 +17,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
+namespace BDInfoLib.BDROM.IO;
 
-namespace BDInfo.IO
+public interface IFileInfo
 {
-    public interface IFileInfo
-    {
-        string Name { get; }
-        string FullName { get; }
-        string Extension { get; }
-        long Length { get; }
-        bool IsDir { get; }
-        bool IsImage { get; }
+    string Name { get; }
+    string FullName { get; }
+    string Extension { get; }
+    long Length { get; }
+    bool IsDir { get; }
+    bool IsImage { get; }
 
-        System.IO.Stream OpenRead();
-        System.IO.StreamReader OpenText();
-    }
+    Stream OpenRead();
+    StreamReader OpenText();
 }

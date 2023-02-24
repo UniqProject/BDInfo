@@ -17,33 +17,35 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Globalization;
-using System.Threading;
-using System.Windows.Forms;
+namespace BDInfoLib.BDROM.IO;
 
-namespace BDInfoGUI;
-
-static class Program
+public class DiscFileInfo : IFileInfo
 {
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main(string[] args)
+    private readonly DiscUtils.DiscFileInfo _impl;
+    public string Name => _impl.Name;
+
+    public string FullName => _impl.FullName;
+
+    public string Extension => _impl.Extension;
+
+    public long Length => _impl.Length;
+
+    public bool IsDir => _impl.Attributes.HasFlag(FileAttributes.Directory);
+
+    public bool IsImage => true;
+
+    public DiscFileInfo(DiscUtils.DiscFileInfo impl)
     {
-        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+        _impl = impl;
+    }
 
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-        Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-        BDInfoLib.BDInfoSettings.Load();
+    public Stream OpenRead()
+    {
+        return _impl.OpenRead();
+    }
 
-#if NETCOREAPP3_1_OR_GREATER
-        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
-#endif
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new FormMain(args));
+    public StreamReader OpenText()
+    {
+        return _impl.OpenText();
     }
 }

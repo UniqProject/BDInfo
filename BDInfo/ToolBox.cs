@@ -17,23 +17,45 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
+using System.IO.IsolatedStorage;
 using System.Text;
 
-namespace BDInfo
+namespace BDInfoLib;
+
+public class ToolBox
 {
-    public class ToolBox
+    public static string ReadString(byte[] data, int count, ref int pos)
     {
-        public static string ReadString(
-            byte[] data,
-            int count,
-            ref int pos)
+        var val = Encoding.ASCII.GetString(data, pos, count);
+
+        pos += count;
+
+        return val;
+    }
+
+    public static IsolatedStorageFileStream GetIsolatedStorageFileStream(string fileName, bool readFile)
+    {
+        var isolatedStorageFile =
+            IsolatedStorageFile.GetStore(IsolatedStorageScope.Machine | IsolatedStorageScope.Assembly, null,
+                null);
+        var isoFile = isolatedStorageFile.OpenFile(fileName, readFile ? FileMode.OpenOrCreate : FileMode.Create,
+            FileAccess.ReadWrite, FileShare.ReadWrite);
+        return isoFile;
+    }
+
+    public static object GetTextReaderWriter(string fileName, bool readFile)
+    {
+        if (readFile)
         {
-            string val =
-                Encoding.ASCII.GetString(data, pos, count);
-
-            pos += count;
-
-            return val;
+            return new StreamReader(fileName, Encoding.UTF8, true,
+                new FileStreamOptions
+                    { Access = FileAccess.ReadWrite, Mode = FileMode.OpenOrCreate, Share = FileShare.ReadWrite });
+        }
+        else
+        {
+            return new StreamWriter(fileName, Encoding.UTF8,
+                new FileStreamOptions
+                    { Access = FileAccess.ReadWrite, Mode = FileMode.Create, Share = FileShare.ReadWrite });
         }
     }
 }

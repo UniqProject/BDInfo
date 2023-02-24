@@ -17,711 +17,633 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Numerics;
-using System.Threading;
-using BDInfo.IO;
+using BDInfoLib.BDROM.IO;
 
-namespace BDInfo
+namespace BDInfoLib.BDROM;
+
+public class TSStreamState
 {
-    public class TSStreamState
-    {
-        public ulong TransferCount = 0;
+    public ulong TransferCount;
 
-        public string StreamTag = null;
+    public string StreamTag;
 
-        public ulong TotalPackets = 0;
-        public ulong WindowPackets = 0;
+    public ulong TotalPackets;
+    public ulong WindowPackets;
 
-        public ulong TotalBytes = 0;
-        public ulong WindowBytes = 0;
+    public ulong TotalBytes;
+    public ulong WindowBytes;
 
-        public long PeakTransferLength = 0;
-        public long PeakTransferRate = 0;
+    public long PeakTransferLength;
+    public long PeakTransferRate;
 
-        public double TransferMarker = 0;
-        public double TransferInterval = 0;
+    public double TransferMarker = 0;
+    public double TransferInterval = 0;
 
-        public TSStreamBuffer StreamBuffer = new TSStreamBuffer();
+    public TSStreamBuffer StreamBuffer = new();
 
-        public uint Parse = 0;
-        public bool TransferState = false;
-        public int TransferLength = 0;
-        public int PacketLength = 0;
-        public bool PacketLengthVariable = false;
-        public byte PacketLengthParse = 0;
-        public byte PacketParse = 0;
+    public uint Parse;
+    public bool TransferState;
+    public int TransferLength;
+    public int PacketLength;
+    public bool PacketLengthVariable;
+    public byte PacketLengthParse;
+    public byte PacketParse;
 
-        public byte PTSParse = 0;
-        public BigInteger PTS = 0;
-        public ulong PTSTemp = 0;
-        public BigInteger PTSLast = 0;
-        public BigInteger PTSPrev = 0;
-        public BigInteger PTSDiff = 0;
-        public ulong PTSCount = 0;
-        public BigInteger PTSTransfer = 0;
+    public byte PTSParse;
+    public BigInteger PTS = 0;
+    public ulong PTSTemp;
+    public BigInteger PTSLast = 0;
+    public BigInteger PTSPrev = 0;
+    public BigInteger PTSDiff = 0;
+    public ulong PTSCount;
+    public BigInteger PTSTransfer = 0;
 
-        public byte DTSParse = 0;
-        public BigInteger DTSTemp = 0;
-        public BigInteger DTSPrev = 0;
+    public byte DTSParse;
+    public BigInteger DTSTemp = 0;
+    public BigInteger DTSPrev = 0;
 
-        public byte PESHeaderLength = 0;
-        public byte PESHeaderFlags = 0;
+    public byte PESHeaderLength;
+    public byte PESHeaderFlags;
 #if DEBUG && !BETA
-        public byte PESHeaderIndex = 0;
-        public byte[] PESHeader = new byte[256 + 9];
+    public byte PESHeaderIndex = 0;
+    public byte[] PESHeader = new byte[256 + 9];
 #endif
+}
+
+public class TSPacketParser
+{
+    public bool SyncState;
+    public byte TimeCodeParse = 4;
+    public byte PacketLength;
+    public byte HeaderParse;
+
+    public uint TimeCode;
+    public byte TransportErrorIndicator;
+    public byte PayloadUnitStartIndicator;
+    public byte TransportPriority;
+    public ushort PID;
+    public byte TransportScramblingControl;
+    public byte AdaptionFieldControl;
+
+    public bool AdaptionFieldState;
+    public byte AdaptionFieldParse;
+    public byte AdaptionFieldLength;
+    public bool VariablePacketEnd;
+
+    public ushort PCRPID = 0xFFFF;
+    public byte PCRParse;
+    public BigInteger PreviousPCR = 0;
+    public BigInteger PCR = 0;
+    public BigInteger PCRCount = 0;
+    public BigInteger PTSFirst = ulong.MaxValue;
+    public BigInteger PTSLast = ulong.MinValue;
+    public BigInteger PTSDiff = 0;
+
+    public byte[] PAT = new byte[1024];
+    public bool PATSectionStart;
+    public byte PATPointerField;
+    public uint PATOffset;
+    public byte PATSectionLengthParse;
+    public ushort PATSectionLength;
+    public uint PATSectionParse;
+    public bool PATTransferState;
+    public byte PATSectionNumber;
+    public byte PATLastSectionNumber;
+
+    public ushort TransportStreamId = 0xFFFF;
+
+    public List<TSDescriptor> PMTProgramDescriptors = new();
+    public ushort PMTPID = 0xFFFF;
+    public Dictionary<ushort, byte[]> PMT = new();
+    public bool PMTSectionStart;
+    public ushort PMTProgramInfoLength;
+    public byte PMTProgramDescriptor;
+    public byte PMTProgramDescriptorLengthParse;
+    public byte PMTProgramDescriptorLength;
+    public ushort PMTStreamInfoLength = 0;
+    public uint PMTStreamDescriptorLengthParse = 0;
+    public uint PMTStreamDescriptorLength = 0;
+    public byte PMTPointerField;
+    public uint PMTOffset;
+    public uint PMTSectionLengthParse;
+    public ushort PMTSectionLength;
+    public uint PMTSectionParse;
+    public bool PMTTransferState;
+    public byte PMTSectionNumber;
+    public byte PMTLastSectionNumber;
+
+    public byte PMTTemp;
+
+    public TSStream Stream;
+    public TSStreamState StreamState;
+
+    public ulong TotalPackets;
+}
+
+public class TSStreamDiagnostics
+{
+    public ulong Bytes;
+    public ulong Packets;
+    public double Marker;
+    public double Interval;
+    public string Tag;
+}
+
+public class TSStreamFile
+{
+    public bool AbortScan = false;
+    public IFileInfo FileInfo;
+    public string Name;
+    public long Size;
+    public double Length;
+
+    public TSInterleavedFile InterleavedFile = null;
+
+    private readonly Dictionary<ushort, TSStreamState> _streamStates = new();
+
+    public Dictionary<ushort, TSStream> Streams = new();
+
+    public Dictionary<ushort, List<TSStreamDiagnostics>> StreamDiagnostics = new();
+
+    private List<TSPlaylistFile> _playlists;
+
+    public TSStreamFile(IFileInfo fileInfo)
+    {
+        FileInfo = fileInfo;
+        Name = fileInfo.Name.ToUpper();
     }
 
-    public class TSPacketParser
+    public string DisplayName
     {
-        public bool SyncState = false;
-        public byte TimeCodeParse = 4;
-        public byte PacketLength = 0;
-        public byte HeaderParse = 0;
-
-        public uint TimeCode;
-        public byte TransportErrorIndicator;
-        public byte PayloadUnitStartIndicator;
-        public byte TransportPriority;
-        public ushort PID;
-        public byte TransportScramblingControl;
-        public byte AdaptionFieldControl;
-
-        public bool AdaptionFieldState = false;
-        public byte AdaptionFieldParse = 0;
-        public byte AdaptionFieldLength = 0;
-        public bool VariablePacketEnd = false;
-
-        public ushort PCRPID = 0xFFFF;
-        public byte PCRParse = 0;
-        public BigInteger PreviousPCR = 0;
-        public BigInteger PCR = 0;
-        public BigInteger PCRCount = 0;
-        public BigInteger PTSFirst = ulong.MaxValue;
-        public BigInteger PTSLast = ulong.MinValue;
-        public BigInteger PTSDiff = 0;
-
-        public byte[] PAT = new byte[1024];
-        public bool PATSectionStart = false;
-        public byte PATPointerField = 0;
-        public uint PATOffset = 0;
-        public byte PATSectionLengthParse = 0;
-        public ushort PATSectionLength = 0;
-        public uint PATSectionParse = 0;
-        public bool PATTransferState = false;
-        public byte PATSectionNumber = 0;
-        public byte PATLastSectionNumber = 0;
-
-        public ushort TransportStreamId = 0xFFFF;
-
-        public List<TSDescriptor> PMTProgramDescriptors = new List<TSDescriptor>();
-        public ushort PMTPID = 0xFFFF;
-        public Dictionary<ushort, byte[]> PMT = new Dictionary<ushort, byte[]>();
-        public bool PMTSectionStart = false;
-        public ushort PMTProgramInfoLength = 0;
-        public byte PMTProgramDescriptor = 0;
-        public byte PMTProgramDescriptorLengthParse = 0;
-        public byte PMTProgramDescriptorLength = 0;
-        public ushort PMTStreamInfoLength = 0;
-        public uint PMTStreamDescriptorLengthParse = 0;
-        public uint PMTStreamDescriptorLength = 0;
-        public byte PMTPointerField = 0;
-        public uint PMTOffset = 0;
-        public uint PMTSectionLengthParse = 0;
-        public ushort PMTSectionLength = 0;
-        public uint PMTSectionParse = 0;
-        public bool PMTTransferState = false;
-        public byte PMTSectionNumber = 0;
-        public byte PMTLastSectionNumber = 0;
-
-        public byte PMTTemp = 0;
-
-        public TSStream Stream = null;
-        public TSStreamState StreamState = null;
-
-        public ulong TotalPackets = 0;
+        get
+        {
+            if (BDInfoSettings.EnableSSIF &&
+                InterleavedFile != null)
+            {
+                return InterleavedFile.Name;
+            }
+            return Name;
+        }
     }
 
-    public class TSStreamDiagnostics
+    public string GetFilePath()
     {
-        public ulong Bytes = 0;
-        public ulong Packets = 0;
-        public double Marker = 0;
-        public double Interval = 0;
-        public string Tag = null;
+        return !string.IsNullOrEmpty(FileInfo.FullName) ? FileInfo.FullName : string.Empty;
     }
 
-    public class TSStreamFile
+    private bool ScanStream(TSStream stream, TSStreamState streamState, TSStreamBuffer buffer, bool isFullScan)
     {
-        public bool AbortScan = false;
-        public IFileInfo FileInfo = null;
-        public string Name = null;
-        public long Size = 0;
-        public double Length = 0;
+        streamState.StreamTag = null;
 
-        public TSInterleavedFile InterleavedFile = null;
-
-        private Dictionary<ushort, TSStreamState> StreamStates =
-            new Dictionary<ushort, TSStreamState>();
-
-        public Dictionary<ushort, TSStream> Streams =
-            new Dictionary<ushort, TSStream>();
-
-        public Dictionary<ushort, List<TSStreamDiagnostics>> StreamDiagnostics =
-            new Dictionary<ushort, List<TSStreamDiagnostics>>();
-
-        private List<TSPlaylistFile> Playlists = null;
-#if DEBUG && !BETA
-        private FileStream logFile = null;
-        private TextWriter logTextWriter = null;
-#endif
-
-        public TSStreamFile(IFileInfo fileInfo)
+        long bitrate = 0;
+        if (stream is { IsAudioStream: true } && streamState.PTSTransfer > 0)
         {
-            FileInfo = fileInfo;
-            Name = fileInfo.Name.ToUpper();
-        }
+            bitrate = (long)Math.Round(
+                buffer.TransferLength * 8.0 /
+                ((double)streamState.PTSTransfer / 90000));
 
-        public string DisplayName
-        {
-            get
+            if (bitrate > streamState.PeakTransferRate)
             {
-                if (BDInfoSettings.EnableSSIF &&
-                    InterleavedFile != null)
-                {
-                    return InterleavedFile.Name;
-                }
-                return Name;
+                streamState.PeakTransferRate = bitrate;
             }
         }
-
-        public string GetFilePath()
+        if (buffer.TransferLength > streamState.PeakTransferLength)
         {
-            if (!string.IsNullOrEmpty(FileInfo?.FullName))
-                return FileInfo.FullName;
-
-            return string.Empty;
+            streamState.PeakTransferLength = buffer.TransferLength;
         }
 
-        private bool ScanStream(
-            TSStream stream,
-            TSStreamState streamState,
-            TSStreamBuffer buffer,
-            bool isFullScan)
+        buffer.BeginRead();
+        switch (stream.StreamType)
         {
-            streamState.StreamTag = null;
+            case TSStreamType.MPEG2_VIDEO:
+                TSCodecMPEG2.Scan(
+                    (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-            long bitrate = 0;
-            if (stream.IsAudioStream &&
-                streamState.PTSTransfer > 0)
-            {
-                bitrate = (long)Math.Round(
-                    (buffer.TransferLength * 8.0) /
-                    ((double)streamState.PTSTransfer / 90000));
+            case TSStreamType.AVC_VIDEO:
+                TSCodecAVC.Scan(
+                    (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                if (bitrate > streamState.PeakTransferRate)
-                {
-                    streamState.PeakTransferRate = bitrate;
-                }
-            }
-            if (buffer.TransferLength > streamState.PeakTransferLength)
-            {
-                streamState.PeakTransferLength = buffer.TransferLength;
-            }
+            case TSStreamType.MVC_VIDEO:
+                TSCodecMVC.Scan(
+                    (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-            buffer.BeginRead();
-            switch (stream.StreamType)
-            {
-                case TSStreamType.MPEG2_VIDEO:
-                    TSCodecMPEG2.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.HEVC_VIDEO:
+                TSCodecHEVC.Scan(
+                    (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.AVC_VIDEO:
-                    TSCodecAVC.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.VC1_VIDEO:
+                TSCodecVC1.Scan(
+                    (TSVideoStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.MVC_VIDEO:
-                    TSCodecMVC.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.MPEG1_AUDIO:
+            case TSStreamType.MPEG2_AUDIO:
+                TSCodecMPA.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.HEVC_VIDEO:
-                    TSCodecHEVC.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.MPEG2_AAC_AUDIO:
+            case TSStreamType.MPEG4_AAC_AUDIO:
+                TSCodecAAC.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.VC1_VIDEO:
-                    TSCodecVC1.Scan(
-                        (TSVideoStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.AC3_AUDIO:
+                TSCodecAC3.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.MPEG1_AUDIO:
-                case TSStreamType.MPEG2_AUDIO:
-                    TSCodecMPA.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.AC3_PLUS_AUDIO:
+            case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
+                TSCodecAC3.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.MPEG2_AAC_AUDIO:
-                case TSStreamType.MPEG4_AAC_AUDIO:
-                    TSCodecAAC.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.AC3_TRUE_HD_AUDIO:
+                TSCodecTrueHD.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.AC3_AUDIO:
-                    TSCodecAC3.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.LPCM_AUDIO:
+                TSCodecLPCM.Scan(
+                    (TSAudioStream)stream, buffer, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.AC3_PLUS_AUDIO:
-                case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
-                    TSCodecAC3.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.DTS_AUDIO:
+                TSCodecDTS.Scan(
+                    (TSAudioStream)stream, buffer, bitrate, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
-                    TSCodecTrueHD.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
+            case TSStreamType.DTS_HD_AUDIO:
+            case TSStreamType.DTS_HD_MASTER_AUDIO:
+            case TSStreamType.DTS_HD_SECONDARY_AUDIO:
+                TSCodecDTSHD.Scan(
+                    (TSAudioStream)stream, buffer, bitrate, ref streamState.StreamTag);
+                break;
 
-                case TSStreamType.LPCM_AUDIO:
-                    TSCodecLPCM.Scan(
-                        (TSAudioStream)stream, buffer, ref streamState.StreamTag);
-                    break;
-
-                case TSStreamType.DTS_AUDIO:
-                    TSCodecDTS.Scan(
-                        (TSAudioStream)stream, buffer, bitrate, ref streamState.StreamTag);
-                    break;
-
-                case TSStreamType.DTS_HD_AUDIO:
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
-                case TSStreamType.DTS_HD_SECONDARY_AUDIO:
-                    TSCodecDTSHD.Scan(
-                        (TSAudioStream)stream, buffer, bitrate, ref streamState.StreamTag);
-                    break;
-
-                case TSStreamType.PRESENTATION_GRAPHICS:
-                    if (isFullScan)
-                        TSCodecPGS.Scan(
-                            (TSGraphicsStream)stream, buffer, ref streamState.StreamTag);
-                    else
-                        stream.IsInitialized = true;
-                    break;
-
-                default:
+            case TSStreamType.PRESENTATION_GRAPHICS:
+                if (isFullScan)
+                    TSCodecPGS.Scan(
+                        (TSGraphicsStream)stream, buffer, ref streamState.StreamTag);
+                else
                     stream.IsInitialized = true;
-                    break;
-            }
-            buffer.EndRead();
-            streamState.StreamBuffer.Reset();
+                break;
 
-            bool isAVC = false;
-            bool isMVC = false;
-            foreach (TSStream finishedStream in Streams.Values)
-            {
-                if (!finishedStream.IsInitialized)
-                {
-                    return false;
-                }
-                if (finishedStream.StreamType == TSStreamType.AVC_VIDEO)
-                {
-                    isAVC = true;
-                }
-                if (finishedStream.StreamType == TSStreamType.MVC_VIDEO)
-                {
-                    isMVC = true;
-                }
-            }
-            if (isMVC && !isAVC)
+            default:
+                stream.IsInitialized = true;
+                break;
+        }
+        buffer.EndRead();
+        streamState.StreamBuffer.Reset();
+
+        var isAVC = false;
+        var isMVC = false;
+        foreach (var finishedStream in Streams.Values)
+        {
+            if (!finishedStream.IsInitialized)
             {
                 return false;
             }
-            return true;
-        }
-
-        private void UpdateStreamBitrates(
-            ushort PTSPID,
-            BigInteger PTS,
-            BigInteger PTSDiff)
-        {
-            if (Playlists == null) return;
-
-            foreach (ushort PID in StreamStates.Keys)
+            switch (finishedStream.StreamType)
             {
-                if (Streams.ContainsKey(PID) &&
-                    Streams[PID].IsVideoStream &&
-                    PID != PTSPID)
-                {
-                    continue;
-                }
-                if (StreamStates[PID].WindowPackets == 0)
-                {
-                    continue;
-                }
-                UpdateStreamBitrate(PID, PTSPID, PTS, PTSDiff);
-            }
-
-            foreach (TSPlaylistFile playlist in Playlists)
-            {
-                double packetSeconds = 0;
-                foreach (TSStreamClip clip in playlist.StreamClips)
-                {
-                    if (clip.AngleIndex == 0)
-                    {
-                        packetSeconds += clip.PacketSeconds;
-                    }
-                }
-                if (packetSeconds > 0)
-                {
-                    foreach (TSStream playlistStream in playlist.SortedStreams)
-                    {
-                        if (playlistStream.IsVBR)
-                        {
-                            playlistStream.BitRate = (long)Math.Round(
-                                ((playlistStream.PayloadBytes * 8.0) / packetSeconds));
-                        }
-                    }
-                }
+                case TSStreamType.AVC_VIDEO:
+                    isAVC = true;
+                    break;
+                case TSStreamType.MVC_VIDEO:
+                    isMVC = true;
+                    break;
             }
         }
-
-        private void UpdateStreamBitrate(
-            ushort PID,
-            ushort PTSPID,
-            BigInteger PTS,
-            BigInteger PTSDiff)
+        if (isMVC && !isAVC)
         {
-            if (Playlists == null) return;
+            return false;
+        }
+        return true;
+    }
 
-            TSStreamState streamState = StreamStates[PID];
-            double streamTime = (double)PTS / 90000;
-            double streamInterval = (double)PTSDiff / 90000;
-            double streamOffset = streamTime + streamInterval;
+    private void UpdateStreamBitrates(ushort ptsPid, BigInteger pts, BigInteger ptsDiff)
+    {
+        if (_playlists == null) return;
 
-            foreach (TSPlaylistFile playlist in Playlists)
+        foreach (var pid in _streamStates.Keys
+                     .Where(pid => !Streams.ContainsKey(pid) || !Streams[pid].IsVideoStream || pid == ptsPid)
+                     .Where(pid => _streamStates[pid].WindowPackets != 0))
+        {
+            UpdateStreamBitrate(pid, ptsPid, pts, ptsDiff);
+        }
+
+        foreach (var playlist in _playlists)
+        {
+            var packetSeconds = playlist.StreamClips.Where(clip => clip.AngleIndex == 0).Sum(clip => clip.PacketSeconds);
+
+            if (!(packetSeconds > 0)) continue;
+
+            foreach (var playlistStream in playlist.SortedStreams.Where(playlistStream => playlistStream.IsVBR))
             {
-                foreach (TSStreamClip clip in playlist.StreamClips)
-                {
-                    if (clip.Name != this.Name) continue;
-
-                    if (streamTime == 0 ||
-                        (streamTime >= clip.TimeIn &&
-                         streamTime <= clip.TimeOut))
-                    {
-                        clip.PayloadBytes += streamState.WindowBytes;
-                        clip.PacketCount += streamState.WindowPackets;
-
-                        if (streamOffset > clip.TimeIn &&
-                            streamOffset - clip.TimeIn > clip.PacketSeconds)
-                        {
-                            clip.PacketSeconds = streamOffset - clip.TimeIn;
-                        }
-
-                        Dictionary<ushort, TSStream> playlistStreams = playlist.Streams;
-                        if (clip.AngleIndex > 0 && 
-                            clip.AngleIndex < playlist.AngleStreams.Count + 1)
-                        {
-                            playlistStreams = playlist.AngleStreams[clip.AngleIndex - 1];
-                        }
-                        if (playlistStreams.ContainsKey(PID))
-                        {
-                            TSStream stream = playlistStreams[PID];
-
-                            stream.PayloadBytes += streamState.WindowBytes;
-                            stream.PacketCount += streamState.WindowPackets;
-
-                            if (stream.IsVideoStream)
-                            {
-                                stream.PacketSeconds += streamInterval;
-
-                                stream.ActiveBitRate = (long)Math.Round(
-                                    ((stream.PayloadBytes * 8.0) /
-                                    stream.PacketSeconds));
-#if DEBUG && !BETA
-                                logTextWriter.WriteLine($"{PID,6}\t{stream.ActiveBitRate,16:000000.000}\t{streamState.WindowBytes,16}\t{stream.PayloadBytes,16}\t{streamState.WindowPackets,16}\t{stream.PacketCount,16}\t{stream.PacketSeconds,16:000000.000}\t{streamInterval,16:000000.000}");
-#endif
-                            }
-
-                            if (stream.StreamType == TSStreamType.AC3_TRUE_HD_AUDIO &&
-                                ((TSAudioStream)stream).CoreStream != null)
-                            {
-                                stream.ActiveBitRate -=
-                                    ((TSAudioStream)stream).CoreStream.BitRate;
-                            }
-                        }
-                    }
-                }
+                playlistStream.BitRate = (long)Math.Round(playlistStream.PayloadBytes * 8.0 / packetSeconds);
             }
+        }
+    }
 
-            if (Streams.ContainsKey(PID))
+    private void UpdateStreamBitrate(ushort pid, ushort ptspid, BigInteger pts, BigInteger ptsDiff)
+    {
+        if (_playlists == null) return;
+
+        var streamState = _streamStates[pid];
+        var streamTime = (double)pts / 90000;
+        var streamInterval = (double)ptsDiff / 90000;
+        var streamOffset = streamTime + streamInterval;
+
+        foreach (var playlist in _playlists)
+        {
+            foreach (var clip in playlist.StreamClips.Where(clip => clip.Name == Name)
+                         .Where(clip =>
+                             streamTime == 0 || streamTime >= clip.TimeIn && streamTime <= clip.TimeOut))
             {
-                TSStream stream = Streams[PID];
+                clip.PayloadBytes += streamState.WindowBytes;
+                clip.PacketCount += streamState.WindowPackets;
+
+                if (streamOffset > clip.TimeIn &&
+                    streamOffset - clip.TimeIn > clip.PacketSeconds)
+                {
+                    clip.PacketSeconds = streamOffset - clip.TimeIn;
+                }
+
+                var playlistStreams = playlist.Streams;
+                if (clip.AngleIndex > 0 &&
+                    clip.AngleIndex < playlist.AngleStreams.Count + 1)
+                {
+                    playlistStreams = playlist.AngleStreams[clip.AngleIndex - 1];
+                }
+
+                if (!playlistStreams.ContainsKey(pid)) continue;
+
+                var stream = playlistStreams[pid];
+
                 stream.PayloadBytes += streamState.WindowBytes;
                 stream.PacketCount += streamState.WindowPackets;
-                
+
                 if (stream.IsVideoStream)
                 {
-                    TSStreamDiagnostics diag = new TSStreamDiagnostics();
-                    diag.Marker = (double)PTS / 90000;
-                    diag.Interval = (double)PTSDiff / 90000;
-                    diag.Bytes = streamState.WindowBytes;
-                    diag.Packets = streamState.WindowPackets;
-                    diag.Tag = streamState.StreamTag;
-                    StreamDiagnostics[PID].Add(diag);
-
                     stream.PacketSeconds += streamInterval;
+
+                    stream.ActiveBitRate = (long)Math.Round(
+                        stream.PayloadBytes * 8.0 /
+                        stream.PacketSeconds);
+                }
+
+                if (stream.StreamType == TSStreamType.AC3_TRUE_HD_AUDIO && ((TSAudioStream)stream).CoreStream != null)
+                {
+                    stream.ActiveBitRate -= ((TSAudioStream)stream).CoreStream.BitRate;
                 }
             }
-            streamState.WindowPackets = 0;
-            streamState.WindowBytes = 0;
         }
 
-        public void Scan(List<TSPlaylistFile> playlists, bool isFullScan)
+        if (Streams.ContainsKey(pid))
         {
-            if (playlists == null || playlists.Count == 0)
+            var stream = Streams[pid];
+            stream.PayloadBytes += streamState.WindowBytes;
+            stream.PacketCount += streamState.WindowPackets;
+
+            if (stream.IsVideoStream)
             {
-                return;
+                var diag = new TSStreamDiagnostics
+                {
+                    Marker = (double)pts / 90000,
+                    Interval = (double)ptsDiff / 90000,
+                    Bytes = streamState.WindowBytes,
+                    Packets = streamState.WindowPackets,
+                    Tag = streamState.StreamTag
+                };
+                StreamDiagnostics[pid].Add(diag);
+
+                stream.PacketSeconds += streamInterval;
+            }
+        }
+        streamState.WindowPackets = 0;
+        streamState.WindowBytes = 0;
+    }
+
+    public void Scan(List<TSPlaylistFile> playlists, bool isFullScan)
+    {
+        if (playlists == null || playlists.Count == 0)
+        {
+            return;
+        }
+
+        _playlists = playlists;
+        const int dataSize = 5242880;
+        Stream fileStream = null;
+        try
+        {
+            if (BDInfoSettings.EnableSSIF && InterleavedFile != null)
+            {
+                if (InterleavedFile.FileInfo != null)
+                    fileStream = InterleavedFile.FileInfo.OpenRead();
+            }
+            else
+            {
+                fileStream = FileInfo.OpenRead();
             }
 
-            Playlists = playlists;
-            int dataSize = 5242880;
-            Stream fileStream = null;
-            try
+            Size = 0;
+            Length = 0;
+
+            Streams.Clear();
+            _streamStates.Clear();
+            StreamDiagnostics.Clear();
+
+            var parser = new TSPacketParser();
+
+            var buffer = new byte[dataSize];
+            int bufferLength;
+            while ((bufferLength = fileStream.Read(buffer, 0, buffer.Length)) > 0 && !AbortScan)
             {
-                string fileName = "";
-                if (BDInfoSettings.EnableSSIF &&
-                    InterleavedFile != null)
+                for (var i = 0; i < bufferLength; i++)
                 {
-                    if (InterleavedFile.FileInfo != null)
-                        fileName = InterleavedFile.FileInfo.FullName;
-                }
-                else
-                {
-                    fileName = FileInfo.FullName;
-                }
-
-
-                fileStream = FileInfo.OpenRead();
-
-                Size = 0;
-                Length = 0;
-
-                Streams.Clear();
-                StreamStates.Clear();
-                StreamDiagnostics.Clear();
-
-                TSPacketParser parser = 
-                    new TSPacketParser();
-
-                long fileLength = (uint)fileStream.Length;
-                byte[] buffer = new byte[dataSize];
-                int bufferLength = 0;
-                while ((bufferLength = fileStream.Read(buffer, 0, buffer.Length)) > 0 && !AbortScan)
-                {
-
-                    int offset = 0;
-                    for (int i = 0; i < bufferLength; i++)
+                    if (parser.SyncState == false)
                     {
-                        if (parser.SyncState == false)
+                        if (parser.TimeCodeParse > 0)
                         {
-                            if (parser.TimeCodeParse > 0)
+                            parser.TimeCodeParse--;
+                            switch (parser.TimeCodeParse)
                             {
-                                parser.TimeCodeParse--;
-                                switch (parser.TimeCodeParse)
-                                {
-                                    case 3:
-                                        parser.TimeCode = 0;
-                                        parser.TimeCode |=
-                                            ((uint)buffer[i] & 0x3F) << 24;
-                                        break;
-                                    case 2:
-                                        parser.TimeCode |=
-                                            ((uint)buffer[i] & 0xFF) << 16;
-                                        break;
-                                    case 1:
-                                        parser.TimeCode |=
-                                            ((uint)buffer[i] & 0xFF) << 8;
-                                        break;
-                                    case 0:
-                                        parser.TimeCode |=
-                                            ((uint)buffer[i] & 0xFF);
-                                        break;
-                                }
-                            }
-                            else if (buffer[i] == 0x47)
-                            {
-                                parser.SyncState = true;
-                                parser.PacketLength = 187;
-                                parser.TimeCodeParse = 4;
-                                parser.HeaderParse = 3;
-                            }
-                        }
-                        else if (parser.HeaderParse > 0)
-                        {
-                            parser.PacketLength--;
-                            parser.HeaderParse--;
-
-                            switch (parser.HeaderParse)
-                            {
+                                case 3:
+                                    parser.TimeCode = 0;
+                                    parser.TimeCode |= ((uint)buffer[i] & 0x3F) << 24;
+                                    break;
                                 case 2:
-                                {
-                                    parser.TransportErrorIndicator =
-                                        (byte)((buffer[i] >> 7) & 0x1);
-                                    parser.PayloadUnitStartIndicator =
-                                        (byte)((buffer[i] >> 6) & 0x1);
-                                    parser.TransportPriority =
-                                        (byte)((buffer[i] >> 5) & 0x1);
-                                    parser.PID =
-                                        (ushort)((buffer[i] & 0x1f) << 8);
-                                }
-                                break;
-
+                                    parser.TimeCode |= ((uint)buffer[i] & 0xFF) << 16;
+                                    break;
                                 case 1:
-                                {
-                                    parser.PID |= (ushort)buffer[i];
-                                    if (Streams.ContainsKey(parser.PID))
-                                    {
-                                        parser.Stream = Streams[parser.PID];
-                                    }
-                                    else
-                                    {
-                                        parser.Stream = null;
-                                    }
-                                    if (!StreamStates.ContainsKey(parser.PID))
-                                    {
-                                        StreamStates[parser.PID] = new TSStreamState();
-                                    }
-                                    parser.StreamState = StreamStates[parser.PID];
-                                    parser.StreamState.TotalPackets++;
-                                    parser.StreamState.WindowPackets++;
-                                    parser.TotalPackets++;
-                                }
-                                break;
-
+                                    parser.TimeCode |= ((uint)buffer[i] & 0xFF) << 8;
+                                    break;
                                 case 0:
-                                {
-                                    parser.TransportScramblingControl =
-                                        (byte)((buffer[i] >> 6) & 0x3);
-                                    parser.AdaptionFieldControl =
-                                        (byte)((buffer[i] >> 4) & 0x3);
+                                    parser.TimeCode |= (uint)buffer[i] & 0xFF;
+                                    break;
+                            }
+                        }
+                        else if (buffer[i] == 0x47)
+                        {
+                            parser.SyncState = true;
+                            parser.PacketLength = 187;
+                            parser.TimeCodeParse = 4;
+                            parser.HeaderParse = 3;
+                        }
+                    }
+                    else if (parser.HeaderParse > 0)
+                    {
+                        parser.PacketLength--;
+                        parser.HeaderParse--;
 
-                                    if ((parser.AdaptionFieldControl & 0x2) == 0x2)
-                                    {
-                                        parser.AdaptionFieldState = true;
-                                    }
-                                    if (parser.PayloadUnitStartIndicator == 1)
-                                    {
-                                        if (parser.PID == 0)
-                                        {
-                                            parser.PATSectionStart = true;
-                                        }
-                                        else if (parser.PID == parser.PMTPID)
-                                        {
-                                            parser.PMTSectionStart = true;
-                                        }
-                                        else if (parser.StreamState != null &&
-                                            parser.StreamState.TransferState)
-                                        {
-                                            parser.StreamState.TransferState = false;
-                                            parser.StreamState.TransferCount++;
-
-                                            bool isFinished = ScanStream(
-                                                parser.Stream, 
-                                                parser.StreamState, 
-                                                parser.StreamState.StreamBuffer,
-                                                isFullScan);
-
-                                            if (!isFullScan && isFinished)
-                                            {
-                                                return;
-                                            }
-                                        }
-                                    }
-                                }
+                        switch (parser.HeaderParse)
+                        {
+                            case 2:
+                            {
+                                parser.TransportErrorIndicator = (byte)(buffer[i] >> 7 & 0x1);
+                                parser.PayloadUnitStartIndicator = (byte)(buffer[i] >> 6 & 0x1);
+                                parser.TransportPriority = (byte)(buffer[i] >> 5 & 0x1);
+                                parser.PID = (ushort)((buffer[i] & 0x1f) << 8);
+                            }
                                 break;
-                            }
-                        }
-                        else if (parser.AdaptionFieldState)
-                        {
-                            parser.PacketLength--;
-                            parser.AdaptionFieldParse = buffer[i];
-                            parser.AdaptionFieldLength = buffer[i];
-                            parser.AdaptionFieldState = false;
-                            parser.VariablePacketEnd = true;
-                        }
-                        else if (parser.AdaptionFieldParse > 0)
-                        {
-                            parser.PacketLength--;
-                            parser.AdaptionFieldParse--;
-                            if ((parser.AdaptionFieldLength - parser.AdaptionFieldParse) == 1)
+
+                            case 1:
                             {
-                                if ((buffer[i] & 0x10) == 0x10)
+                                parser.PID |= buffer[i];
+                                parser.Stream = Streams.ContainsKey(parser.PID) ? Streams[parser.PID] : null;
+                                if (!_streamStates.ContainsKey(parser.PID))
                                 {
-                                    parser.PCRParse = 6;
-                                    parser.PCR = 0;
+                                    _streamStates[parser.PID] = new TSStreamState();
+                                }
+                                parser.StreamState = _streamStates[parser.PID];
+                                parser.StreamState.TotalPackets++;
+                                parser.StreamState.WindowPackets++;
+                                parser.TotalPackets++;
+                            }
+                                break;
+
+                            case 0:
+                            {
+                                parser.TransportScramblingControl = (byte)(buffer[i] >> 6 & 0x3);
+                                parser.AdaptionFieldControl = (byte)(buffer[i] >> 4 & 0x3);
+
+                                if ((parser.AdaptionFieldControl & 0x2) == 0x2)
+                                {
+                                    parser.AdaptionFieldState = true;
+                                }
+                                if (parser.PayloadUnitStartIndicator == 1)
+                                {
+                                    if (parser.PID == 0)
+                                    {
+                                        parser.PATSectionStart = true;
+                                    }
+                                    else if (parser.PID == parser.PMTPID)
+                                    {
+                                        parser.PMTSectionStart = true;
+                                    }
+                                    else if (parser.StreamState is { TransferState: true })
+                                    {
+                                        parser.StreamState.TransferState = false;
+                                        parser.StreamState.TransferCount++;
+
+                                        var isFinished = ScanStream(parser.Stream,
+                                            parser.StreamState,
+                                            parser.StreamState.StreamBuffer,
+                                            isFullScan);
+
+                                        if (!isFullScan && isFinished)
+                                        {
+                                            return;
+                                        }
+                                    }
                                 }
                             }
-                            else if (parser.PCRParse > 0)
+                                break;
+                        }
+                    }
+                    else if (parser.AdaptionFieldState)
+                    {
+                        parser.PacketLength--;
+                        parser.AdaptionFieldParse = buffer[i];
+                        parser.AdaptionFieldLength = buffer[i];
+                        parser.AdaptionFieldState = false;
+                        parser.VariablePacketEnd = true;
+                    }
+                    else if (parser.AdaptionFieldParse > 0)
+                    {
+                        parser.PacketLength--;
+                        parser.AdaptionFieldParse--;
+                        if (parser.AdaptionFieldLength - parser.AdaptionFieldParse == 1)
+                        {
+                            if ((buffer[i] & 0x10) == 0x10)
                             {
-                                parser.PCRParse--;
-                                parser.PCR = (parser.PCR << 8) + (ulong)buffer[i];
-                                if (parser.PCRParse == 0)
-                                {
-                                    parser.PreviousPCR = parser.PCR;
-                                    parser.PCR = (parser.PCR & 0x1FF) +
-                                        ((parser.PCR >> 15) * 300);
-                                }
-                                parser.PCRCount++;
-                            }
-                            if (parser.PacketLength <= 0)
-                            {
-                                parser.SyncState = false;
+                                parser.PCRParse = 6;
+                                parser.PCR = 0;
                             }
                         }
-                        else if (parser.PID == 0)
+                        else if (parser.PCRParse > 0)
+                        {
+                            parser.PCRParse--;
+                            parser.PCR = (parser.PCR << 8) + (ulong)buffer[i];
+                            if (parser.PCRParse == 0)
+                            {
+                                parser.PreviousPCR = parser.PCR;
+                                parser.PCR = (parser.PCR & 0x1FF) +
+                                             (parser.PCR >> 15) * 300;
+                            }
+                            parser.PCRCount++;
+                        }
+                        if (parser.PacketLength <= 0)
+                        {
+                            parser.SyncState = false;
+                        }
+                    }
+                    else
+                    {
+                        int offset;
+                        if (parser.PID == 0)
                         {
                             if (parser.PATTransferState)
                             {
-                                if ((bufferLength - i) > parser.PATSectionLength)
+                                if (bufferLength - i > parser.PATSectionLength)
                                 {
                                     offset = parser.PATSectionLength;
                                 }
                                 else
                                 {
-                                    offset = (bufferLength - i);
+                                    offset = bufferLength - i;
                                 }
                                 if (parser.PacketLength <= offset)
                                 {
                                     offset = parser.PacketLength;
                                 }
 
-                                for (int k = 0; k < offset; k++)
+                                for (var k = 0; k < offset; k++)
                                 {
                                     parser.PAT[parser.PATOffset++] = buffer[i++];
                                     parser.PATSectionLength--;
                                     parser.PacketLength--;
-                                } --i;
+                                }
+                                --i;
 
                                 if (parser.PATSectionLength == 0)
                                 {
                                     parser.PATTransferState = false;
                                     if (parser.PATSectionNumber == parser.PATLastSectionNumber)
                                     {
-                                        for (int k = 0; k < (parser.PATOffset - 4); k += 4)
+                                        for (var k = 0; k < parser.PATOffset - 4; k += 4)
                                         {
-                                            uint programNumber = (uint)
-                                                ((parser.PAT[k] << 8) +  
-                                                  parser.PAT[k + 1]);
+                                            var programNumber = (uint)((parser.PAT[k] << 8) +
+                                                                       parser.PAT[k + 1]);
 
-                                            ushort programPID = (ushort)                                                 
-                                                (((parser.PAT[k + 2] & 0x1F) << 8) +
-                                                   parser.PAT[k + 3]);
+                                            var programPID = (ushort)(((parser.PAT[k + 2] & 0x1F) << 8) +
+                                                                      parser.PAT[k + 3]);
 
                                             if (programNumber == 1)
                                             {
@@ -814,13 +736,13 @@ namespace BDInfo
                         {
                             if (parser.PMTTransferState)
                             {
-                                if ((bufferLength - i) >= parser.PMTSectionLength)
+                                if (bufferLength - i >= parser.PMTSectionLength)
                                 {
                                     offset = parser.PMTSectionLength;
                                 }
                                 else
                                 {
-                                    offset = (bufferLength - i);
+                                    offset = bufferLength - i;
                                 }
                                 if (parser.PacketLength <= offset)
                                 {
@@ -831,13 +753,14 @@ namespace BDInfo
                                     parser.PMT[parser.PID] = new byte[1024];
                                 }
 
-                                byte[] PMT = parser.PMT[parser.PID];
-                                for (int k = 0; k < offset; k++)
+                                var pmt = parser.PMT[parser.PID];
+                                for (var k = 0; k < offset; k++)
                                 {
-                                    PMT[parser.PMTOffset++] = buffer[i++];
+                                    pmt[parser.PMTOffset++] = buffer[i++];
                                     --parser.PMTSectionLength;
                                     --parser.PacketLength;
-                                } --i;
+                                }
+                                --i;
 
                                 if (parser.PMTSectionLength == 0)
                                 {
@@ -847,55 +770,54 @@ namespace BDInfo
                                         //Console.WriteLine("PMT Start: " + parser.PMTTemp);
                                         try
                                         {
-                                            for (int k = 0; k < (parser.PMTOffset - 4); k += 5)
+                                            for (var k = 0; k < parser.PMTOffset - 4; k += 5)
                                             {
-                                                byte streamType = PMT[k];
+                                                var streamType = pmt[k];
 
-                                                ushort streamPID = (ushort)
-                                                    (((PMT[k + 1] & 0x1F) << 8) +
-                                                       PMT[k + 2]);
+                                                var streamPID = (ushort)
+                                                    (((pmt[k + 1] & 0x1F) << 8) +
+                                                     pmt[k + 2]);
 
-                                                ushort streamInfoLength = (ushort)
-                                                    (((PMT[k + 3] & 0xF) << 8) +
-                                                       PMT[k + 4]);
+                                                var streamInfoLength = (ushort)
+                                                    (((pmt[k + 3] & 0xF) << 8) +
+                                                     pmt[k + 4]);
 
                                                 /*
-                                                if (streamInfoLength == 2)
-                                                {
-                                                    // TODO: Cleanup
-                                                    //streamInfoLength = 0;
-                                                }
+                                            if (streamInfoLength == 2)
+                                            {
+                                                // TODO: Cleanup
+                                                //streamInfoLength = 0;
+                                            }
 
-                                                Console.WriteLine(string.Format(
-                                                    "Type: {0} PID: {1} Length: {2}",
-                                                    streamType, streamPID, streamInfoLength));
-                                                 */
+                                            Console.WriteLine(string.Format(
+                                                "Type: {0} PID: {1} Length: {2}",
+                                                streamType, streamPID, streamInfoLength));
+                                             */
 
                                                 if (!Streams.ContainsKey(streamPID))
                                                 {
-                                                    List<TSDescriptor> streamDescriptors =
-                                                        new List<TSDescriptor>();
+                                                    var streamDescriptors = new List<TSDescriptor>();
 
                                                     /*
-                                                     * TODO: Getting bad streamInfoLength
-                                                    if (streamInfoLength > 0)
+                                                 * TODO: Getting bad streamInfoLength
+                                                if (streamInfoLength > 0)
+                                                {
+                                                    for (int d = 0; d < streamInfoLength; d++)
                                                     {
-                                                        for (int d = 0; d < streamInfoLength; d++)
+                                                        byte name = PMT[k + d + 5];
+                                                        byte length = PMT[k + d + 6];
+                                                        TSDescriptor descriptor =
+                                                            new TSDescriptor(name, length);
+                                                        for (int v = 0; v < length; v++)
                                                         {
-                                                            byte name = PMT[k + d + 5];
-                                                            byte length = PMT[k + d + 6];
-                                                            TSDescriptor descriptor =
-                                                                new TSDescriptor(name, length);
-                                                            for (int v = 0; v < length; v++)
-                                                            {
-                                                                descriptor.Value[v] =
-                                                                    PMT[k + d + v + 7];
-                                                            }
-                                                            streamDescriptors.Add(descriptor);
-                                                            d += (length + 1);
+                                                            descriptor.Value[v] =
+                                                                PMT[k + d + v + 7];
                                                         }
+                                                        streamDescriptors.Add(descriptor);
+                                                        d += (length + 1);
                                                     }
-                                                    */
+                                                }
+                                                */
                                                     CreateStream(streamPID, streamType, streamDescriptors);
                                                     if (Streams[streamPID].IsGraphicsStream)
                                                         Streams[streamPID].IsInitialized = !isFullScan;
@@ -1027,7 +949,7 @@ namespace BDInfo
                                                 parser.PMTProgramDescriptorLength = buffer[i];
                                                 parser.PMTProgramDescriptors.Add(
                                                     new TSDescriptor(
-                                                        parser.PMTProgramDescriptor, 
+                                                        parser.PMTProgramDescriptor,
                                                         parser.PMTProgramDescriptorLength));
                                                 break;
                                         }
@@ -1036,17 +958,15 @@ namespace BDInfo
                                     {
                                         --parser.PMTProgramDescriptorLength;
 
-                                        TSDescriptor descriptor = parser.PMTProgramDescriptors[
-                                            parser.PMTProgramDescriptors.Count - 1];
+                                        var descriptor = parser.PMTProgramDescriptors[^1];
 
-                                        int valueIndex =
-                                            descriptor.Value.Length - 
+                                        var valueIndex =
+                                            descriptor.Value.Length -
                                             parser.PMTProgramDescriptorLength - 1;
 
                                         descriptor.Value[valueIndex] = buffer[i];
 
-                                        if (parser.PMTProgramDescriptorLength == 0 &&
-                                            parser.PMTProgramInfoLength > 0)
+                                        if (parser is { PMTProgramDescriptorLength: 0, PMTProgramInfoLength: > 0 })
                                         {
                                             parser.PMTProgramDescriptorLengthParse = 2;
                                         }
@@ -1062,31 +982,29 @@ namespace BDInfo
                                 parser.SyncState = false;
                             }
                         }
-                        else if (parser.Stream != null && 
-                            parser.StreamState != null && 
-                            parser.TransportScramblingControl == 0)
+                        else if (parser is { Stream: { }, StreamState: { }, TransportScramblingControl: 0 })
                         {
-                            TSStream stream = parser.Stream;
-                            TSStreamState streamState = parser.StreamState;
+                            var stream = parser.Stream;
+                            var streamState = parser.StreamState;
 
                             streamState.Parse =
                                 (streamState.Parse << 8) + buffer[i];
 
                             if (streamState.TransferState)
                             {
-                                if ((bufferLength - i) >= streamState.PacketLength &&
-                                    streamState.PacketLength > 0 && !streamState.PacketLengthVariable)
+                                if (bufferLength - i >= streamState.PacketLength &&
+                                    streamState is { PacketLength: > 0, PacketLengthVariable: false })
                                 {
                                     offset = streamState.PacketLength;
                                 }
-                                else if ((bufferLength - i) >= parser.PacketLength && 
-                                        parser.PacketLength > 0 && streamState.PacketLengthVariable)
+                                else if (bufferLength - i >= parser.PacketLength &&
+                                         parser.PacketLength > 0 && streamState.PacketLengthVariable)
                                 {
                                     offset = parser.PacketLength;
                                 }
                                 else
                                 {
-                                    offset = (bufferLength - i);
+                                    offset = bufferLength - i;
                                 }
                                 if (parser.PacketLength <= offset)
                                 {
@@ -1106,7 +1024,7 @@ namespace BDInfo
                                     streamState.StreamBuffer.TransferLength += offset;
                                 }
 
-                                i += (int)(streamState.TransferLength - 1);
+                                i += streamState.TransferLength - 1;
                                 streamState.PacketLength -= streamState.TransferLength;
                                 parser.PacketLength -= (byte)streamState.TransferLength;
 
@@ -1123,8 +1041,7 @@ namespace BDInfo
                                 {
                                     streamState.TransferState = false;
                                     streamState.TransferCount++;
-                                    bool isFinished = ScanStream(
-                                        stream,
+                                    var isFinished = ScanStream(stream,
                                         streamState,
                                         streamState.StreamBuffer,
                                         isFullScan);
@@ -1139,43 +1056,34 @@ namespace BDInfo
                             {
                                 --parser.PacketLength;
 
-                                bool headerFound = false;
-                                if (stream.IsVideoStream && 
-                                    streamState.Parse == 0x000001FD)
-                                {
-                                    headerFound = true;
-                                }
+                                var headerFound = stream.IsVideoStream &&
+                                                  streamState.Parse == 0x000001FD;
+
                                 if (stream.IsVideoStream &&
-                                    streamState.Parse >= 0x000001E0 &&
-                                    streamState.Parse <= 0x000001EF)
+                                    streamState.Parse is >= 0x000001E0 and <= 0x000001EF)
                                 {
                                     headerFound = true;
                                 }
+
                                 if (stream.IsAudioStream &&
                                     streamState.Parse == 0x000001BD)
                                 {
                                     headerFound = true;
                                 }
                                 if (stream.IsAudioStream &&
-                                    streamState.Parse >= 0x000001C0 &&
-                                    streamState.Parse <= 0x000001DF)
+                                    streamState.Parse is >= 0x000001C0 and <= 0x000001DF)
                                 {
                                     headerFound = true;
                                 }
                                 if (stream.IsAudioStream &&
-                                    (streamState.Parse == 0x000001FA ||
-                                     streamState.Parse == 0x000001FD))
+                                    streamState.Parse is 0x000001FA or 0x000001FD)
                                 {
                                     headerFound = true;
                                 }
 
-                                if (!stream.IsVideoStream &&
-                                    !stream.IsAudioStream &&
-                                    (streamState.Parse == 0x000001FA ||
-                                     streamState.Parse == 0x000001FD ||
-                                     streamState.Parse == 0x000001BD ||
-                                     (streamState.Parse >= 0x000001E0 &&
-                                      streamState.Parse <= 0x000001EF)))
+                                if (stream is { IsVideoStream: false, IsAudioStream: false } &&
+                                    streamState.Parse is 0x000001FA or 0x000001FD or 0x000001BD
+                                        or >= 0x000001E0 and <= 0x000001EF)
                                 {
                                     headerFound = true;
                                 }
@@ -1215,8 +1123,8 @@ namespace BDInfo
                                                 parser.VariablePacketEnd = false;
                                                 streamState.PacketLengthVariable = true;
                                             }
-                                                
-                                            
+
+
                                             streamState.PacketParse = 3;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
@@ -1238,18 +1146,18 @@ namespace BDInfo
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 1:
-                                            streamState.PESHeaderFlags = 
+                                            streamState.PESHeaderFlags =
                                                 (byte)(streamState.Parse & 0xFF);
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 0:
-                                            streamState.PESHeaderLength = 
+                                            streamState.PESHeaderLength =
                                                 (byte)(streamState.Parse & 0xFF);
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] =
@@ -1279,44 +1187,44 @@ namespace BDInfo
                                     switch (streamState.PTSParse)
                                     {
                                         case 4:
-                                            streamState.PTSTemp = 
-                                                ((streamState.Parse & 0xE) << 29);
+                                            streamState.PTSTemp =
+                                                (streamState.Parse & 0xE) << 29;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
                                             break;
-                                        
+
                                         case 3:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 22);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFF) << 22;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 2:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFE) << 14);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFE) << 14;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 1:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 7);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFF) << 7;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 0:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFE) >> 1);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFE) >> 1;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
@@ -1327,15 +1235,15 @@ namespace BDInfo
                                             {
                                                 if (streamState.PTSLast > 0)
                                                 {
-                                                    streamState.PTSTransfer = (streamState.PTS - streamState.PTSLast);
-                                                }                                                
+                                                    streamState.PTSTransfer = streamState.PTS - streamState.PTSLast;
+                                                }
                                                 streamState.PTSLast = streamState.PTS;
                                             }
 
                                             // TODO: Frame reorder for streams encoded with b-pyramid > 0
                                             streamState.PTSDiff = streamState.PTS - streamState.DTSPrev;
-                                                
-                                            if (streamState.PTSCount > 0 && 
+
+                                            if (streamState.PTSCount > 0 &&
                                                 stream.IsVideoStream)
                                             {
                                                 UpdateStreamBitrates(stream.PID, streamState.PTS, streamState.PTSDiff);
@@ -1349,7 +1257,7 @@ namespace BDInfo
                                                 }
                                                 Length = (double)(parser.PTSLast - parser.PTSFirst) / 90000;
                                             }
-                                            
+
                                             streamState.DTSPrev = streamState.PTS;
                                             streamState.PTSCount++;
                                             if (streamState.PESHeaderLength == 0)
@@ -1368,44 +1276,44 @@ namespace BDInfo
                                     switch (streamState.DTSParse)
                                     {
                                         case 9:
-                                            streamState.PTSTemp = 
-                                                ((streamState.Parse & 0xE) << 29);
+                                            streamState.PTSTemp =
+                                                (streamState.Parse & 0xE) << 29;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 8:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 22);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFF) << 22;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 7:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFE) << 14);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFE) << 14;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
                                             break;
-                                        
+
                                         case 6:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 7);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFF) << 7;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 5:
-                                            streamState.PTSTemp |= 
-                                                ((streamState.Parse & 0xFE) >> 1);
+                                            streamState.PTSTemp |=
+                                                (streamState.Parse & 0xFE) >> 1;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
@@ -1416,46 +1324,46 @@ namespace BDInfo
                                                 streamState.PTSLast = streamState.PTS;
                                             }
                                             break;
-                                        
+
                                         case 4:
-                                            streamState.DTSTemp = 
-                                                ((streamState.Parse & 0xE) << 29);
+                                            streamState.DTSTemp =
+                                                (streamState.Parse & 0xE) << 29;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
                                             break;
-                                        
+
                                         case 3:
-                                            streamState.DTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 22);
+                                            streamState.DTSTemp |=
+                                                (streamState.Parse & 0xFF) << 22;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
                                             break;
-                                        
+
                                         case 2:
-                                            streamState.DTSTemp |= 
-                                                ((streamState.Parse & 0xFE) << 14);
+                                            streamState.DTSTemp |=
+                                                (streamState.Parse & 0xFE) << 14;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
 #endif
                                             break;
-                                        
+
                                         case 1:
-                                            streamState.DTSTemp |= 
-                                                ((streamState.Parse & 0xFF) << 7);
+                                            streamState.DTSTemp |=
+                                                (streamState.Parse & 0xFF) << 7;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xFF);
 #endif
                                             break;
-                                        
+
                                         case 0:
-                                            streamState.DTSTemp |= 
-                                                ((streamState.Parse & 0xFE) >> 1);
+                                            streamState.DTSTemp |=
+                                                (streamState.Parse & 0xFE) >> 1;
 #if DEBUG && !BETA
                                             streamState.PESHeader[streamState.PESHeaderIndex++] = 
                                                 (byte)(streamState.Parse & 0xff);
@@ -1509,14 +1417,14 @@ namespace BDInfo
                         else
                         {
                             parser.PacketLength--;
-                            if ((bufferLength - i) >= parser.PacketLength)
+                            if (bufferLength - i >= parser.PacketLength)
                             {
-                                i = i + parser.PacketLength;
+                                i += parser.PacketLength;
                                 parser.PacketLength = 0;
                             }
                             else
                             {
-                                parser.PacketLength -= (byte)((bufferLength - i) + 1);
+                                parser.PacketLength -= (byte)(bufferLength - i + 1);
                                 i = bufferLength;
                             }
                             if (parser.PacketLength <= 0)
@@ -1525,115 +1433,95 @@ namespace BDInfo
                             }
                         }
                     }
-                    Size += bufferLength;
                 }
-
-                // TODO: Frame reorder for streams encoded with b-pyramid > 0
-                BigInteger PTSLast = 0;
-                BigInteger PTSDiff = 0;
-                foreach (TSStream stream in Streams.Values)
-                {
-                    if (!stream.IsVideoStream) continue;
-
-                    if (StreamStates.ContainsKey(stream.PID) &&
-                        StreamStates[stream.PID].PTSLast > PTSLast)
-                    {
-                        PTSLast = StreamStates[stream.PID].PTSLast;
-                        PTSDiff = PTSLast - StreamStates[stream.PID].DTSPrev;
-                    }
-                    UpdateStreamBitrates(stream.PID, PTSLast, PTSDiff);
-                }
+                Size += bufferLength;
             }
-            catch (ThreadInterruptedException)
-            {
-                Debug.WriteLine("Thread Interrupted");
 
-                if (fileStream != null)
-                {
-                    fileStream.Close();
-                }
-
-                return;
-            }
-            finally
+            // TODO: Frame reorder for streams encoded with b-pyramid > 0
+            BigInteger ptsLast = 0;
+            BigInteger ptsDiff = 0;
+            foreach (var stream in Streams.Values.Where(stream => stream.IsVideoStream))
             {
-                if (fileStream != null)
+                if (_streamStates.ContainsKey(stream.PID) &&
+                    _streamStates[stream.PID].PTSLast > ptsLast)
                 {
-                    fileStream.Close();
+                    ptsLast = _streamStates[stream.PID].PTSLast;
+                    ptsDiff = ptsLast - _streamStates[stream.PID].DTSPrev;
                 }
+                UpdateStreamBitrates(stream.PID, ptsLast, ptsDiff);
             }
         }
-
-        private TSStream CreateStream(
-            ushort streamPID, 
-            byte streamType, 
-            List<TSDescriptor> streamDescriptors)
+        catch (ThreadInterruptedException)
         {
-            TSStream stream = null;
+            Debug.WriteLine("Thread Interrupted");
 
-            switch ((TSStreamType)streamType)
+            fileStream?.Close();
+        }
+        finally
+        {
+            fileStream?.Close();
+        }
+    }
+
+    private void CreateStream(ushort streamPID, byte streamType, List<TSDescriptor> streamDescriptors)
+    {
+        TSStream stream = null;
+
+        switch ((TSStreamType)streamType)
+        {
+            case TSStreamType.MVC_VIDEO:
+            case TSStreamType.AVC_VIDEO:
+            case TSStreamType.HEVC_VIDEO:
+            case TSStreamType.MPEG1_VIDEO:
+            case TSStreamType.MPEG2_VIDEO:
+            case TSStreamType.VC1_VIDEO:
             {
-                case TSStreamType.MVC_VIDEO:
-                case TSStreamType.AVC_VIDEO:
-                case TSStreamType.HEVC_VIDEO:
-                case TSStreamType.MPEG1_VIDEO:
-                case TSStreamType.MPEG2_VIDEO:
-                case TSStreamType.VC1_VIDEO:
-                {
-                    stream = new TSVideoStream();
-                }
-                break;
-
-                case TSStreamType.AC3_AUDIO:
-                case TSStreamType.AC3_PLUS_AUDIO:
-                case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
-                case TSStreamType.AC3_TRUE_HD_AUDIO:
-                case TSStreamType.DTS_AUDIO:
-                case TSStreamType.DTS_HD_AUDIO:
-                case TSStreamType.DTS_HD_MASTER_AUDIO:
-                case TSStreamType.DTS_HD_SECONDARY_AUDIO:
-                case TSStreamType.LPCM_AUDIO:
-                case TSStreamType.MPEG1_AUDIO:
-                case TSStreamType.MPEG2_AUDIO:
-                case TSStreamType.MPEG2_AAC_AUDIO:
-                case TSStreamType.MPEG4_AAC_AUDIO:
-                {
-                    stream = new TSAudioStream();
-                }
-                break;
-
-                case TSStreamType.INTERACTIVE_GRAPHICS:
-                case TSStreamType.PRESENTATION_GRAPHICS:
-                {
-                    stream = new TSGraphicsStream();
-                }
-                break;
-
-                case TSStreamType.SUBTITLE:
-                {
-                    stream = new TSTextStream();
-                }
-                break;
-
-                default:
-                    break;
+                stream = new TSVideoStream();
             }
+                break;
 
-            if (stream != null &&
-                !Streams.ContainsKey(streamPID))
+            case TSStreamType.AC3_AUDIO:
+            case TSStreamType.AC3_PLUS_AUDIO:
+            case TSStreamType.AC3_PLUS_SECONDARY_AUDIO:
+            case TSStreamType.AC3_TRUE_HD_AUDIO:
+            case TSStreamType.DTS_AUDIO:
+            case TSStreamType.DTS_HD_AUDIO:
+            case TSStreamType.DTS_HD_MASTER_AUDIO:
+            case TSStreamType.DTS_HD_SECONDARY_AUDIO:
+            case TSStreamType.LPCM_AUDIO:
+            case TSStreamType.MPEG1_AUDIO:
+            case TSStreamType.MPEG2_AUDIO:
+            case TSStreamType.MPEG2_AAC_AUDIO:
+            case TSStreamType.MPEG4_AAC_AUDIO:
             {
-                stream.PID = streamPID;
-                stream.StreamType = (TSStreamType)streamType;
-                stream.Descriptors = streamDescriptors;
-                Streams[stream.PID] = stream;
+                stream = new TSAudioStream();
             }
-            if (!StreamDiagnostics.ContainsKey(streamPID))
-            {
-                StreamDiagnostics[streamPID] =
-                    new List<TSStreamDiagnostics>();
-            }
+                break;
 
-            return stream;
-        } 
+            case TSStreamType.INTERACTIVE_GRAPHICS:
+            case TSStreamType.PRESENTATION_GRAPHICS:
+            {
+                stream = new TSGraphicsStream();
+            }
+                break;
+
+            case TSStreamType.SUBTITLE:
+            {
+                stream = new TSTextStream();
+            }
+                break;
+        }
+
+        if (stream != null && !Streams.ContainsKey(streamPID))
+        {
+            stream.PID = streamPID;
+            stream.StreamType = (TSStreamType)streamType;
+            stream.Descriptors = streamDescriptors;
+            Streams[stream.PID] = stream;
+        }
+        if (!StreamDiagnostics.ContainsKey(streamPID))
+        {
+            StreamDiagnostics[streamPID] = new List<TSStreamDiagnostics>();
+        }
     }
 }

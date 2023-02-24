@@ -17,23 +17,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BDInfoLib.BDROM;
 
-namespace BDInfo
+public abstract class TSCodecLPCM
 {
-    public abstract class TSCodecLPCM
+    public static void Scan(TSAudioStream stream, TSStreamBuffer buffer, ref string tag)
     {
-        public static void Scan(
-            TSAudioStream stream,
-            TSStreamBuffer buffer,
-            ref string tag)
-        {
-            if (stream.IsInitialized) return;
+        if (stream.IsInitialized) return;
 
-            byte[] header = buffer.ReadBytes(4);
-            int flags = (header[2] << 8) + header[3];
+        var header = buffer.ReadBytes(4);
+        if (header != null)
+        {
+            var flags = (header[2] << 8) + header[3];
 
             switch ((flags & 0xF000) >> 12)
             {
@@ -83,44 +78,26 @@ namespace BDInfo
                     break;
             }
 
-            switch ((flags & 0xC0) >> 6)
+            stream.BitDepth = ((flags & 0xC0) >> 6) switch
             {
-                case 1:
-                    stream.BitDepth = 16;
-                    break;
-                case 2:
-                    stream.BitDepth = 20;
-                    break;
-                case 3:
-                    stream.BitDepth = 24;
-                    break;
-                default:
-                    stream.BitDepth = 0;
-                    break;
-            }
+                1 => 16,
+                2 => 20,
+                3 => 24,
+                _ => 0
+            };
 
-            switch ((flags & 0xF00) >> 8)
+            stream.SampleRate = ((flags & 0xF00) >> 8) switch
             {
-                case 1:
-                    stream.SampleRate = 48000;
-                    break;
-                case 4:
-                    stream.SampleRate = 96000;
-                    break;
-                case 5:
-                    stream.SampleRate = 192000;
-                    break;
-                default:
-                    stream.SampleRate = 0;
-                    break;
-            }
-
-            stream.BitRate = (uint)
-                (stream.SampleRate * stream.BitDepth *
-                 (stream.ChannelCount + stream.LFE));
-
-            stream.IsVBR = false;
-            stream.IsInitialized = true;
+                1 => 48000,
+                4 => 96000,
+                5 => 192000,
+                _ => 0
+            };
         }
+
+        stream.BitRate = (uint)(stream.SampleRate * stream.BitDepth * (stream.ChannelCount + stream.LFE));
+
+        stream.IsVBR = false;
+        stream.IsInitialized = true;
     }
 }

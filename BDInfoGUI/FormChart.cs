@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using BDInfo;
+using BDInfoLib.BDROM;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,9 +29,9 @@ namespace BDInfoGUI
 {
     public partial class FormChart : Form
     {
-        string UnitText = "";
-        bool IsHoverDisabled = false;
-        string DefaultFileName = "";
+        private string _unitText = "";
+        private bool _isHoverDisabled;
+        private string _defaultFileName = "";
 
         private string FixVolumeLabel(string label)
         {
@@ -44,71 +44,62 @@ namespace BDInfoGUI
             InitializeComponent();
             try
             {
-                GraphControl.ContextMenuBuilder += new ZedGraphControl.ContextMenuBuilderEventHandler(GraphControl_ContextMenuBuilder);
-                GraphControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GraphControl_MouseMove);
-                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
-                {
-                    GraphControl.IsEnableHZoom = false;
-                    GraphControl.IsEnableVZoom = false;
-                    GraphControl.SelectButtons = MouseButtons.None;
-                    GraphControl.LinkButtons = MouseButtons.None;
-                    GraphControl.PanButtons = MouseButtons.None;
-                    GraphControl.ZoomButtons = MouseButtons.None;
-                }
+                GraphControl.ContextMenuBuilder += GraphControl_ContextMenuBuilder;
+                GraphControl.MouseMove += GraphControl_MouseMove;
+                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices
+                        .OSPlatform.Linux)) return;
+
+                GraphControl.IsEnableHZoom = false;
+                GraphControl.IsEnableVZoom = false;
+                GraphControl.SelectButtons = MouseButtons.None;
+                GraphControl.LinkButtons = MouseButtons.None;
+                GraphControl.PanButtons = MouseButtons.None;
+                GraphControl.ZoomButtons = MouseButtons.None;
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
-        private void FormChart_FormClosed(object sender,
-                                          FormClosedEventArgs e)
+        private void FormChart_FormClosed(object sender, FormClosedEventArgs e)
         {
             GraphControl.Dispose();
             GC.Collect();
         }
 
-        private void GraphControl_ContextMenuBuilder(ZedGraphControl sender,
-                                                     ContextMenuStrip menuStrip,
-                                                     Point mousePt,
-                                                     ZedGraphControl.ContextMenuObjectState objState)
+        private void GraphControl_ContextMenuBuilder(ZedGraphControl sender, ContextMenuStrip menuStrip, Point mousePt, ZedGraphControl.ContextMenuObjectState objState)
         {
-            for (int i = 0; i < menuStrip.Items.Count; i++)
+            for (var i = 0; i < menuStrip.Items.Count; i++)
             {
-                ToolStripMenuItem item = (ToolStripMenuItem)menuStrip.Items[i];
-                if ((string)item.Tag == "save_as")
-                {
-                    ToolStripMenuItem newItem = new ToolStripMenuItem();
-                    newItem.Name = "save_as";
-                    newItem.Tag = "save_as";
-                    newItem.Text = "Save Image As...";
-                    newItem.Click += new System.EventHandler(OnSaveGraph);
-                    menuStrip.Items.Remove(item);
-                    menuStrip.Items.Insert(i, newItem);
-                    break;
-                }
+                var item = (ToolStripMenuItem)menuStrip.Items[i];
+                if ((string)item.Tag != "save_as") continue;
+
+                ToolStripMenuItem newItem = new();
+                newItem.Name = "save_as";
+                newItem.Tag = "save_as";
+                newItem.Text = @"Save Image As...";
+                newItem.Click += OnSaveGraph;
+                menuStrip.Items.Remove(item);
+                menuStrip.Items.Insert(i, newItem);
+                break;
             }
         }
 
-        private void GraphControl_MouseMove(object sender,
-                                    MouseEventArgs e)
+        private void GraphControl_MouseMove(object sender, MouseEventArgs e)
         {
-            ZedGraphControl graph = (ZedGraphControl)sender;
-            PointF pt = new PointF(e.X, e.Y);
-            GraphPane pane = graph.MasterPane.FindChartRect(pt);
+            var graph = (ZedGraphControl)sender;
+            PointF pt = new(e.X, e.Y);
+            var pane = graph.MasterPane.FindChartRect(pt);
 
-            if (!IsHoverDisabled && pane != null)
+            if (!_isHoverDisabled && pane != null)
             {
-                double x, y;
-                pane.ReverseTransform(pt, out x, out y);
+                pane.ReverseTransform(pt, out var x, out var y);
 
-                TimeSpan time = new TimeSpan(
-                    0, 0, 0, 0, (int)Math.Round(x * 1000 * 60));
+                var time = new TimeSpan(0, 0, 0, 0, (int)Math.Round(x * 1000 * 60));
 
-                toolStripStatus.Text = string.Format(
-                    "Time: {0} ({1}) Value: {2}",
-                    string.Format("{0:F3} sec", x),
-                    string.Format("{0:D2}:{1:D2}:{2:D2}.{3:D2}",
-                    time.Hours, time.Minutes, time.Seconds, time.Milliseconds),
-                    string.Format("{0:F2} {1}", y, UnitText));
+                toolStripStatus.Text =
+                    $@"Time: {$"{x:F3} sec"} ({$"{time:hh\\:mm\\:ss\\.ff}"}) Value: {$"{y:F2} {_unitText}"}";
             }
             else
             {
@@ -116,18 +107,14 @@ namespace BDInfoGUI
             }
         }
 
-        private void OnSaveGraph(object sender,
-                                 EventArgs args)
+        private void OnSaveGraph(object sender, EventArgs args)
         {
-            GraphControl.SaveAs(DefaultFileName);
+            GraphControl.SaveAs(_defaultFileName);
         }
 
-        public void Generate(string chartType,
-                             TSPlaylistFile playlist,
-                             ushort PID,
-                             int angleIndex)
+        public void Generate(string chartType, TSPlaylistFile playlist, ushort pid, int angleIndex)
         {
-            this.Text = string.Format("{0}: {1}", playlist.Name, chartType);
+            this.Text = $@"{playlist.Name}: {chartType}";
             GraphControl.GraphPane.Title.Text = chartType;
             GraphControl.IsEnableHEdit = false;
             GraphControl.IsEnableVEdit = false;
@@ -143,100 +130,85 @@ namespace BDInfoGUI
             GraphControl.GraphPane.XAxis.Scale.IsUseTenPower = false;
             GraphControl.GraphPane.YAxis.Scale.IsUseTenPower = false;
 
-            if (BDInfoGUISettings.UseImagePrefix)
-            {
-                DefaultFileName = BDInfoGUISettings.UseImagePrefixValue;
-            }
-            else
-            {
-                DefaultFileName = string.Format(
-                    "{0}-{1}-",
-                    FixVolumeLabel(playlist.BDROM.VolumeLabel),
-                    Path.GetFileNameWithoutExtension(playlist.Name));
-            }
+            _defaultFileName = BDInfoGuiSettings.UseImagePrefix
+                ? BDInfoGuiSettings.UseImagePrefixValue
+                : $"{FixVolumeLabel(playlist.BDROM.VolumeLabel)}-{Path.GetFileNameWithoutExtension(playlist.Name)}-";
 
             switch (chartType)
             {
                 case "Video Bitrate: 1-Second Window":
-                    GenerateWindowChart(playlist, PID, angleIndex, 1);
-                    DefaultFileName += "bitrate-01s";
+                    GenerateWindowChart(playlist, pid, angleIndex, 1);
+                    _defaultFileName += "bitrate-01s";
                     break;
                 case "Video Bitrate: 5-Second Window":
-                    GenerateWindowChart(playlist, PID, angleIndex, 5);
-                    DefaultFileName += "bitrate-05s";
+                    GenerateWindowChart(playlist, pid, angleIndex, 5);
+                    _defaultFileName += "bitrate-05s";
                     break;
                 case "Video Bitrate: 10-Second Window":
-                    GenerateWindowChart(playlist, PID, angleIndex, 10);
-                    DefaultFileName += "bitrate-10s";
+                    GenerateWindowChart(playlist, pid, angleIndex, 10);
+                    _defaultFileName += "bitrate-10s";
                     break;
                 case "Video Frame Size (Min / Max)":
-                    GenerateFrameSizeChart(playlist, PID, angleIndex);
-                    DefaultFileName += "frame-size";
+                    GenerateFrameSizeChart(playlist, pid, angleIndex);
+                    _defaultFileName += "frame-size";
                     break;
                 case "Video Frame Type Counts":
-                    GenerateFrameTypeChart(playlist, PID, angleIndex, false);
-                    DefaultFileName += "frame-type-count";
+                    GenerateFrameTypeChart(playlist, pid, angleIndex, false);
+                    _defaultFileName += "frame-type-count";
                     break;
                 case "Video Frame Type Sizes":
-                    GenerateFrameTypeChart(playlist, PID, angleIndex, true);
-                    DefaultFileName += "frame-type-size";
+                    GenerateFrameTypeChart(playlist, pid, angleIndex, true);
+                    _defaultFileName += "frame-type-size";
                     break;
             }
-            DefaultFileName += ".png";
+            _defaultFileName += ".png";
         }
 
-        public void GenerateWindowChart(TSPlaylistFile playlist,
-                                        ushort PID,
-                                        int angleIndex,
-                                        double windowSize)
+        public void GenerateWindowChart(TSPlaylistFile playlist, ushort pid, int angleIndex, double windowSize)
         {
-            UnitText = "Mbps";
+            _unitText = "Mbps";
 
             GraphControl.GraphPane.XAxis.Title.Text = "Time (minutes)";
             GraphControl.GraphPane.YAxis.Title.Text = "Bitrate (Mbps)";
 
 
-            PointPairList pointsMin = new PointPairList();
-            PointPairList pointsMax = new PointPairList();
-            PointPairList pointsAvg = new PointPairList();
+            PointPairList pointsMin = new();
+            PointPairList pointsMax = new();
+            PointPairList pointsAvg = new();
 
-            Queue<double> windowBits = new Queue<double>();
-            Queue<double> windowSeconds = new Queue<double>();
+            Queue<double> windowBits = new();
+            Queue<double> windowSeconds = new();
             double windowBitsSum = 0;
             double windowSecondsSum = 0;
 
-            double pointPosition = 0;
-            double pointSeconds = 1.0;
-            double pointMin = double.MaxValue;
-            double pointMax = 0;
-            double pointAvg = 0;
-            int pointCount = 0;
+            var pointSeconds = 1D;
+            var pointMin = double.MaxValue;
+            var pointMax = 0D;
+            var pointAvg = 0D;
+            var pointCount = 0;
 
-            foreach (TSStreamClip clip in playlist.StreamClips)
+            foreach (var clip in playlist.StreamClips)
             {
                 if (clip.AngleIndex != angleIndex ||
-                    clip.StreamFile == null ||
-                    clip.StreamFile.StreamDiagnostics == null ||
-                    !clip.StreamFile.StreamDiagnostics.ContainsKey(PID))
+                    clip.StreamFile?.StreamDiagnostics == null ||
+                    !clip.StreamFile.StreamDiagnostics.ContainsKey(pid))
                 {
                     continue;
                 }
 
-                List<TSStreamDiagnostics> diagList =
-                    clip.StreamFile.StreamDiagnostics[PID];
+                var diagList =
+                    clip.StreamFile.StreamDiagnostics[pid];
 
-                for (int i = 0; i < diagList.Count; i++)
+                foreach (var diag in diagList)
                 {
-                    TSStreamDiagnostics diag = diagList[i];
                     //if (diag.Tag == null) continue;
 
-                    pointPosition =
-                        diag.Marker -
-                        clip.TimeIn +
-                        clip.RelativeTimeIn;
+                    var pointPosition = diag.Marker -
+                                        clip.TimeIn +
+                                        clip.RelativeTimeIn;
 
-                    double seconds = diag.Interval;
-                    double bits = diag.Bytes * 8.0;
+                    var seconds = diag.Interval;
+                    var bits = diag.Bytes * 8.0;
 
                     windowSecondsSum += seconds;
                     windowSeconds.Enqueue(seconds);
@@ -245,15 +217,15 @@ namespace BDInfoGUI
 
                     if (windowSecondsSum > windowSize)
                     {
-                        double bitrate = windowBitsSum / windowSecondsSum / 1000000;
+                        var bitrate = windowBitsSum / windowSecondsSum / 1000000;
 
                         if (bitrate < pointMin) pointMin = bitrate;
                         if (bitrate > pointMax) pointMax = bitrate;
                         pointCount++; pointAvg += bitrate;
 
-                        for (double x = pointSeconds; x < (pointPosition - 1); x++)
+                        for (var x = pointSeconds; x < (pointPosition - 1); x++)
                         {
-                            double pointX = (x - 1) / 60;
+                            var pointX = (x - 1) / 60;
                             pointsMin.Add(pointX, 0);
                             pointsAvg.Add(pointX, 0);
                             pointsMax.Add(pointX, 0);
@@ -262,7 +234,7 @@ namespace BDInfoGUI
 
                         if (pointPosition >= pointSeconds)
                         {
-                            double pointMinutes = (pointSeconds - 1) / 60;
+                            var pointMinutes = (pointSeconds - 1) / 60;
                             pointsMin.Add(pointMinutes, pointMin);
                             pointsMax.Add(pointMinutes, pointMax);
                             pointsAvg.Add(pointMinutes, pointAvg / pointCount);
@@ -279,15 +251,15 @@ namespace BDInfoGUI
 
                     if (pointPosition >= pointSeconds)
                     {
-                        for (double x = pointSeconds; x < (pointPosition - 1); x++)
+                        for (var x = pointSeconds; x < (pointPosition - 1); x++)
                         {
-                            double pointX = (x - 1) / 60;
+                            var pointX = (x - 1) / 60;
                             pointsMin.Add(pointX, 0);
                             pointsAvg.Add(pointX, 0);
                             pointsMax.Add(pointX, 0);
                             pointSeconds += 1;
                         }
-                        double pointMinutes = (pointSeconds - 1) / 60;
+                        var pointMinutes = (pointSeconds - 1) / 60;
                         pointsMin.Add(pointMinutes, pointMin);
                         pointsAvg.Add(pointMinutes, pointAvg / pointCount);
                         pointsMax.Add(pointMinutes, pointMax);
@@ -300,25 +272,22 @@ namespace BDInfoGUI
                 }
             }
 
-            for (double x = pointSeconds; x < playlist.TotalLength; x++)
+            for (var x = pointSeconds; x < playlist.TotalLength; x++)
             {
-                double pointX = (x - 1) / 60;
+                var pointX = (x - 1) / 60;
                 pointsMin.Add(pointX, 0);
                 pointsAvg.Add(pointX, 0);
                 pointsMax.Add(pointX, 0);
             }
 
-            LineItem avgCurve = GraphControl.GraphPane.AddCurve(
-                "Avg", pointsAvg, Color.Gray, SymbolType.None);
+            var avgCurve = GraphControl.GraphPane.AddCurve("Avg", pointsAvg, Color.Gray, SymbolType.None);
             avgCurve.Line.IsSmooth = true;
 
-            LineItem minCurve = GraphControl.GraphPane.AddCurve(
-                "Min", pointsMin, Color.LightGray, SymbolType.None);
+            var minCurve = GraphControl.GraphPane.AddCurve("Min", pointsMin, Color.LightGray, SymbolType.None);
             minCurve.Line.IsSmooth = true;
             minCurve.Line.Fill = new Fill(Color.White);
 
-            LineItem maxCurve = GraphControl.GraphPane.AddCurve(
-                "Max", pointsMax, Color.LightGray, SymbolType.None);
+            var maxCurve = GraphControl.GraphPane.AddCurve("Max", pointsMax, Color.LightGray, SymbolType.None);
             maxCurve.Line.IsSmooth = true;
             maxCurve.Line.Fill = new Fill(Color.LightGray);
 
@@ -331,52 +300,45 @@ namespace BDInfoGUI
             GraphControl.AxisChange();
         }
 
-        public void GenerateFrameSizeChart(TSPlaylistFile playlist,
-                                           ushort PID,
-                                           int angleIndex)
+        public void GenerateFrameSizeChart(TSPlaylistFile playlist, ushort pid, int angleIndex)
         {
-            UnitText = "KB";
+            _unitText = "KB";
 
             GraphControl.GraphPane.XAxis.Title.Text = "Time (minutes)";
             GraphControl.GraphPane.YAxis.Title.Text = "Size (KB)";
 
-            PointPairList pointsMin = new PointPairList();
-            PointPairList pointsMax = new PointPairList();
-            PointPairList pointsAvg = new PointPairList();
+            PointPairList pointsMin = new();
+            PointPairList pointsMax = new();
+            PointPairList pointsAvg = new();
 
-            double pointPosition = 0;
-            double pointSeconds = 1.0;
-            double pointMin = double.MaxValue;
-            double pointMax = 0;
-            double pointAvg = 0;
-            int pointCount = 0;
-            double overallMax = 0;
+            var pointSeconds = 1D;
+            var pointMin = double.MaxValue;
+            var pointMax = 0D;
+            var pointAvg = 0D;
+            var pointCount = 0;
+            var overallMax = 0D;
 
-            foreach (TSStreamClip clip in playlist.StreamClips)
+            foreach (var clip in playlist.StreamClips)
             {
                 if (clip.AngleIndex != angleIndex ||
-                    clip.StreamFile == null ||
-                    clip.StreamFile.StreamDiagnostics == null ||
-                    !clip.StreamFile.StreamDiagnostics.ContainsKey(PID))
+                    clip.StreamFile?.StreamDiagnostics == null ||
+                    !clip.StreamFile.StreamDiagnostics.ContainsKey(pid))
                 {
                     continue;
                 }
 
-                List<TSStreamDiagnostics> diagList =
-                    clip.StreamFile.StreamDiagnostics[PID];
+                var diagList = clip.StreamFile.StreamDiagnostics[pid];
 
-                for (int i = 0; i < diagList.Count; i++)
+                foreach (var diag in diagList)
                 {
-                    TSStreamDiagnostics diag = diagList[i];
                     if (diag.Tag == null) continue;
 
-                    string frameType = diag.Tag;
-                    double frameSize = diag.Bytes / 1024;
+                    var frameType = diag.Tag;
+                    var frameSize = diag.Bytes / 1024D;
 
-                    pointPosition =
-                        diag.Marker -
-                        clip.TimeIn +
-                        clip.RelativeTimeIn;
+                    var pointPosition = diag.Marker -
+                                        clip.TimeIn +
+                                        clip.RelativeTimeIn;
 
                     if (frameSize > overallMax) overallMax = frameSize;
                     if (frameSize < pointMin) pointMin = frameSize;
@@ -387,15 +349,15 @@ namespace BDInfoGUI
 
                     if (pointPosition >= pointSeconds)
                     {
-                        for (double x = pointSeconds; x < (pointPosition - 1); x++)
+                        for (var x = pointSeconds; x < (pointPosition - 1); x++)
                         {
-                            double pointX = (x - 1) / 60;
+                            var pointX = (x - 1) / 60;
                             pointsMin.Add(pointX, 0);
                             pointsAvg.Add(pointX, 0);
                             pointsMax.Add(pointX, 0);
                             pointSeconds += 1;
                         }
-                        double pointMinutes = (pointSeconds - 1) / 60;
+                        var pointMinutes = (pointSeconds - 1) / 60;
                         pointsMin.Add(pointMinutes, pointMin);
                         pointsAvg.Add(pointMinutes, pointAvg / pointCount);
                         pointsMax.Add(pointMinutes, pointMax);
@@ -408,25 +370,22 @@ namespace BDInfoGUI
                 }
             }
 
-            for (double x = pointSeconds; x < playlist.TotalLength; x++)
+            for (var x = pointSeconds; x < playlist.TotalLength; x++)
             {
-                double pointX = (x - 1) / 60;
+                var pointX = (x - 1) / 60;
                 pointsMin.Add(pointX, 0);
                 pointsAvg.Add(pointX, 0);
                 pointsMax.Add(pointX, 0);
             }
 
-            LineItem avgCurve = GraphControl.GraphPane.AddCurve(
-                "Avg", pointsAvg, Color.Gray, SymbolType.None);
+            var avgCurve = GraphControl.GraphPane.AddCurve("Avg", pointsAvg, Color.Gray, SymbolType.None);
             avgCurve.Line.IsSmooth = true;
 
-            LineItem minCurve = GraphControl.GraphPane.AddCurve(
-                "Min", pointsMin, Color.LightGray, SymbolType.None);
+            var minCurve = GraphControl.GraphPane.AddCurve("Min", pointsMin, Color.LightGray, SymbolType.None);
             minCurve.Line.IsSmooth = true;
             minCurve.Line.Fill = new Fill(Color.White);
 
-            LineItem maxCurve = GraphControl.GraphPane.AddCurve(
-                "Max", pointsMax, Color.LightGray, SymbolType.None);
+            var maxCurve = GraphControl.GraphPane.AddCurve("Max", pointsMax, Color.LightGray, SymbolType.None);
             maxCurve.Line.IsSmooth = true;
             maxCurve.Line.Fill = new Fill(Color.LightGray);
 
@@ -439,50 +398,44 @@ namespace BDInfoGUI
             GraphControl.AxisChange();
         }
 
-        public void GenerateFrameTypeChart(TSPlaylistFile playlist,
-                                           ushort PID,
-                                           int angleIndex,
-                                           bool isSizes)
+        public void GenerateFrameTypeChart(TSPlaylistFile playlist, ushort pid, int angleIndex, bool isSizes)
         {
-            IsHoverDisabled = true;
+            _isHoverDisabled = true;
 
             GraphControl.GraphPane.XAxis.Title.Text = "Frame Type";
 
             if (isSizes)
             {
-                UnitText = "KB";
+                _unitText = "KB";
                 GraphControl.GraphPane.YAxis.Title.Text = "Average / Peak Size (KB)";
             }
             else
             {
-                UnitText = "";
+                _unitText = "";
                 GraphControl.GraphPane.YAxis.Title.Text = "Count";
             }
 
-            Dictionary<string, double> frameCount = new Dictionary<string, double>();
-            Dictionary<string, double> frameSizes = new Dictionary<string, double>();
-            Dictionary<string, double> framePeaks = new Dictionary<string, double>();
+            Dictionary<string, double> frameCount = new();
+            Dictionary<string, double> frameSizes = new();
+            Dictionary<string, double> framePeaks = new();
 
-            foreach (TSStreamClip clip in playlist.StreamClips)
+            foreach (var clip in playlist.StreamClips)
             {
                 if (clip.AngleIndex != angleIndex ||
-                    clip.StreamFile == null ||
-                    clip.StreamFile.StreamDiagnostics == null ||
-                    !clip.StreamFile.StreamDiagnostics.ContainsKey(PID))
+                    clip.StreamFile?.StreamDiagnostics == null ||
+                    !clip.StreamFile.StreamDiagnostics.ContainsKey(pid))
                 {
                     continue;
                 }
 
-                List<TSStreamDiagnostics> diagList =
-                    clip.StreamFile.StreamDiagnostics[PID];
+                var diagList = clip.StreamFile.StreamDiagnostics[pid];
 
-                for (int i = 0; i < diagList.Count; i++)
+                foreach (var diag in diagList)
                 {
-                    TSStreamDiagnostics diag = diagList[i];
                     if (diag.Tag == null) continue;
 
-                    string frameType = diag.Tag;
-                    double frameSize = diag.Bytes / 1024;
+                    var frameType = diag.Tag;
+                    var frameSize = diag.Bytes / 1024D;
 
                     if (!framePeaks.ContainsKey(frameType))
                     {
@@ -506,17 +459,17 @@ namespace BDInfoGUI
                 }
             }
 
-            string[] labels = new string[frameCount.Keys.Count];
-            double[] values = new double[frameCount.Keys.Count];
-            double[] peaks = new double[frameCount.Keys.Count];
-            Dictionary<string, int> frameTypes = new Dictionary<string, int>();
+            var labels = new string[frameCount.Keys.Count];
+            var values = new double[frameCount.Keys.Count];
+            var peaks = new double[frameCount.Keys.Count];
+            Dictionary<string, int> frameTypes = new();
 
             frameCount.Keys.CopyTo(labels, 0);
 
             double totalFrameCount = 0;
-            for (int i = 0; i < labels.Length; i++)
+            for (var i = 0; i < labels.Length; i++)
             {
-                string label = labels[i];
+                var label = labels[i];
                 frameTypes[label] = i;
                 if (isSizes)
                 {
@@ -532,12 +485,10 @@ namespace BDInfoGUI
 
             if (isSizes)
             {
-                BarItem barItem = GraphControl.GraphPane.AddBar(
-                    "Average", null, values, Color.Black);
+                var barItem = GraphControl.GraphPane.AddBar("Average", null, values, Color.Black);
                 barItem.Bar.Fill.Type = FillType.Solid;
 
-                BarItem barItemMax = GraphControl.GraphPane.AddBar(
-                    "Peak", null, peaks, Color.Black);
+                var barItemMax = GraphControl.GraphPane.AddBar("Peak", null, peaks, Color.Black);
                 barItemMax.Bar.Fill.Type = FillType.None;
 
                 GraphControl.GraphPane.XAxis.MajorTic.IsBetweenLabels = true;
@@ -557,26 +508,24 @@ namespace BDInfoGUI
                 GraphControl.GraphPane.XAxis.IsVisible = false;
                 GraphControl.GraphPane.YAxis.IsVisible = false;
 
-                int drgb = (int)Math.Truncate(255.0 / labels.Length);
-                int rgb = 0;
+                var drgb = (int)Math.Truncate(255.0 / labels.Length);
+                var rgb = 0;
 
-                List<SortableFrameCount> sortedFrameCounts = new List<SortableFrameCount>();
-                foreach (string frameType in frameCount.Keys)
+                var sortedFrameCounts = new List<SortableFrameCount>();
+                foreach (var frameType in frameCount.Keys)
                 {
                     sortedFrameCounts.Add(new SortableFrameCount(frameType, frameCount[frameType]));
                 }
                 sortedFrameCounts.Sort();
 
-                int j = sortedFrameCounts.Count;
-                for (int i = 0; i < j; i++)
+                var j = sortedFrameCounts.Count;
+                for (var i = 0; i < j; i++)
                 {
                     AddPieSlice(sortedFrameCounts[i].Name, sortedFrameCounts[i].Count, totalFrameCount, rgb);
                     rgb += drgb;
-                    if (--j > i)
-                    {
-                        AddPieSlice(sortedFrameCounts[j].Name, sortedFrameCounts[j].Count, totalFrameCount, rgb);
-                        rgb += drgb;
-                    }
+                    if (--j <= i) continue;
+                    AddPieSlice(sortedFrameCounts[j].Name, sortedFrameCounts[j].Count, totalFrameCount, rgb);
+                    rgb += drgb;
                 }
                 GraphControl.GraphPane.AxisChange();
             }
@@ -589,25 +538,19 @@ namespace BDInfoGUI
             GraphControl.IsEnableWheelZoom = false;
         }
 
-        private void AddPieSlice(string frameType,
-                 double frameCount,
-                 double totalFrameCount,
-                 int rgb)
+        private void AddPieSlice(string frameType, double frameCount, double totalFrameCount, int rgb)
         {
-            string label = string.Format(
-                " {0} Frames \n {1:N0} \n ({2:F2}%) ",
-                frameType, frameCount, frameCount / totalFrameCount * 100);
+            var label = $" {frameType} Frames \n {frameCount:N0} \n ({frameCount / totalFrameCount * 100:F2}%) ";
 
-            Color color = Color.FromArgb(rgb, rgb, rgb);
-            PieItem pieItem = GraphControl.GraphPane.AddPieSlice(
-                frameCount, color, color, 0, 0, label);
+            var color = Color.FromArgb(rgb, rgb, rgb);
+            var pieItem = GraphControl.GraphPane.AddPieSlice(frameCount, color, color, 0, 0, label);
             pieItem.Border.IsVisible = false;
         }
 
         private class SortableFrameCount : IComparable
         {
-            public string Name;
-            public double Count;
+            public readonly string Name;
+            public readonly double Count;
 
             public SortableFrameCount(string name,
                                       double count)
@@ -618,12 +561,13 @@ namespace BDInfoGUI
 
             public int CompareTo(object o)
             {
-                SortableFrameCount frameType = (SortableFrameCount)o;
-                if (frameType.Count != Count)
+                var frameType = (SortableFrameCount)o;
+                if (Math.Abs(frameType.Count - Count) > 0D)
                 {
                     return (int)(Count - frameType.Count);
                 }
-                else return Name.CompareTo(frameType.Name);
+
+                return string.CompareOrdinal(Name, frameType.Name);
             }
         }
     }

@@ -17,23 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BDInfoLib.BDROM;
+// TODO: Do something more interesting here...
 
-namespace BDInfo
+public abstract class TSCodecMVC
 {
-    // TODO: Do something more interesting here...
-
-    public abstract class TSCodecMVC
+    public static void Scan(TSVideoStream stream, TSStreamBuffer buffer, ref string tag)
     {
-        public static void Scan(
-            TSVideoStream stream,
-            TSStreamBuffer buffer,
-            ref string tag)
-        {
-            stream.IsVBR = true;
-            stream.IsInitialized = true;
-        }
+        stream.IsVBR = true;
+        stream.IsInitialized = true;
     }
 }

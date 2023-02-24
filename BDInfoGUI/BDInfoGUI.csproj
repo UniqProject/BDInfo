@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWindowsForms>True</UseWindowsForms>
     <StartupObject>BDInfoGUI.Program</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -18,7 +18,7 @@
     <Configurations>Debug;Release;Beta</Configurations>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsPublishable>True</IsPublishable>
-    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <Platforms>AnyCPU;ARM64;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -42,41 +42,31 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-    <PackageReference Include="ZedGraph" Version="6.0.0-alpha0001" />
-    <PackageReference Include="ZedGraph.WinForms" Version="6.0.0-alpha0001" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BDInfo\BDInfo.csproj" />
+    <PackageReference Include="ZedGraph" Version="5.1.7" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="FormChart.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <ProjectReference Include="..\BDInfo\BDInfoLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="FormChart.cs" />
     <Compile Update="FormChart.Designer.cs">
       <DependentUpon>FormChart.cs</DependentUpon>
     </Compile>
-    <Compile Update="FormMain.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FormMain.cs" />
     <Compile Update="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Update="FormPlaylist.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FormPlaylist.cs" />
     <Compile Update="FormPlaylist.Designer.cs">
       <DependentUpon>FormPlaylist.cs</DependentUpon>
     </Compile>
-    <Compile Update="FormReport.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FormReport.cs" />
     <Compile Update="FormReport.Designer.cs">
       <DependentUpon>FormReport.cs</DependentUpon>
     </Compile>
-    <Compile Update="FormSettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FormSettings.cs" />
     <Compile Update="FormSettings.Designer.cs">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>

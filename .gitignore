@@ -109,3 +109,4 @@ UpgradeLog*.XML
 BDInfo.VC.opendb
 /.vs/slnx.sqlite
 /.vs
+/BDInfoAV/App.axaml

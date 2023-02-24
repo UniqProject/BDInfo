@@ -17,9 +17,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-using BDInfo;
+using BDInfoLib;
+using BDInfoLib.BDROM;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace BDInfoGUI
@@ -28,46 +30,42 @@ namespace BDInfoGUI
 
     public partial class FormPlaylist : Form
     {
-        private BDROM BDROM = null;
-        private ListViewColumnSorter PlaylistColumnSorter;
-        public List<TSStreamClip> StreamClips = new List<TSStreamClip>();
-        private OnCustomPlaylistFinished OnFinished;
+        private readonly BDROM _bdrom;
+        private readonly ListViewColumnSorter _playlistColumnSorter;
+        public List<TSStreamClip> StreamClips = new();
+        private readonly OnCustomPlaylistFinished _onFinished;
 
         private TSPlaylistFile SelectedPlaylist
         {
             get
             {
-                if (BDROM == null ||
-                    listViewPlaylistFiles.SelectedItems.Count == 0 ||
-                    listViewPlaylistFiles.SelectedItems[0] == null)
+                if (_bdrom == null || listViewPlaylistFiles.SelectedItems.Count == 0)
                 {
                     return null;
                 }
 
-                ListViewItem playlistItem = listViewPlaylistFiles.SelectedItems[0];
+                var playlistItem = listViewPlaylistFiles.SelectedItems[0];
 
                 TSPlaylistFile playlist = null;
-                string playlistFileName = playlistItem.Text;
-                if (BDROM.PlaylistFiles.ContainsKey(playlistFileName))
+                var playlistFileName = playlistItem.Text;
+                if (_bdrom.PlaylistFiles.ContainsKey(playlistFileName))
                 {
-                    playlist = BDROM.PlaylistFiles[playlistFileName];
+                    playlist = _bdrom.PlaylistFiles[playlistFileName];
                 }
                 return playlist;
             }
         }
 
-        public FormPlaylist(string name,
-                            BDROM bdrom,
-                            OnCustomPlaylistFinished func)
+        public FormPlaylist(string name, BDROM bdrom, OnCustomPlaylistFinished func)
         {
             InitializeComponent();
 
             textBoxName.Text = name;
-            BDROM = bdrom;
-            OnFinished = func;
+            _bdrom = bdrom;
+            _onFinished = func;
 
-            PlaylistColumnSorter = new ListViewColumnSorter();
-            listViewPlaylistFiles.ListViewItemSorter = PlaylistColumnSorter;
+            _playlistColumnSorter = new ListViewColumnSorter();
+            listViewPlaylistFiles.ListViewItemSorter = _playlistColumnSorter;
         }
 
         private void FormPlaylist_Load(object sender,
@@ -84,19 +82,12 @@ namespace BDInfoGUI
 
         private void CheckOK()
         {
-            if (StreamClips.Count > 0)
-            {
-                buttonOK.Enabled = true;
-            }
-            else
-            {
-                buttonOK.Enabled = false;
-            }
+            buttonOK.Enabled = StreamClips.Count > 0;
         }
 
         private void ResetColumnWidths()
         {
-            int listViewPlaylistFilesColumnWidth =
+            var listViewPlaylistFilesColumnWidth =
                 listViewPlaylistFiles.ClientSize.Width /
                 listViewPlaylistFiles.Columns.Count;
 
@@ -105,7 +96,7 @@ namespace BDInfoGUI
                 column.Width = listViewPlaylistFilesColumnWidth;
             }
 
-            int listViewStreamFilesColumnWidth =
+            var listViewStreamFilesColumnWidth =
                 listViewStreamFiles.ClientSize.Width /
                 listViewStreamFiles.Columns.Count;
 
@@ -114,7 +105,7 @@ namespace BDInfoGUI
                 column.Width = listViewStreamFilesColumnWidth;
             }
 
-            int listViewTargetFilesColumnWidth =
+            var listViewTargetFilesColumnWidth =
                 listViewTargetFiles.ClientSize.Width /
                 listViewTargetFiles.Columns.Count;
 
@@ -127,7 +118,7 @@ namespace BDInfoGUI
         public void LoadPlaylists()
         {
             string selectedPlaylistName = null;
-            int selectedStreamFileIndex = 0;
+            var selectedStreamFileIndex = 0;
             if (listViewPlaylistFiles.SelectedItems.Count > 0)
             {
                 selectedPlaylistName = listViewPlaylistFiles.SelectedItems[0].Text;
@@ -139,50 +130,38 @@ namespace BDInfoGUI
 
             listViewPlaylistFiles.Items.Clear();
 
-            if (BDROM == null) return;
+            if (_bdrom == null) return;
 
-            foreach (TSPlaylistFile playlist
-                in BDROM.PlaylistFiles.Values)
+            foreach (var playlist in _bdrom.PlaylistFiles.Values.Where(playlist => playlist.IsValid))
             {
-                if (!playlist.IsValid) continue;
-
                 if (checkBoxFilterIncompatible.Checked)
                 {
-                    bool isCompatible = true;
-                    foreach (TSStreamClip clip1 in playlist.StreamClips)
+                    var isCompatible = true;
+                    foreach (var clip1 in playlist.StreamClips)
                     {
-                        foreach (TSStreamClip clip2 in StreamClips)
+                        if (StreamClips.Any(clip2 => !clip1.IsCompatible(clip2)))
                         {
-                            if (!clip1.IsCompatible(clip2))
-                            {
-                                isCompatible = false;
-                                break;
-                            }
+                            isCompatible = false;
                         }
                     }
                     if (!isCompatible) continue;
                 }
 
-                ListViewItem.ListViewSubItem playlistName =
-                    new ListViewItem.ListViewSubItem();
-                playlistName.Text = playlist.Name;
-                playlistName.Tag = playlist.Name;
+                ListViewItem.ListViewSubItem playlistName = new()
+                {
+                    Text = playlist.Name, 
+                    Tag = playlist.Name
+                };
 
-                TimeSpan playlistLengthSpan =
-                    new TimeSpan((long)(playlist.TotalLength * 10000000));
-                ListViewItem.ListViewSubItem playlistLength =
-                    new ListViewItem.ListViewSubItem();
-                playlistLength.Text = string.Format(
-                    "{0:D2}:{1:D2}:{2:D2}",
-                    playlistLengthSpan.Hours,
-                    playlistLengthSpan.Minutes,
-                    playlistLengthSpan.Seconds);
-                playlistLength.Tag = playlist.TotalLength;
+                TimeSpan playlistLengthSpan = new((long)(playlist.TotalLength * 10000000));
+                ListViewItem.ListViewSubItem playlistLength = new()
+                {
+                    Text = $@"{playlistLengthSpan:hh\:mm\:ss}",
+                    Tag = playlist.TotalLength
+                };
 
-                ListViewItem.ListViewSubItem playlistSize =
-                    new ListViewItem.ListViewSubItem();
-                if (BDInfoSettings.EnableSSIF &&
-                    playlist.InterleavedFileSize > 0)
+                ListViewItem.ListViewSubItem playlistSize = new();
+                if (BDInfoSettings.EnableSSIF && playlist.InterleavedFileSize > 0)
                 {
                     playlistSize.Text = ToolBox.FormatFileSize(playlist.InterleavedFileSize);
                     playlistSize.Tag = playlist.InterleavedFileSize;
@@ -194,33 +173,26 @@ namespace BDInfoGUI
                 }
                 else
                 {
-                    playlistSize.Text = "-";
+                    playlistSize.Text = @"-";
                     playlistSize.Tag = playlist.FileSize;
                 }
 
-                ListViewItem.ListViewSubItem playlistSize2 =
-                    new ListViewItem.ListViewSubItem();
-                if (playlist.TotalAngleSize > 0)
+                ListViewItem.ListViewSubItem playlistSize2 = new()
                 {
-                    playlistSize2.Text = ToolBox.FormatFileSize(playlist.TotalAngleSize);
-                }
-                else
-                {
-                    playlistSize2.Text = "-";
-                }
-                playlistSize2.Tag = playlist.TotalAngleSize;
+                    Text = playlist.TotalAngleSize > 0 ? ToolBox.FormatFileSize(playlist.TotalAngleSize) : "-",
+                    Tag = playlist.TotalAngleSize
+                };
 
                 ListViewItem.ListViewSubItem[] playlistSubItems =
-                    new ListViewItem.ListViewSubItem[]
-                    {
-                        playlistName,
-                        playlistLength,
-                        playlistSize,
-                        playlistSize2
-                    };
+                {
+                    playlistName, 
+                    playlistLength, 
+                    playlistSize, 
+                    playlistSize2
+                };
 
-                ListViewItem playlistItem =
-                    new ListViewItem(playlistSubItems, 0);
+                ListViewItem playlistItem = new(playlistSubItems, 0);
+
                 listViewPlaylistFiles.Items.Add(playlistItem);
             }
 
@@ -228,60 +200,53 @@ namespace BDInfoGUI
             {
                 foreach (ListViewItem item in listViewPlaylistFiles.Items)
                 {
-                    if (item.Text == selectedPlaylistName)
+                    if (item.Text != selectedPlaylistName) continue;
+
+                    item.Selected = true;
+                    item.EnsureVisible();
+                    if (selectedStreamFileIndex < listViewStreamFiles.Items.Count)
                     {
-                        item.Selected = true;
-                        item.EnsureVisible();
-                        if (selectedStreamFileIndex < listViewStreamFiles.Items.Count)
-                        {
-                            listViewStreamFiles.Items[selectedStreamFileIndex].Selected = true;
-                            listViewStreamFiles.Items[selectedStreamFileIndex].EnsureVisible();
-                        }
-                        break;
+                        listViewStreamFiles.Items[selectedStreamFileIndex].Selected = true;
+                        listViewStreamFiles.Items[selectedStreamFileIndex].EnsureVisible();
                     }
+                    break;
                 }
             }
             else if (listViewPlaylistFiles.Items.Count > 0)
             {
-                PlaylistColumnSorter.SortColumn = 1;
-                PlaylistColumnSorter.Order = SortOrder.Descending;
+                _playlistColumnSorter.SortColumn = 1;
+                _playlistColumnSorter.Order = SortOrder.Descending;
                 listViewPlaylistFiles.Sort();
                 listViewPlaylistFiles.Items[0].Selected = true;
                 ResetColumnWidths();
             }
         }
 
-        private void LoadPlaylist(ListView listView,
-                                  List<TSStreamClip> clips)
+        private void LoadPlaylist(ListView listView, List<TSStreamClip> clips)
         {
             listView.Items.Clear();
 
-            foreach (TSStreamClip clip in clips)
+            foreach (var clip in clips)
             {
-                ListViewItem.ListViewSubItem clipName =
-                    new ListViewItem.ListViewSubItem();
-                clipName.Text = clip.Name;
-                clipName.Tag = clip.Name;
+                ListViewItem.ListViewSubItem clipName = new()
+                {
+                    Text = clip.Name,
+                    Tag = clip.Name
+                };
                 if (clip.AngleIndex > 0)
                 {
-                    clipName.Text += string.Format(
-                        " ({0})", clip.AngleIndex);
+                    clipName.Text += $@" ({clip.AngleIndex})";
                 }
 
-                TimeSpan clipLengthSpan =
-                    new TimeSpan((long)(clip.Length * 10000000));
+                TimeSpan clipLengthSpan = new((long)(clip.Length * 10000000));
 
-                ListViewItem.ListViewSubItem clipLength =
-                    new ListViewItem.ListViewSubItem();
-                clipLength.Text = string.Format(
-                    "{0:D2}:{1:D2}:{2:D2}",
-                    clipLengthSpan.Hours,
-                    clipLengthSpan.Minutes,
-                    clipLengthSpan.Seconds);
-                clipLength.Tag = clip.Length;
+                ListViewItem.ListViewSubItem clipLength = new()
+                {
+                    Text = $@"{clipLengthSpan:hh\:mm\:ss}",
+                    Tag = clip.Length
+                };
 
-                ListViewItem.ListViewSubItem clipSize =
-                    new ListViewItem.ListViewSubItem();
+                ListViewItem.ListViewSubItem clipSize = new();
                 if (BDInfoSettings.EnableSSIF &&
                     clip.InterleavedFileSize > 0)
                 {
@@ -295,33 +260,25 @@ namespace BDInfoGUI
                 }
                 else
                 {
-                    clipSize.Text = "-";
+                    clipSize.Text = @"-";
                     clipSize.Tag = clip.FileSize;
                 }
 
-                ListViewItem.ListViewSubItem clipSize2 =
-                    new ListViewItem.ListViewSubItem();
-                if (clip.PacketSize > 0)
+                ListViewItem.ListViewSubItem clipSize2 = new()
                 {
-                    clipSize2.Text = ToolBox.FormatFileSize(clip.PacketSize);
-                }
-                else
-                {
-                    clipSize2.Text = "-";
-                }
-                clipSize2.Tag = clip.PacketSize;
+                    Text = clip.PacketSize > 0 ? ToolBox.FormatFileSize(clip.PacketSize) : "-",
+                    Tag = clip.PacketSize
+                };
 
                 ListViewItem.ListViewSubItem[] streamFileSubItems =
-                    new ListViewItem.ListViewSubItem[]
-                    {
-                        clipName,
-                        clipLength,
-                        clipSize,
-                        clipSize2
-                    };
+                {
+                    clipName, 
+                    clipLength,
+                    clipSize, 
+                    clipSize2
+                };
 
-                ListViewItem streamFileItem =
-                    new ListViewItem(streamFileSubItems, 0);
+                ListViewItem streamFileItem = new(streamFileSubItems, 0);
                 listView.Items.Add(streamFileItem);
             }
 
@@ -331,17 +288,16 @@ namespace BDInfoGUI
             }
         }
 
-        private void listViewPlaylistFiles_SelectedIndexChanged(object sender,
-                                                                EventArgs e)
+        private void listViewPlaylistFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TSPlaylistFile playlist = SelectedPlaylist;
+            var playlist = SelectedPlaylist;
             if (playlist != null)
             {
                 LoadPlaylist(listViewStreamFiles, playlist.StreamClips);
             }
         }
-        private void listViewStreamFiles_SelectedIndexChanged(object sender,
-                                                              EventArgs e)
+
+        private void listViewStreamFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listViewStreamFiles.SelectedItems.Count > 0)
             {
@@ -355,19 +311,11 @@ namespace BDInfoGUI
             }
         }
 
-        private void listViewTargetFiles_SelectedIndexChanged(object sender,
-                                                              EventArgs e)
+        private void listViewTargetFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (listViewTargetFiles.SelectedItems.Count > 0)
-            {
-                buttonRemove.Enabled = true;
-            }
-            else
-            {
-                buttonRemove.Enabled = false;
-            }
+            buttonRemove.Enabled = listViewTargetFiles.SelectedItems.Count > 0;
 
-            int itemCount = listViewTargetFiles.Items.Count;
+            var itemCount = listViewTargetFiles.Items.Count;
             if (itemCount > 1 &&
                 listViewTargetFiles.SelectedItems.Count > 0 &&
                 listViewTargetFiles.SelectedIndices[0] > 0)
@@ -391,42 +339,34 @@ namespace BDInfoGUI
             }
         }
 
-        private void listViewPlaylistFiles_ColumnClick(object sender,
-                                                       ColumnClickEventArgs e)
+        private void listViewPlaylistFiles_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            if (e.Column == PlaylistColumnSorter.SortColumn)
+            if (e.Column == _playlistColumnSorter.SortColumn)
             {
-                if (PlaylistColumnSorter.Order == SortOrder.Ascending)
-                {
-                    PlaylistColumnSorter.Order = SortOrder.Descending;
-                }
-                else
-                {
-                    PlaylistColumnSorter.Order = SortOrder.Ascending;
-                }
+                _playlistColumnSorter.Order = _playlistColumnSorter.Order == SortOrder.Ascending
+                    ? SortOrder.Descending
+                    : SortOrder.Ascending;
             }
             else
             {
-                PlaylistColumnSorter.SortColumn = e.Column;
-                PlaylistColumnSorter.Order = SortOrder.Ascending;
+                _playlistColumnSorter.SortColumn = e.Column;
+                _playlistColumnSorter.Order = SortOrder.Ascending;
             }
             listViewPlaylistFiles.Sort();
         }
-        private void checkBoxFilterIncompatible_CheckedChanged(object sender,
-                                                               EventArgs e)
+        private void checkBoxFilterIncompatible_CheckedChanged(object sender, EventArgs e)
         {
             LoadPlaylists();
         }
 
-        private void buttonAdd_Click(object sender,
-                                     EventArgs e)
+        private void buttonAdd_Click(object sender, EventArgs e)
         {
             if (listViewStreamFiles.SelectedItems.Count == 0) return;
 
-            TSPlaylistFile playlist = SelectedPlaylist;
+            var playlist = SelectedPlaylist;
             if (playlist != null)
             {
-                int clipIndex = listViewStreamFiles.SelectedIndices[0];
+                var clipIndex = listViewStreamFiles.SelectedIndices[0];
                 if (clipIndex < playlist.StreamClips.Count)
                 {
                     StreamClips.Add(playlist.StreamClips[clipIndex]);
@@ -438,13 +378,12 @@ namespace BDInfoGUI
             listViewStreamFiles.Focus();
         }
 
-        private void buttonAddAll_Click(object sender,
-                                        EventArgs e)
+        private void buttonAddAll_Click(object sender, EventArgs e)
         {
-            TSPlaylistFile playlist = SelectedPlaylist;
+            var playlist = SelectedPlaylist;
             if (playlist != null)
             {
-                foreach (TSStreamClip clip in playlist.StreamClips)
+                foreach (var clip in playlist.StreamClips)
                 {
                     StreamClips.Add(clip);
                 }
@@ -454,12 +393,11 @@ namespace BDInfoGUI
             CheckOK();
         }
 
-        private void buttonRemove_Click(object sender,
-                                        EventArgs e)
+        private void buttonRemove_Click(object sender, EventArgs e)
         {
             if (listViewTargetFiles.SelectedItems.Count == 0) return;
 
-            int clipIndex = listViewTargetFiles.SelectedIndices[0];
+            var clipIndex = listViewTargetFiles.SelectedIndices[0];
             if (clipIndex < StreamClips.Count)
             {
                 StreamClips.RemoveAt(clipIndex);
@@ -469,55 +407,46 @@ namespace BDInfoGUI
             CheckOK();
         }
 
-        private void buttonUp_Click(object sender,
-                                    EventArgs e)
+        private void buttonUp_Click(object sender, EventArgs e)
         {
             if (listViewTargetFiles.SelectedItems.Count == 0) return;
 
-            int selectedIndex = listViewTargetFiles.SelectedIndices[0];
-            if (selectedIndex > 0 && selectedIndex < StreamClips.Count)
-            {
-                TSStreamClip temp = StreamClips[selectedIndex - 1];
-                StreamClips[selectedIndex - 1] = StreamClips[selectedIndex];
-                StreamClips[selectedIndex] = temp;
-                LoadPlaylist(listViewTargetFiles, StreamClips);
-                listViewTargetFiles.Items[selectedIndex - 1].Selected = true;
-            }
+            var selectedIndex = listViewTargetFiles.SelectedIndices[0];
+            if (selectedIndex <= 0 || selectedIndex >= StreamClips.Count) return;
+
+            (StreamClips[selectedIndex - 1], StreamClips[selectedIndex]) = (StreamClips[selectedIndex], StreamClips[selectedIndex - 1]);
+
+            LoadPlaylist(listViewTargetFiles, StreamClips);
+            listViewTargetFiles.Items[selectedIndex - 1].Selected = true;
         }
 
-        private void buttonDown_Click(object sender,
-                                      EventArgs e)
+        private void buttonDown_Click(object sender, EventArgs e)
         {
             if (listViewTargetFiles.SelectedItems.Count == 0) return;
 
-            int selectedIndex = listViewTargetFiles.SelectedIndices[0];
-            if (selectedIndex < listViewTargetFiles.Items.Count - 1 
-                && selectedIndex < StreamClips.Count - 1)
-            {
-                TSStreamClip temp = StreamClips[selectedIndex + 1];
-                StreamClips[selectedIndex + 1] = StreamClips[selectedIndex];
-                StreamClips[selectedIndex] = temp;
-                LoadPlaylist(listViewTargetFiles, StreamClips);
-                listViewTargetFiles.Items[selectedIndex + 1].Selected = true;
-            }
+            var selectedIndex = listViewTargetFiles.SelectedIndices[0];
+            if (selectedIndex >= listViewTargetFiles.Items.Count - 1
+                || selectedIndex >= StreamClips.Count - 1) return;
+
+            (StreamClips[selectedIndex + 1], StreamClips[selectedIndex]) = (StreamClips[selectedIndex], StreamClips[selectedIndex + 1]);
+
+            LoadPlaylist(listViewTargetFiles, StreamClips);
+            listViewTargetFiles.Items[selectedIndex + 1].Selected = true;
         }
 
-        private void buttonOK_Click(object sender,
-                                    EventArgs e)
+        private void buttonOK_Click(object sender, EventArgs e)
         {            
             DialogResult = DialogResult.OK;
 
-            TSPlaylistFile playlist = 
-                new TSPlaylistFile(BDROM, textBoxName.Text, StreamClips);
+            TSPlaylistFile playlist = new(_bdrom, textBoxName.Text, StreamClips);
 
-            BDROM.PlaylistFiles[playlist.Name] = playlist;
+            _bdrom.PlaylistFiles[playlist.Name] = playlist;
 
-            OnFinished();
+            _onFinished();
             Close();
         }
 
-        private void buttonCancel_Click(object sender,
-                                        EventArgs e)
+        private void buttonCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();

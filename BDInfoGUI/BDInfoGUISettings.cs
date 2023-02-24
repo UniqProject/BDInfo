@@ -21,7 +21,7 @@ using System.Drawing;
 
 namespace BDInfoGUI
 {
-    class BDInfoGUISettings
+    internal class BDInfoGuiSettings
     {
         public static bool SizeFormatHR
         {
@@ -34,7 +34,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.SizeFormatHR = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -49,7 +52,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.GenerateStreamDiagnostics = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -63,7 +69,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.DisplayChapterCount = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -78,7 +87,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.AutosaveReport = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -93,7 +105,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.UseImagePrefix = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -108,7 +123,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.UseImagePrefixValue = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -123,7 +141,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.GenerateTextSummary = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -138,7 +159,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.LastPath = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -153,7 +177,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.WindowState = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -168,7 +195,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.WindowSize = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -183,7 +213,10 @@ namespace BDInfoGUI
             set
             {
                 try { Properties.Settings.Default.WindowLocation = value; }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
 
@@ -193,7 +226,10 @@ namespace BDInfoGUI
             {
                 Properties.Settings.Default.Save();
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

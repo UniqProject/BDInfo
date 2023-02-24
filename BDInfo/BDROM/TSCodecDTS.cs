@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //=============================================================================
 
-namespace BDInfo
+namespace BDInfoLib.BDROM
 {
     public abstract class TSCodecDTS
     {
@@ -42,71 +42,66 @@ namespace BDInfo
             16, 16, 20, 20, 0, 24, 24
         };
 
-        public static void Scan(
-            TSAudioStream stream,
-            TSStreamBuffer buffer,
-            long bitrate,
-            ref string tag)
+        public static void Scan(TSAudioStream stream, TSStreamBuffer buffer, long bitrate, ref string tag)
         {
             if (stream.IsInitialized) return;
 
-            bool syncFound = false;
+            var syncFound = false;
             uint sync = 0;
-            for (int i = 0; i < buffer.Length; i++)
+            for (var i = 0; i < buffer.Length; i++)
             {
                 sync = (sync << 8) + buffer.ReadByte();
-                if (sync == 0x7FFE8001)
-                {
-                    syncFound = true;
-                    break;
-                }
+                if (sync != 0x7FFE8001) continue;
+
+                syncFound = true;
+                break;
             }
             if (!syncFound) return;
 
             buffer.BSSkipBits(6);
-            uint crcPresent = buffer.ReadBits4(1);
+            var crcPresent = buffer.ReadBits4(1);
             buffer.BSSkipBits(7);
-            uint frameSize = buffer.ReadBits4(14);
+            var frameSize = buffer.ReadBits4(14);
             if (frameSize < 95)
             {
                 return;
             }
             buffer.BSSkipBits(6);
-            uint sampleRate = buffer.ReadBits4(4);
+            var sampleRate = buffer.ReadBits4(4);
             if (sampleRate >= DcaSampleRates.Length)
             {
                 return;
             }
-            uint bitRate = buffer.ReadBits4(5);
+            var bitRate = buffer.ReadBits4(5);
             if (bitRate >= DcaBitRates.Length)
             {
                 return;
             }
             buffer.BSSkipBits(8);
-            uint extCoding = buffer.ReadBits4(1);
+            var extCoding = buffer.ReadBits4(1);
             buffer.BSSkipBits(1);
-            uint lfe = buffer.ReadBits4(2);
+            var lfe = buffer.ReadBits4(2);
             buffer.BSSkipBits(1);
             if (crcPresent == 1)
             {
                 buffer.BSSkipBits(16);
             }
             buffer.BSSkipBits(7);
-            uint sourcePcmRes = buffer.ReadBits4(3);
+            var sourcePcmRes = buffer.ReadBits4(3);
             buffer.BSSkipBits(2);
-            uint dialogNorm = buffer.ReadBits4(4);
+            var dialogNorm = buffer.ReadBits4(4);
             if (sourcePcmRes >= DcaBitsPerSample.Length)
             {
                 return;
             }
             buffer.BSSkipBits(4);
-            uint totalChannels = buffer.ReadBits4(3) + 1 + extCoding;
+            var totalChannels = buffer.ReadBits4(3) + 1 + extCoding;
 
             stream.SampleRate = DcaSampleRates[sampleRate];
-            stream.ChannelCount = (int) totalChannels;
-            stream.LFE = (lfe > 0 ? 1 : 0);
+            stream.ChannelCount = (int)totalChannels;
+            stream.LFE = lfe > 0 ? 1 : 0;
             stream.BitDepth = DcaBitsPerSample[sourcePcmRes];
-            stream.DialNorm = (int) -dialogNorm;
+            stream.DialNorm = (int)-dialogNorm;
             if ((sourcePcmRes & 0x1) == 0x1)
             {
                 stream.AudioMode = TSAudioMode.Extended;
@@ -133,7 +128,7 @@ namespace BDInfo
                     stream.IsVBR = true;
                     stream.IsInitialized = true;
                     break;
-                
+
                 default:
                     stream.IsVBR = false;
                     stream.IsInitialized = true;

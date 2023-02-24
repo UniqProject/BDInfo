@@ -18,23 +18,21 @@
 //=============================================================================
 
 using System;
-using System.Globalization;
 
-namespace SampleCopy
+namespace SampleCopy;
+
+public class ToolBox
 {
-    public class ToolBox
+    public static string FormatFileSize(double fSize,
+        bool formatHR = false)
     {
-        public static string FormatFileSize(double fSize,
-                                            bool formatHR = false)
-        {
-            if (fSize <= 0) return "0";
-            var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+        if (fSize <= 0) return "0";
+        var units = new[] { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
 
-            var digitGroups = 0;
-            if (formatHR)
-                digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
+        var digitGroups = 0;
+        if (formatHR)
+            digitGroups = (int)(Math.Log10(fSize) / Math.Log10(1024));
 
-            return string.Format(CultureInfo.InvariantCulture, "{0:N2} {1}", fSize / Math.Pow(1024, digitGroups), units[digitGroups]);
-        }
+        return FormattableString.Invariant($"{fSize / Math.Pow(1024, digitGroups):N2} {units[digitGroups]}");
     }
 }

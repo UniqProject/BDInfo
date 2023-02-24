@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <ApplicationIcon>Resources\toma4025-rumax-bluray-disc.ico</ApplicationIcon>
+        <Configurations>Debug;Release;Beta</Configurations>
+
+        <RootNamespace>BDInfoLib</RootNamespace>
+        <PackageId>BDInfoLib</PackageId>
+        <Product>BDInfo</Product>
+        <FileVersion>0.8.0.0</FileVersion>
+        <AssemblyVersion>0.8.0.0</AssemblyVersion>
+        <Description>Blu-ray Video and Audio Specifications Collection Tool</Description>
+        <Company>Cinema Squid &amp; UniqProject</Company>
+        <Authors>Cinema Squid &amp; UniqProject</Authors>
+        <Copyright>Copyright © Cinema Squid 2011 &amp; UniqProject 2017-2023</Copyright>
+        <NeutralLanguage>en</NeutralLanguage>
+        <AssemblyName>BDInfoLib</AssemblyName>
+        <Platforms>x64;ARM64;AnyCPU</Platforms>
+        <GenerateDocumentationFile>False</GenerateDocumentationFile>
+        <IncludeSymbols>True</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+
+        <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
+        <ApplicationIdGuid>a8ed36f5-c90b-4c9a-ab81-0e6e89035c00</ApplicationIdGuid>
+        <Title>BDInfoLib</Title>
+        <Version>0.8.0</Version>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/UniqProject/BDInfo</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="Resources\toma4025-rumax-bluray-disc.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DiscUtils.Udf" Version="0.16.13" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+        <PackageReference Include="System.IO.IsolatedStorage" Version="4.3.0" />
+    </ItemGroup>
+
+</Project>
