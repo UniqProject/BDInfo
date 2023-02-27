@@ -356,13 +356,12 @@ public partial class MainForm : Form
 
     protected bool BDROM_PlaylistFileScanError(TSPlaylistFile playlistFile, Exception ex)
     {
-        var result = MessageBox.Show($"""
-            An error occurred while scanning the playlist file {playlistFile.Name}.
-            
-            The disc may be copy-protected or damaged.
-            
-            Do you want to continue scanning the playlist files?
-            """,
+        var result = MessageBox.Show(
+            $"An error occurred while scanning the playlist file {playlistFile.Name}.\r\n" +
+            $"\r\n" +
+            $"The disc may be copy-protected or damaged.\r\n" +
+            $"\r\n" +
+            $"Do you want to continue scanning the playlist files?",
             @"BDInfo Scan Error", MessageBoxButtons.YesNo);
 
         return result == DialogResult.Yes;
@@ -371,13 +370,12 @@ public partial class MainForm : Form
     protected bool BDROM_StreamFileScanError(TSStreamFile streamFile,
         Exception ex)
     {
-        var result = MessageBox.Show($"""
-            An error occurred while scanning the stream file {streamFile.Name}.
-            
-            The disc may be copy-protected or damaged.
-            
-            Do you want to continue scanning the stream files?
-            """,
+        var result = MessageBox.Show(
+            $"An error occurred while scanning the stream file {streamFile.Name}.\r\n" +
+            $"\r\n" +
+            $"The disc may be copy-protected or damaged.\r\n" +
+            $"\r\n" +
+            $"Do you want to continue scanning the stream files?",
             @"BDInfo Scan Error", MessageBoxButtons.YesNo);
 
         return result == DialogResult.Yes;
@@ -386,13 +384,12 @@ public partial class MainForm : Form
     protected bool BDROM_StreamClipFileScanError(TSStreamClipFile streamClipFile,
         Exception ex)
     {
-        var result = MessageBox.Show($"""
-            An error occurred while scanning the stream clip file {streamClipFile.Name}.
-            
-            The disc may be copy-protected or damaged.
-            
-            Do you want to continue scanning the stream clip files?
-            """,
+        var result = MessageBox.Show(
+            $"An error occurred while scanning the stream clip file {streamClipFile.Name}.\r\n" +
+            $"\r\n" +
+            $"The disc may be copy-protected or damaged.\r\n" +
+            $"\r\n" +
+            $"Do you want to continue scanning the stream clip files?",
             @"BDInfo Scan Error", MessageBoxButtons.YesNo);
 
         return result == DialogResult.Yes;
