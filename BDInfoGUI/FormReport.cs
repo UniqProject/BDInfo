@@ -101,29 +101,23 @@ public partial class FormReport : Form
         report += $"{"BDInfo:",-16}{Application.ProductVersion}\r\n";
 #endif
 
-        report += $"""
-
-            {"Notes:",-16}  
-
-            BDINFO HOME:
-              Cinema Squid (old)
-                http://www.cinemasquid.com/blu-ray/tools/bdinfo
-              UniqProject GitHub (new)
-                https://github.com/UniqProject/BDInfo
-
-            INCLUDES FORUMS REPORT FOR:
-              AVS Forum Blu-ray Audio and Video Specifications Thread
-                http://www.avsforum.com/avs-vb/showthread.php?t=1155731
-
-
-            """;
+        report += $"\r\n" +
+                  $"{"Notes:",-16}\r\n" +
+                  $"\r\n" +
+                  $"BDINFO HOME:\r\n" +
+                  $"  Cinema Squid (old)\r\n" +
+                  $"    http://www.cinemasquid.com/blu-ray/tools/bdinfo\r\n" +
+                  $"  UniqProject GitHub (new)\r\n" +
+                  $"    https://github.com/UniqProject/BDInfo\r\n" +
+                  $"\r\n" +
+                  $"INCLUDES FORUMS REPORT FOR:\r\n" +
+                  $"  AVS Forum Blu-ray Audio and Video Specifications Thread\r\n" +
+                  $"    http://www.avsforum.com/avs-vb/showthread.php?t=1155731\r\n" +
+                  $"\r\n";
 
         if (scanResult.ScanException != null)
         {
-            report += $"""
-                WARNING: Report is incomplete because: {scanResult.ScanException.Message}
-
-                """;
+            report += $"WARNING: Report is incomplete because: {scanResult.ScanException.Message}\r\n";
         }
         if (scanResult.FileExceptions.Count > 0)
         {
@@ -131,12 +125,9 @@ public partial class FormReport : Form
             foreach (var fileName in scanResult.FileExceptions.Keys)
             {
                 var fileException = scanResult.FileExceptions[fileName];
-                report += $"""
-                    
-                    {fileName}	{fileException.Message}
-                    {fileException.StackTrace}
-
-                    """;
+                report += $"\r\n" +
+                          $"{fileName}\t{fileException.Message}\r\n" +
+                          $"{fileException.StackTrace}\r\n";
             }
         }            
 
@@ -277,37 +268,28 @@ public partial class FormReport : Form
                 }
             }
 
-            report += $"""
-
-                "********************\
-                PLAYLIST: {playlist.Name}
-                "********************\
-
-                <--- BEGIN FORUMS PASTE --->
-                [code]
-                {"     ",-64}{"      "  ,-8}{"       "       ,-8}{"              ",-16}{"                ",-18}{"Total      "         ,-13}{"Video      "         ,-13}{"                  ",-42}{"                     ",-25}
-                {"Title",-64}{"Codec "  ,-8}{"Length "       ,-8}{"Movie Size    ",-16}{"Disc Size       ",-18}{"Bitrate    "         ,-13}{"Bitrate    "         ,-13}{"Main Audio Track  ",-42}{"Secondary Audio Track",-25}
-                {"-----",-64}{"------"  ,-8}{"-------"       ,-8}{"--------------",-16}{"----------------",-18}{"-----------"         ,-13}{"-----------"         ,-13}{"------------------",-42}{"---------------------",-25}
-                {title  ,-64}{videoCodec,-8}{totalLengthShort,-8}{totalSize       ,-16}{discSize          ,-18}{totalBitrate + " Mbps",-13}{videoBitrate + " Mbps",-13}{audio1              ,-42}{audio2                 ,-25}
-                [/code]
-                
-                [code]
-                DISC INFO:
-                
-                """;
+            report += $"\r\n" +
+                      $"\"********************\\\r\n" +
+                      $"PLAYLIST: {playlist.Name}\r\n" +
+                      $"\"********************\\\r\n" +
+                      $"\r\n" +
+                      $"<--- BEGIN FORUMS PASTE --->\r\n" +
+                      $"[code]\r\n" +
+                      $"{" ",-64}{" ",-8}{" ",-8}{" ",-16}{" ",-18}{"Total",-13}{"Video",-13}{" ",-42}{" ",-25}\r\n" +
+                      $"{"Title",-64}{"Codec",-8}{"Length",-8}{"Movie Size",-16}{"Disc Size",-18}{"Bitrate",-13}{"Bitrate",-13}{"Main Audio Track",-42}{"Secondary Audio Track",-25}\r\n" +
+                      $"{"-----",-64}{"------",-8}{"-------",-8}{"--------------",-16}{"----------------",-18}{"-----------",-13}{"-----------",-13}{"------------------",-42}{"---------------------",-25}\r\n" +
+                      $"{title,-64}{videoCodec,-8}{totalLengthShort,-8}{totalSize,-16}{discSize,-18}{totalBitrate + " Mbps",-13}{videoBitrate + " Mbps",-13}{audio1,-42}{audio2,-25}\r\n" +
+                      $"[/code]\r\n" +
+                      $"\r\n" +
+                      $"[code]\r\n" +
+                      $"DISC INFO:\r\n";
 
             if (!string.IsNullOrEmpty(bdrom.DiscTitle))
-                report += $"""
-                    {"Disc Title:",-16}{bdrom.DiscTitle}
+                report += $"{"Disc Title:",-16}{bdrom.DiscTitle}\r\n";
 
-                    """;
-
-            report += $"""
-                {"Disc Label:",-16}{bdrom.VolumeLabel}
-                {"Disc Size:",-16}{bdrom.Size:N0} bytes
-                {"Protection:",-16}{protection}
-                
-                """;
+            report += $"{"Disc Label:",-16}{bdrom.VolumeLabel}\r\n" +
+                      $"{"Disc Size:",-16}{bdrom.Size:N0} bytes\r\n" +
+                      $"{"Protection:",-16}{protection}\r\n";
 
             if (extraFeatures.Count > 0)
             {
@@ -319,35 +301,27 @@ public partial class FormReport : Form
             report += $"{"BDInfo:",-16}{Application.ProductVersion}\r\n";
 #endif
 
-            report += $"""
-
-                PLAYLIST REPORT:
-                
-                {"Name:",-16}{title}
-                {"Length:",-16}{totalLength} (h:m:s.ms)
-                {"Size:",-16}{totalSize} bytes
-                {"Total Bitrate:",-16}{totalBitrate} Mbps
-                
-                """;
+            report += $"\r\n" +
+                      $"PLAYLIST REPORT:\r\n" +
+                      $"\r\n" +
+                      $"{"Name:",-16}{title}\r\n" +
+                      $"{"Length:",-16}{totalLength} (h:m:s.ms)\r\n" +
+                      $"{"Size:",-16}{totalSize} bytes\r\n" +
+                      $"{"Total Bitrate:",-16}{totalBitrate} Mbps\r\n";
 
             if (playlist.AngleCount > 0)
             {
                 for (var angleIndex = 0; angleIndex < playlist.AngleCount; angleIndex++)
                 {
-                    report += $"""
-                        {$"Angle {angleIndex + 1} Length:",-24}{angleLengths[angleIndex]} (h:mm:ss.ms) / {angleTotalLengths[angleIndex]} (h:mm:ss.ms)
-                        {$"Angle {angleIndex + 1} Size:",-24}{angleSizes[angleIndex]} bytes / {angleTotalSizes[angleIndex]} bytes
-                        {$"Angle {angleIndex + 1} Total Bitrate:",-24}{angleBitrates[angleIndex]} Mbps / {angleTotalBitrates[angleIndex]} Mbps
-                        """;
+                    report += $"{$"Angle {angleIndex + 1} Length:",-24}{angleLengths[angleIndex]} (h:mm:ss.ms) / {angleTotalLengths[angleIndex]} (h:mm:ss.ms)\r\n" +
+                              $"{$"Angle {angleIndex + 1} Size:",-24}{angleSizes[angleIndex]} bytes / {angleTotalSizes[angleIndex]} bytes\r\n" +
+                              $"{$"Angle {angleIndex + 1} Total Bitrate:",-24}{angleBitrates[angleIndex]} Mbps / {angleTotalBitrates[angleIndex]} Mbps";
                 }
 
-                report += $"""
-                    
-                    {"All Angles Length:",-24}{totalAngleLength} (h:m:s.ms)
-                    {"All Angles Size:",-24}{totalAngleSize} bytes
-                    {"All Angles Bitrate:",-24}{totalAngleBitrate} Mbps
-                    
-                    """;
+                report += $"\r\n" +
+                          $"{"All Angles Length:",-24}{totalAngleLength} (h:m:s.ms)\r\n" +
+                          $"{"All Angles Size:",-24}{totalAngleSize} bytes\r\n" +
+                          $"{"All Angles Bitrate:",-24}{totalAngleBitrate} Mbps\r\n";
             }
             
             //report += $"{"Description:",-24}{""}\r\n";
@@ -355,16 +329,13 @@ public partial class FormReport : Form
             if (!string.IsNullOrEmpty(bdrom.DiscTitle))
                 summary += $"{"Disc Title:",-16}{bdrom.DiscTitle}\r\n";
 
-            summary += $"""
-                {"Disc Label:",-16}{bdrom.VolumeLabel}
-                {"Disc Size:",-16}{bdrom.Size:N0} bytes
-                {"Protection:",-16}{protection}
-                {"Playlist:",-16}{title}
-                {"Size:",-16}{totalSize} bytes
-                {"Length:",-16}{totalLength}
-                {"Total Bitrate:",-16}{totalBitrate} Mbps
-                
-                """;
+            summary += $"{"Disc Label:",-16}{bdrom.VolumeLabel}\r\n" +
+                       $"{"Disc Size:",-16}{bdrom.Size:N0} bytes\r\n" +
+                       $"{"Protection:",-16}{protection}\r\n" +
+                       $"{"Playlist:",-16}{title}\r\n" +
+                       $"{"Size:",-16}{totalSize} bytes\r\n" +
+                       $"{"Length:",-16}{totalLength}\r\n" +
+                       $"{"Total Bitrate:",-16}{totalBitrate} Mbps\r\n";
 
             if (playlist.HasHiddenTracks)
             {
@@ -373,14 +344,11 @@ public partial class FormReport : Form
 
             if (playlist.VideoStreams.Count > 0)
             {
-                report += $"""
-                    
-                    VIDEO:
-                    
-                    {"Codec",-24}{"Bitrate",-20}{"Description",-16}
-                    {"---------------",-24}{"-------------",-20}{"-----------",-16}
-                    
-                    """;
+                report += $"\r\n" +
+                          $"VIDEO:\r\n" +
+                          $"\r\n" +
+                          $"{"Codec",-24}{"Bitrate",-20}{"Description",-16}\r\n" +
+                          $"{"---------------",-24}{"-------------",-20}{"-----------",-16}\r\n";
 
                 foreach (var stream in playlist.SortedStreams)
                 {
@@ -407,14 +375,11 @@ public partial class FormReport : Form
 
             if (playlist.AudioStreams.Count > 0)
             {
-                report += $"""
-                    
-                    AUDIO:
-                    
-                    {"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}
-                    {"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}
-                    
-                    """;
+                report += $"\r\n" +
+                          $"AUDIO:\r\n" +
+                          $"\r\n" +
+                          $"{"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}\r\n" +
+                          $"{"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}\r\n";
 
                 foreach (var stream in playlist.SortedStreams)
                 {
@@ -430,14 +395,11 @@ public partial class FormReport : Form
 
             if (playlist.GraphicsStreams.Count > 0)
             {
-                report += $"""
-                    
-                    SUBTITLES:
-                    
-                    {"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}
-                    {"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}
-                    
-                    """;
+                report += $"\r\n" +
+                          $"SUBTITLES:\r\n" +
+                          $"\r\n" +
+                          $"{"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}\r\n" +
+                          $"{"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}\r\n";
 
                 foreach (var stream in playlist.SortedStreams)
                 {
@@ -453,14 +415,11 @@ public partial class FormReport : Form
 
             if (playlist.TextStreams.Count > 0)
             {
-                report += $"""
-                    
-                    TEXT:
-                    
-                    {"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}
-                    {"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}
-                    
-                    """;
+                report += $"\r\n" +
+                          $"TEXT:\r\n" +
+                          $"\r\n" +
+                          $"{"Codec",-32}{"Language",-16}{"Bitrate",-16}{"Description",-16}\r\n" +
+                          $"{"---------------",-32}{"-------------",-16}{"-------------",-16}{"-----------",-16}\r\n";
 
                 foreach (var stream in playlist.SortedStreams)
                 {
@@ -472,14 +431,11 @@ public partial class FormReport : Form
                 }
             }
 
-            report += $"""
-                
-                FILES:
-                
-                {"Name",-16}{"Time In",-16}{"Length",-16}{"Size",-16}{"Total Bitrate",-16}
-                {"---------------",-16}{"-------------",-16}{"-------------",-16}{"-------------",-16}{"-------------",-16}
-                
-                """;
+            report += $"\r\n" +
+                      $"FILES:\r\n" +
+                      $"\r\n" +
+                      $"{"Name",-16}{"Time In",-16}{"Length",-16}{"Size",-16}{"Total Bitrate",-16}\r\n" +
+                      $"{"---------------",-16}{"-------------",-16}{"-------------",-16}{"-------------",-16}{"-------------",-16}\r\n";
             
             foreach (var clip in playlist.StreamClips)
             {
@@ -503,12 +459,9 @@ public partial class FormReport : Form
                 report += $"{clipName,-16}{clipTimeIn,-16}{clipLength,-16}{clipSize,-16}{clipBitrate,-16}\r\n";
             }
 
-            report += """
-                
-                CHAPTERS:
-                
-
-                """;
+            report += "\r\n" +
+                      "CHAPTERS:\r\n" +
+                      "\r\n";
 
             report += $"{"Number",-16}{"Time In",-16}{"Length",-16}{"Avg Video Rate",-16}{"Max 1-Sec Rate",-16}{"Max 1-Sec Time",-16}{"Max 5-Sec Rate",-16}" +
                       $"{"Max 5-Sec Time",-16}{"Max 10Sec Rate",-16}{"Max 10Sec Time",-16}{"Avg Frame Size",-16}{"Max Frame Size",-16}{"Max Frame Time",-16}\r\n";
@@ -731,14 +684,11 @@ public partial class FormReport : Form
 
             if (BDInfoGuiSettings.GenerateStreamDiagnostics)
             {           
-                report += $"""
-                    
-                    STREAM DIAGNOSTICS:
-                    
-                    {"File",-16}{"PID",-16}{"Type",-16}{"Codec",-16}{"Language",-24}{"Seconds",-24}{$"{"Bitrate",11}",-24}{$"{"Bytes",10}",-16}{$"{"Packets",9}",-16}
-                    {"----------",-16}{"-------------",-16}{"-----",-16}{"----------",-16}{"-------------",-24}{"--------------",-24}{"---------------",-24}{"--------------",-16}{"-----------",-16}
-                    
-                    """;
+                report += $"\r\n" +
+                          $"STREAM DIAGNOSTICS:\r\n" +
+                          $"\r\n" +
+                          $"{"File",-16}{"PID",-16}{"Type",-16}{"Codec",-16}{"Language",-24}{"Seconds",-24}{$"{"Bitrate",11}",-24}{$"{"Bytes",10}",-16}{$"{"Packets",9}",-16}\r\n" +
+                          $"{"----------",-16}{"-------------",-16}{"-----",-16}{"----------",-16}{"-------------",-24}{"--------------",-24}{"---------------",-24}{"--------------",-16}{"-----------",-16}\r\n";
 
                 Dictionary<string, TSStreamClip> reportedClips = new();
                 foreach (var clip in playlist.StreamClips
@@ -780,22 +730,16 @@ public partial class FormReport : Form
                 }
             }
 
-            report += """
-                
-                [/code]
-                <---- END FORUMS PASTE ---->
-                
-                
-                """;
+            report += "\r\n" +
+                      "[/code]\r\n" +
+                      "<---- END FORUMS PASTE ---->\r\n" +
+                      "\r\n";
 
             if (BDInfoGuiSettings.GenerateTextSummary)
             {
-                report += $"""
-                    QUICK SUMMARY:
-                    
-                    {summary}
-                    
-                    """;
+                report += $"QUICK SUMMARY:\r\n" +
+                          $"\r\n" +
+                          $"{summary}\r\n";
             }
 
             if (BDInfoGuiSettings.AutosaveReport && reportFile != null)
