@@ -37,7 +37,7 @@ static class Program
 
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-        BDInfoLib.BDInfoSettings.Load();
+        BDInfoLib.BDInfoLibSettings.Load();
 
 #if NETCOREAPP3_1_OR_GREATER
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);

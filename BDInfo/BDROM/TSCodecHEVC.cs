@@ -673,7 +673,7 @@ public abstract class TSCodecHEVC
                             chromaFormat = "4:4:4";
                             break;
                     }
-                    if (chromaFormat != string.Empty && BDInfoSettings.ExtendedStreamDiagnostics)
+                    if (chromaFormat != string.Empty && BDInfoLibSettings.ExtendedStreamDiagnostics)
                         _extendedFormatInfo!.Add(chromaFormat);
                 }
 
@@ -698,13 +698,13 @@ public abstract class TSCodecHEVC
 
                 if (seqParameterSet.VUIParameters.VideoSignalTypePresentFlag)
                 {
-                    if (BDInfoSettings.ExtendedStreamDiagnostics)
+                    if (BDInfoLibSettings.ExtendedStreamDiagnostics)
                         _extendedFormatInfo!.Add(seqParameterSet.VUIParameters.VideoFullRangeFlag == 1 ? "Full Range" : "Limited Range");
 
                     if (seqParameterSet.VUIParameters.ColourDescriptionPresentFlag)
                     {
                         _extendedFormatInfo!.Add(ColourPrimaries(seqParameterSet.VUIParameters.ColourPrimaries));
-                        if (BDInfoSettings.ExtendedStreamDiagnostics)
+                        if (BDInfoLibSettings.ExtendedStreamDiagnostics)
                         {
                             _extendedFormatInfo.Add(TransferCharacteristics(seqParameterSet.VUIParameters.TransferCharacteristics));
                             _extendedFormatInfo.Add(MatrixCoefficients(seqParameterSet.VUIParameters.MatrixCoefficients));
@@ -715,7 +715,7 @@ public abstract class TSCodecHEVC
             }
         }
 
-        if (BDInfoSettings.ExtendedStreamDiagnostics && !stream.IsInitialized)
+        if (BDInfoLibSettings.ExtendedStreamDiagnostics && !stream.IsInitialized)
         {
             if (_masteringDisplayColorPrimaries != string.Empty)
             {

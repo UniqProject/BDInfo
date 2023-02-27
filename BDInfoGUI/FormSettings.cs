@@ -29,7 +29,7 @@ public partial class FormSettings : Form
     {
         InitializeComponent();
 
-        BDInfoSettings.Load();
+        BDInfoLibSettings.Load();
 
         checkBoxSizeFormatHR.Checked = BDInfoGuiSettings.SizeFormatHR;
         checkBoxAutosaveReport.Checked = BDInfoGuiSettings.AutosaveReport;
@@ -39,12 +39,12 @@ public partial class FormSettings : Form
         textBoxUseImagePrefixValue.Text = BDInfoGuiSettings.UseImagePrefixValue;
         checkBoxDisplayChapterCount.Checked = BDInfoGuiSettings.DisplayChapterCount;
 
-        checkBoxExtendedStreamDiagnostics.Checked = BDInfoSettings.ExtendedStreamDiagnostics;
-        checkBoxFilterLoopingPlaylists.Checked = BDInfoSettings.FilterLoopingPlaylists;
-        checkBoxFilterShortPlaylists.Checked = BDInfoSettings.FilterShortPlaylists;
-        textBoxFilterShortPlaylistsValue.Text = BDInfoSettings.FilterShortPlaylistsValue.ToString();
-        checkBoxKeepStreamOrder.Checked = BDInfoSettings.KeepStreamOrder;
-        checkBoxEnableSSIF.Checked = BDInfoSettings.EnableSSIF;
+        checkBoxExtendedStreamDiagnostics.Checked = BDInfoLibSettings.ExtendedStreamDiagnostics;
+        checkBoxFilterLoopingPlaylists.Checked = BDInfoLibSettings.FilterLoopingPlaylists;
+        checkBoxFilterShortPlaylists.Checked = BDInfoLibSettings.FilterShortPlaylists;
+        textBoxFilterShortPlaylistsValue.Text = BDInfoLibSettings.FilterShortPlaylistsValue.ToString();
+        checkBoxKeepStreamOrder.Checked = BDInfoLibSettings.KeepStreamOrder;
+        checkBoxEnableSSIF.Checked = BDInfoLibSettings.EnableSSIF;
     }
 
     private void buttonOK_Click(object sender, EventArgs e)
@@ -57,17 +57,17 @@ public partial class FormSettings : Form
         BDInfoGuiSettings.UseImagePrefixValue = textBoxUseImagePrefixValue.Text;
         BDInfoGuiSettings.DisplayChapterCount = checkBoxDisplayChapterCount.Checked;
 
-        BDInfoSettings.ExtendedStreamDiagnostics = checkBoxExtendedStreamDiagnostics.Checked;
-        BDInfoSettings.FilterLoopingPlaylists = checkBoxFilterLoopingPlaylists.Checked;
-        BDInfoSettings.FilterShortPlaylists = checkBoxFilterShortPlaylists.Checked;
-        BDInfoSettings.KeepStreamOrder = checkBoxKeepStreamOrder.Checked;
-        BDInfoSettings.EnableSSIF = checkBoxEnableSSIF.Checked;
+        BDInfoLibSettings.ExtendedStreamDiagnostics = checkBoxExtendedStreamDiagnostics.Checked;
+        BDInfoLibSettings.FilterLoopingPlaylists = checkBoxFilterLoopingPlaylists.Checked;
+        BDInfoLibSettings.FilterShortPlaylists = checkBoxFilterShortPlaylists.Checked;
+        BDInfoLibSettings.KeepStreamOrder = checkBoxKeepStreamOrder.Checked;
+        BDInfoLibSettings.EnableSSIF = checkBoxEnableSSIF.Checked;
 
         if (int.TryParse(textBoxFilterShortPlaylistsValue.Text, out var filterShortPlaylistsValue))
         {
-            BDInfoSettings.FilterShortPlaylistsValue = filterShortPlaylistsValue;
+            BDInfoLibSettings.FilterShortPlaylistsValue = filterShortPlaylistsValue;
         }
-        BDInfoSettings.Save();
+        BDInfoLibSettings.Save();
         BDInfoGuiSettings.SaveSettings();
         Close();
     }

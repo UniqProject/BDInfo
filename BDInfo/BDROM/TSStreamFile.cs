@@ -179,7 +179,7 @@ public class TSStreamFile
     {
         get
         {
-            if (BDInfoSettings.EnableSSIF &&
+            if (BDInfoLibSettings.EnableSSIF &&
                 InterleavedFile != null)
             {
                 return InterleavedFile.Name;
@@ -442,7 +442,7 @@ public class TSStreamFile
         Stream fileStream = null;
         try
         {
-            if (BDInfoSettings.EnableSSIF && InterleavedFile != null)
+            if (BDInfoLibSettings.EnableSSIF && InterleavedFile != null)
             {
                 if (InterleavedFile.FileInfo != null)
                     fileStream = InterleavedFile.FileInfo.OpenRead();

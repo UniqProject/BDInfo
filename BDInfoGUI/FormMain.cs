@@ -169,7 +169,7 @@ namespace BDInfoGUI
             }
 
 
-            BDInfoSettings.Save();
+            BDInfoLibSettings.Save();
             BDInfoGuiSettings.SaveSettings();
 
             if (_initBDROMWorker is { IsBusy: true })
@@ -621,7 +621,7 @@ namespace BDInfoGUI
                     };
 
                     ListViewItem.ListViewSubItem playlistSize = new();
-                    if (BDInfoSettings.EnableSSIF &&
+                    if (BDInfoLibSettings.EnableSSIF &&
                         playlist.InterleavedFileSize > 0)
                     {
                         playlistSize.Text = ToolBox.FormatFileSize(playlist.InterleavedFileSize, BDInfoGuiSettings.SizeFormatHR);
@@ -723,7 +723,7 @@ namespace BDInfoGUI
                 };
 
                 ListViewItem.ListViewSubItem clipSize = new();
-                if (BDInfoSettings.EnableSSIF && clip.InterleavedFileSize > 0)
+                if (BDInfoLibSettings.EnableSSIF && clip.InterleavedFileSize > 0)
                 {
                     clipSize.Text = ToolBox.FormatFileSize(clip.InterleavedFileSize, BDInfoGuiSettings.SizeFormatHR);
                     clipSize.Tag = clip.InterleavedFileSize;
@@ -1047,7 +1047,7 @@ namespace BDInfoGUI
                 var scanState = new ScanBDROMState();
                 foreach (var streamFile in streamFiles)
                 {
-                    if (BDInfoSettings.EnableSSIF && streamFile.InterleavedFile != null)
+                    if (BDInfoLibSettings.EnableSSIF && streamFile.InterleavedFile != null)
                     {
                         if (streamFile.InterleavedFile.FileInfo != null)
                             scanState.TotalBytes += streamFile.InterleavedFile.FileInfo.Length;

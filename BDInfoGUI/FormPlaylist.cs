@@ -161,7 +161,7 @@ namespace BDInfoGUI
                 };
 
                 ListViewItem.ListViewSubItem playlistSize = new();
-                if (BDInfoSettings.EnableSSIF && playlist.InterleavedFileSize > 0)
+                if (BDInfoLibSettings.EnableSSIF && playlist.InterleavedFileSize > 0)
                 {
                     playlistSize.Text = ToolBox.FormatFileSize(playlist.InterleavedFileSize);
                     playlistSize.Tag = playlist.InterleavedFileSize;
@@ -247,7 +247,7 @@ namespace BDInfoGUI
                 };
 
                 ListViewItem.ListViewSubItem clipSize = new();
-                if (BDInfoSettings.EnableSSIF &&
+                if (BDInfoLibSettings.EnableSSIF &&
                     clip.InterleavedFileSize > 0)
                 {
                     clipSize.Text = ToolBox.FormatFileSize(clip.InterleavedFileSize);

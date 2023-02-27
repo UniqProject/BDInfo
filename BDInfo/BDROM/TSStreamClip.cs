@@ -61,7 +61,7 @@ public class TSStreamClip
     {
         get
         {
-            if (StreamFile is { InterleavedFile: { } } && BDInfoSettings.EnableSSIF)
+            if (StreamFile is { InterleavedFile: { } } && BDInfoLibSettings.EnableSSIF)
             {
                 return StreamFile.InterleavedFile.Name;
             }

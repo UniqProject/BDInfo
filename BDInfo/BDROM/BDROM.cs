@@ -70,7 +70,7 @@ public class BDROM
 
     public BDROM(string path)
     {
-        BDInfoSettings.Load();
+        BDInfoLibSettings.Load();
 
         //
         // Locate BDMV directories.

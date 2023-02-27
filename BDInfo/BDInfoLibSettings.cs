@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 
 namespace BDInfoLib;
 
-internal class BDInfoSettingsBase
+internal class BDInfoLibSettingsBase
 {
     [JsonProperty]
     internal bool ExtendedStreamDiagnostics { get; set; } = true;
@@ -42,10 +42,10 @@ internal class BDInfoSettingsBase
     public bool KeepStreamOrder { get; set; } = true;
 }
 
-public static class BDInfoSettings
+public static class BDInfoLibSettings
 {
     private const string FileName = "BDInfoLibSettings.json";
-    private static BDInfoSettingsBase _settings;
+    private static BDInfoLibSettingsBase _libSettings;
 
     public static void Load()
     {
@@ -54,13 +54,13 @@ public static class BDInfoSettings
 
     public static void Load(bool forceLoad) 
     {
-        if (!forceLoad && _settings != null) return;
+        if (!forceLoad && _libSettings != null) return;
 
         try
         {
             using var isoFile = ToolBox.GetIsolatedStorageFileStream(FileName, true);
             using var reader = new StreamReader(isoFile);
-            _settings = JsonConvert.DeserializeObject<BDInfoSettingsBase>(reader.ReadToEnd(),
+            _libSettings = JsonConvert.DeserializeObject<BDInfoLibSettingsBase>(reader.ReadToEnd(),
                 new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
         }
         catch (Exception)
@@ -73,12 +73,12 @@ public static class BDInfoSettings
             // Apparrently this was addressed in https://github.com/dotnet/corefx/pull/29514 but is still failing, at least in MacOS Ventura
         }
 
-        if (_settings == null)
+        if (_libSettings == null)
         {
             try
             {
                 using var reader = ToolBox.GetTextReaderWriter(FileName, true) as TextReader;
-                _settings = JsonConvert.DeserializeObject<BDInfoSettingsBase>(reader!.ReadToEnd(),
+                _libSettings = JsonConvert.DeserializeObject<BDInfoLibSettingsBase>(reader!.ReadToEnd(),
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             }
             catch (Exception)
@@ -86,7 +86,7 @@ public static class BDInfoSettings
                 // ignore
             }
 
-            _settings ??= new BDInfoSettingsBase();
+            _libSettings ??= new BDInfoLibSettingsBase();
         }
 
         if (!forceLoad)
@@ -100,7 +100,7 @@ public static class BDInfoSettings
 
     public static void Save()
     {
-        var json = JsonConvert.SerializeObject(_settings, Formatting.Indented);
+        var json = JsonConvert.SerializeObject(_libSettings, Formatting.Indented);
         try
         {
             using var isoFile = ToolBox.GetIsolatedStorageFileStream(FileName, false);
@@ -132,7 +132,7 @@ public static class BDInfoSettings
 
     public static void ResetToDefault()
     {
-        _settings = new BDInfoSettingsBase();
+        _libSettings = new BDInfoLibSettingsBase();
     }
 
     public static void RevertChanges()
@@ -142,43 +142,43 @@ public static class BDInfoSettings
 
     public static bool ExtendedStreamDiagnostics
     {
-        get => _settings.ExtendedStreamDiagnostics;
+        get => _libSettings.ExtendedStreamDiagnostics;
 
-        set => _settings.ExtendedStreamDiagnostics = value;
+        set => _libSettings.ExtendedStreamDiagnostics = value;
     }
 
     public static bool EnableSSIF
     {
-        get => _settings.EnableSSIF;
+        get => _libSettings.EnableSSIF;
 
-        set => _settings.EnableSSIF = value;
+        set => _libSettings.EnableSSIF = value;
     }
 
     public static bool FilterLoopingPlaylists
     {
-        get => _settings.FilterLoopingPlaylists;
+        get => _libSettings.FilterLoopingPlaylists;
 
-        set => _settings.FilterLoopingPlaylists = value;
+        set => _libSettings.FilterLoopingPlaylists = value;
     }
 
     public static bool FilterShortPlaylists
     {
-        get => _settings.FilterShortPlaylists;
+        get => _libSettings.FilterShortPlaylists;
 
-        set => _settings.FilterShortPlaylists = value;
+        set => _libSettings.FilterShortPlaylists = value;
     }
 
     public static int FilterShortPlaylistsValue
     {
-        get => _settings.FilterShortPlaylistsValue;
+        get => _libSettings.FilterShortPlaylistsValue;
 
-        set => _settings.FilterShortPlaylistsValue = value;
+        set => _libSettings.FilterShortPlaylistsValue = value;
     }
 
     public static bool KeepStreamOrder
     {
-        get => _settings.KeepStreamOrder;
+        get => _libSettings.KeepStreamOrder;
 
-        set => _settings.KeepStreamOrder = value;
+        set => _libSettings.KeepStreamOrder = value;
     }
 }

@@ -704,7 +704,7 @@ public class TSPlaylistFile
         if (referenceClip.StreamFile != null)
         {
             // TODO: Better way to add this in?
-            if (BDInfoSettings.EnableSSIF &&
+            if (BDInfoLibSettings.EnableSSIF &&
                 referenceClip.StreamFile.InterleavedFile != null &&
                 referenceClip.StreamFile.Streams.ContainsKey(4114) && 
                 !Streams.ContainsKey(4114))
@@ -802,7 +802,7 @@ public class TSPlaylistFile
             AngleStreams.Add(new Dictionary<ushort, TSStream>());
         }
 
-        if (!BDInfoSettings.KeepStreamOrder)
+        if (!BDInfoLibSettings.KeepStreamOrder)
         {
             VideoStreams.Sort(CompareVideoStreams);
         }
@@ -818,7 +818,7 @@ public class TSPlaylistFile
             }
         }
 
-        if (!BDInfoSettings.KeepStreamOrder)
+        if (!BDInfoLibSettings.KeepStreamOrder)
         {
             AudioStreams.Sort(CompareAudioStreams);
         }
@@ -827,7 +827,7 @@ public class TSPlaylistFile
             SortedStreams.Add(stream);
         }
 
-        if (!BDInfoSettings.KeepStreamOrder)
+        if (!BDInfoLibSettings.KeepStreamOrder)
         {
             GraphicsStreams.Sort(CompareGraphicsStreams);
         }
@@ -836,7 +836,7 @@ public class TSPlaylistFile
             SortedStreams.Add(stream);
         }
 
-        if (!BDInfoSettings.KeepStreamOrder)
+        if (!BDInfoLibSettings.KeepStreamOrder)
         {
             TextStreams.Sort(CompareTextStreams);
         }
@@ -880,13 +880,13 @@ public class TSPlaylistFile
         {
             if (!IsInitialized) return false;
 
-            if (BDInfoSettings.FilterShortPlaylists &&
-                TotalLength < BDInfoSettings.FilterShortPlaylistsValue)
+            if (BDInfoLibSettings.FilterShortPlaylists &&
+                TotalLength < BDInfoLibSettings.FilterShortPlaylistsValue)
             {
                 return false;
             }
 
-            return !HasLoops || !BDInfoSettings.FilterLoopingPlaylists;
+            return !HasLoops || !BDInfoLibSettings.FilterLoopingPlaylists;
         }
     }
 
