@@ -20,6 +20,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Themes.Fluent;
 using BDInfo.ViewModels;
 using BDInfo.Views;
 
@@ -36,6 +37,16 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            FluentTheme theme = null;
+            foreach (var style in this.Styles)
+            {
+                if (style.GetType() == typeof(FluentTheme))
+                    theme = style as FluentTheme;
+            }
+
+            if (theme != null) 
+                theme.Mode = BDInfoSettings.UseDarkTheme ? FluentThemeMode.Dark : FluentThemeMode.Light;
+
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(),

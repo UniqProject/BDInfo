@@ -11,25 +11,16 @@
         WindowStartupLocation="Manual"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
-        TransparencyLevelHint="AcrylicBlur"
-        Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome">
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        UseLayoutRounding="False"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
 
     <Design.DataContext>
         <viewModels:ChartWindowViewModel />
     </Design.DataContext>
 
     <Panel>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="Black"
-                    TintOpacity="1"
-                    MaterialOpacity="0.65" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
         <oxyplot:PlotView 
             Margin="20 50" 
             Model="{Binding PlotViewModel}" 
@@ -39,7 +30,8 @@
                 <ControlTemplate>
                     <oxyplot:TrackerControl Position="{Binding Position}"
                                             LineExtents="{Binding PlotModel.PlotArea}"
-                                            Background="Black" HorizontalLineVisibility="True"
+                                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                                            HorizontalLineVisibility="True"
                                             VerticalLineVisibility="True">
                         <oxyplot:TrackerControl.Content>
                             <TextBlock Text="{Binding}" Margin="5" />

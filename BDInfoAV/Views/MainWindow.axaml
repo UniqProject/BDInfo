@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
-        MinWidth="1280" MinHeight="720"
+        mc:Ignorable="d" d:DesignWidth="780" d:DesignHeight="600"
+        MinWidth="780" MinHeight="600"
         x:Class="BDInfo.Views.MainWindow"
         Icon="/Assets/toma4025-rumax-bluray-disc.ico"
         Title="BDInfo"
@@ -13,48 +13,33 @@
         WindowState="{Binding WindowState}"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
-        TransparencyLevelHint="AcrylicBlur"
-        Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
         PositionChanged="OnPositionChanged"
-        SizeChanged="OnSizeChanged">
-
-    <Window.Styles>
-        <Style Selector="DataGridCell.RightAligned">
-            <Setter Property="HorizontalContentAlignment" Value="Right" />
-        </Style>
-    </Window.Styles>
+        SizeChanged="OnSizeChanged"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+        UseLayoutRounding="False">
 
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
 
-    <Panel>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="Black"
-                    TintOpacity="1"
-                    MaterialOpacity="0.65" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
 
-        <Grid Margin="20" ColumnDefinitions="10*,10*,10*,10*,10*,10*,10*,10*,10*,10*">
+    <Panel>
+        <Grid Margin="20" ColumnDefinitions="5*,5*,10*,10*,10*,5*,10*,10*,10*,10*">
             <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="40" />
-                <RowDefinition Height="10*" MinHeight="100" />
-                <RowDefinition Height="2" />
-                <RowDefinition Height="10*" MinHeight="100" />
-                <RowDefinition Height="2" />
-                <RowDefinition Height="10*" MinHeight="100" />
-                <RowDefinition Height="120" />
-                <RowDefinition Height="40" />
                 <RowDefinition Height="30" />
-                <RowDefinition Height="40" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="70" MinHeight="70" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
 
 
@@ -122,7 +107,7 @@
             </Button>
             <Button Grid.Row="2" Grid.Column="3" Margin="3" HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                <Button.Content>Select None</Button.Content>
+                <Button.Content>Unselect All</Button.Content>
                 <Button.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
                         <Binding Path="!IsPopupVisible" />
@@ -145,8 +130,10 @@
             </Button>
 
             <DataGrid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False" >
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
+                      GridLinesVisibility="All"
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False" 
+                      CanUserResizeColumns="True" RowHeight="20" >
                 <DataGrid.SelectedIndex>
                     <Binding Path="SelectedPlaylistIndex" />
                 </DataGrid.SelectedIndex>
@@ -163,13 +150,13 @@
                     <Binding Path="PlaylistFiles" />
                 </DataGrid.Items>
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Width="30*">
+                    <DataGridTemplateColumn Width="30*" SortMemberPath="PlayListName">
                         <DataGridTemplateColumn.Header>Playlist</DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
                                             HorizontalAlignment="Stretch" Margin="5 0">
-                                    <CheckBox IsThreeState="False" VerticalAlignment="Center">
+                                    <CheckBox IsThreeState="False" Classes="PlaylistCheckbox">
                                         <CheckBox.IsChecked>
                                             <Binding Path="IsChecked"/>
                                         </CheckBox.IsChecked>
@@ -198,18 +185,17 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Width="10*" Binding="{Binding Path=Group}">
-                        <DataGridTextColumn.Header>Group</DataGridTextColumn.Header>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                    <DataGridTextColumn Width="10*" Binding="{Binding Path=Group}" 
+                                        Header="Group" />
+                    <DataGridTextColumn Width="12*" CellStyleClasses="RightAligned">
                         <DataGridTextColumn.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock HorizontalAlignment="Right">Length</TextBlock>
                             </DataTemplate>
                         </DataGridTextColumn.HeaderTemplate>
                         <DataGridTextColumn.Binding>
-                            <Binding Path="Length" Mode="OneWay"
-                                     Converter="{StaticResource TimeSpanConverter}" />
+                            <Binding Mode="OneWay" Converter="{StaticResource TimeSpanConverter}"
+                                     Path="Length" />
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
                     <DataGridTextColumn Width="30*" CellStyleClasses="RightAligned">
@@ -246,7 +232,8 @@
 
             <DataGrid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
                       BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False">
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False"
+                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
                         <Binding Path="!IsPopupVisible" />
@@ -269,7 +256,7 @@
                             <Binding Path="Index" />
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                    <DataGridTextColumn Width="12*" CellStyleClasses="RightAligned">
                         <DataGridTextColumn.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock HorizontalAlignment="Right">Length</TextBlock>
@@ -314,7 +301,8 @@
 
             <DataGrid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
                       BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False">
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False"
+                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
                         <Binding Path="!IsPopupVisible" />
@@ -325,7 +313,7 @@
                     <Binding Path="Streams" />
                 </DataGrid.Items>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="20*">
+                    <DataGridTextColumn Width="25*">
                         <DataGridTextColumn.Header>Codec</DataGridTextColumn.Header>
                         <DataGridTextColumn.Binding>
                             <Binding Path="Codec" />
@@ -337,7 +325,7 @@
                             <Binding Path="Language" />
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                    <DataGridTextColumn Width="15*" CellStyleClasses="RightAligned">
                         <DataGridTextColumn.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock HorizontalAlignment="Right">Bit Rate</TextBlock>
@@ -482,7 +470,7 @@
             <Border.IsVisible>
                 <Binding Path="ShowConfig" />
             </Border.IsVisible>
-            <views:Settings Width="400" Height="480" />
+            <views:Settings Width="400" Height="510" />
         </Border>
     </Panel>
 

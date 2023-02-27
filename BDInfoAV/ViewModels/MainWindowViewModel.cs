@@ -116,6 +116,16 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public bool UseDarkTheme
+    {
+        get => BDInfoSettings.UseDarkTheme;
+        set
+        {
+            BDInfoSettings.UseDarkTheme = value;
+            this.RaisePropertyChanged();
+        }
+    }
+
     public bool DisplayChapterCount
     {
         get => BDInfoSettings.DisplayChapterCount;

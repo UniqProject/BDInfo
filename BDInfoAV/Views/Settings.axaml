@@ -3,12 +3,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="480"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="510"
              x:Class="BDInfo.Views.Settings"
-             Background="Black">
+             Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+
     <UserControl.DataContext>
         <viewModels:MainWindowViewModel/>
     </UserControl.DataContext>
+
     <StackPanel HorizontalAlignment="Stretch" Margin="20" Spacing="4">
         
         <TextBlock TextAlignment="Center" Text="BDInfo Settings" />
@@ -50,6 +52,8 @@
                   IsChecked="{Binding EnableSSIF}"/>
         <CheckBox IsThreeState="False" Content="Display chapter count in playlist view"
                   IsChecked="{Binding DisplayChapterCount}"/>
+        <CheckBox IsThreeState="False" Content="Use dark Theme (requires application restart)"
+                  IsChecked="{Binding UseDarkTheme}"/>
         <ToggleButton IsThreeState="False" Content="Close"
                       VerticalAlignment="Center" HorizontalAlignment="Center"
                       VerticalContentAlignment="Center" HorizontalContentAlignment="Center"

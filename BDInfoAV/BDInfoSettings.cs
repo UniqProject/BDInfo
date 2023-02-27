@@ -40,6 +40,8 @@ public class SizeConverter : JsonConverter<Avalonia.Size>
 internal class BDInfoSettingsBase
 {
     [JsonProperty]
+    internal bool UseDarkTheme { get; set; } = false;
+    [JsonProperty]
     internal bool SizeFormatHR { get; set; } = true;
     [JsonProperty]
     internal bool GenerateStreamDiagnostics { get; set; } = true;
@@ -60,7 +62,7 @@ internal class BDInfoSettingsBase
     [JsonProperty]
     internal Avalonia.PixelPoint WindowLocation { get; set; } = new(0,0);
     [JsonProperty]
-    internal Avalonia.Size WindowSize { get; set; } = new(1280, 720);
+    internal Avalonia.Size WindowSize { get; set; } = new(780, 600);
 }
 
 public static class BDInfoSettings
@@ -159,6 +161,13 @@ public static class BDInfoSettings
     public static void RevertChanges()
     {
         Load(true);
+    }
+
+    public static bool UseDarkTheme
+    {
+        get => _settings.UseDarkTheme;
+
+        set => _settings.UseDarkTheme = value;
     }
 
     public static bool SizeFormatHR

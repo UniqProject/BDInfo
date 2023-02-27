@@ -4,35 +4,25 @@
         xmlns:views="using:BDInfo.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
-        MinWidth="1280" MinHeight="720"
+        mc:Ignorable="d" d:DesignWidth="780" d:DesignHeight="600"
+        MinWidth="780" MinHeight="600"
         Icon="/Assets/toma4025-rumax-bluray-disc.ico"
         x:Class="BDInfo.Views.ReportWindow"
         Title="Report"
         WindowStartupLocation="Manual"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
-        TransparencyLevelHint="AcrylicBlur"
-        Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome">
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+        UseLayoutRounding="False">
 
     <Design.DataContext>
         <viewModels:ReportWindowViewModel />
     </Design.DataContext>
 
     <Panel>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="Black"
-                    TintOpacity="1"
-                    MaterialOpacity="0.65" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-
-        <Grid Margin="20" ColumnDefinitions="18*,18*,8*,18*,18*,18*">
+        <Grid Margin="20" ColumnDefinitions="12*,12*,8*,21*,15*">
             <Grid.RowDefinitions>
                 <RowDefinition Height="5*" MinHeight="30" />
                 <RowDefinition Height="5*" MinHeight="30"/>
@@ -101,7 +91,7 @@
                 </Button.Command>
             </Button>
 
-            <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" Margin="5" IsReadOnly="True" 
+            <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="5" IsReadOnly="True" 
                       ScrollViewer.VerticalScrollBarVisibility="Auto" 
                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ScrollViewer.AllowAutoHide="True">
@@ -111,7 +101,7 @@
                 </TextBox.Text>
             </TextBox>
 
-            <Panel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="6"
+            <Panel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Button MinWidth="300" HorizontalAlignment="Center" HorizontalContentAlignment="Center"
                         VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5 0">
