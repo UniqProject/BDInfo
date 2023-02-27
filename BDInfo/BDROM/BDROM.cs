@@ -20,8 +20,6 @@
 using System.Xml;
 using BDInfoLib.BDROM.IO;
 using DiscUtils.Udf;
-using DirectoryInfo = BDInfoLib.BDROM.IO.DirectoryInfo;
-using FileInfo = BDInfoLib.BDROM.IO.FileInfo;
 
 namespace BDInfoLib.BDROM;
 
@@ -75,10 +73,10 @@ public class BDROM
         //
         // Locate BDMV directories.
         //
-        var pathInfo = FileInfo.FromFullName(path);
+        var pathInfo = IO.FileInfo.FromFullName(path);
         IDirectoryInfo tempPath;
         if (pathInfo.IsDir)
-            tempPath = DirectoryInfo.FromDirectoryName(pathInfo.FullName);
+            tempPath = IO.DirectoryInfo.FromDirectoryName(pathInfo.FullName);
         else
         {
             Stream fileStream = File.OpenRead(pathInfo.FullName);
@@ -110,8 +108,8 @@ public class BDROM
         VolumeLabel = DirectoryRoot.GetVolumeLabel();
         Size = (ulong)GetDirectorySize(DirectoryRoot);
 
-        var indexFiles = DirectoryBDMV.GetFiles();
-        var indexFile = indexFiles.FirstOrDefault(t => t.Name.ToLower() == "index.bdmv");
+        var indexFiles = DirectoryBDMV?.GetFiles();
+        var indexFile = indexFiles?.FirstOrDefault(t => t.Name.ToLower() == "index.bdmv");
 
         if (indexFile != null)
         {
@@ -132,8 +130,7 @@ public class BDROM
             IsBDPlus = true;
         }
 
-        if (DirectoryBDJO != null &&
-            DirectoryBDJO.GetFiles().Length > 0)
+        if (DirectoryBDJO?.GetFiles().Length > 0)
         {
             IsBDJava = true;
         }
@@ -144,8 +141,7 @@ public class BDROM
             IsPSP = true;
         }
 
-        if (DirectorySSIF != null &&
-            DirectorySSIF.GetFiles().Length > 0)
+        if (DirectorySSIF?.GetFiles().Length > 0)
         {
             Is3D = true;
         }
@@ -156,7 +152,7 @@ public class BDROM
             IsDBOX = true;
         }
 
-        var metaFiles = DirectoryMeta.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
+        var metaFiles = DirectoryMeta?.GetFiles("bdmt_eng.xml", SearchOption.AllDirectories);
         if (metaFiles is { Length: > 0 })
         {
             ReadDiscTitle(metaFiles.First().OpenText());

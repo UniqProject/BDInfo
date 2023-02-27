@@ -19,8 +19,7 @@
 
 using System.Diagnostics;
 using BDInfoLib.BDROM.IO;
-using Stream = System.IO.Stream;
-using BinaryReader = System.IO.BinaryReader;
+
 // ReSharper disable UnusedVariable
 // ReSharper disable UnusedMember.Global
 
