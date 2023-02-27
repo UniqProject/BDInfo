@@ -7,7 +7,7 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <StartupObject>BDInfo.Program</StartupObject>
         <RootNamespace>BDInfo</RootNamespace>
-        
+
         <!-- App Identifier -->
         <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
         <ApplicationIdGuid>a8ed36f5-c90b-4c9a-ab81-0e6e89035c00</ApplicationIdGuid>
@@ -33,6 +33,10 @@
         <PackageIcon>toma4025-rumax-bluray-disc.ico</PackageIcon>
         <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    <PropertyGroup  Condition="'$(TargetFramework)' == 'net6.0-maccatalyst' and '$(Configuration)' == 'Release'">
+        <!-- for Mac Catalyst -->
+        <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <WarningLevel>7</WarningLevel>
