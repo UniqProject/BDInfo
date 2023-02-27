@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleCopy", "SampleCopy\Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfoLib", "BDInfo\BDInfoLib.csproj", "{729D7932-519E-4BE2-BF1D-6BC8FBA150A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfoAV", "BDInfoAV\BDInfoAV.csproj", "{C8021F0D-CC7C-4CB3-A4C1-9D862ADE415F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDInfo", "BDInfoAV\BDInfo.csproj", "{C8021F0D-CC7C-4CB3-A4C1-9D862ADE415F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

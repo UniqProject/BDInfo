@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="480"
+             x:Class="BDInfo.Views.Settings"
+             Background="Black">
+    <UserControl.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </UserControl.DataContext>
+    <StackPanel HorizontalAlignment="Stretch" Margin="20" Spacing="4">
+        
+        <TextBlock TextAlignment="Center" Text="BDInfo Settings" />
+        <CheckBox IsThreeState="False" Content="Stream sizes in human readable format"
+                  IsChecked="{Binding StreamSizesHR}"/>
+        <CheckBox IsThreeState="False" Content="Include stream diagnostics in report"
+                  IsChecked="{Binding GenerateStreamDiagnostics}"/>
+        <CheckBox IsThreeState="False" Content="Extended video stream diagnostics"
+                  IsChecked="{Binding ExtendedStreamDiagnostics}"/>
+        <CheckBox IsThreeState="False" Content="Include quick text summary in report"
+                  IsChecked="{Binding GenerateTextSummary}"/>
+        <CheckBox IsThreeState="False" Content="Auto-Save report on scan completion"
+                  IsChecked="{Binding AutosaveReport}"/>
+        <CheckBox IsThreeState="False" Content="Keep original stream ordering"
+                  IsChecked="{Binding KeepStreamOrder}"/>
+        <CheckBox IsThreeState="False" Content="Filter playlists that contain loops"
+                  IsChecked="{Binding FilterLoopingPlaylists}"/>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox VerticalAlignment="Center" IsThreeState="False" Content="Filter playlists with length &lt;"
+                      IsChecked="{Binding FilterShortPlaylists}"/>
+            <TextBox VerticalAlignment="Center" Watermark="sec" Width="50" Margin="5 0">
+                <TextBox.Text>
+                    <Binding Path="FilterShortPlaylistsValue" FallbackValue="0" 
+                             Converter="{StaticResource IntegerConverter}"/>
+                </TextBox.Text>
+            </TextBox>
+            <TextBlock VerticalAlignment="Center" Text="seconds"></TextBlock>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox VerticalAlignment="Center" IsThreeState="False" Content="Use image prefix"
+                      IsChecked="{Binding UseImagePrefix}"/>
+            <TextBox VerticalAlignment="Center" MinWidth="200" Margin="5 0">
+                <TextBox.Text>
+                    <Binding Path="UseImagePrefixValue" FallbackValue=""/>
+                </TextBox.Text>
+            </TextBox>
+        </StackPanel>
+        <CheckBox IsThreeState="False" Content="Enable SSIF scanning"
+                  IsChecked="{Binding EnableSSIF}"/>
+        <CheckBox IsThreeState="False" Content="Display chapter count in playlist view"
+                  IsChecked="{Binding DisplayChapterCount}"/>
+        <ToggleButton IsThreeState="False" Content="Close"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"
+                      VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                      MinWidth="300">
+            <ToggleButton.IsChecked>
+                <Binding Path="!$parent[Window].DataContext.ShowConfig" FallbackValue="True" />
+            </ToggleButton.IsChecked>
+        </ToggleButton>
+    </StackPanel>
+</UserControl>

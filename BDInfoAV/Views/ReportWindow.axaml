@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:views="using:BDInfo.Views"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+        MinWidth="1280" MinHeight="720"
+        Icon="/Assets/toma4025-rumax-bluray-disc.ico"
+        x:Class="BDInfo.Views.ReportWindow"
+        Title="Report"
+        WindowStartupLocation="Manual"
+        Width="{Binding WindowSize.Width}"
+        Height="{Binding WindowSize.Height}"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome">
+
+    <Design.DataContext>
+        <viewModels:ReportWindowViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <Grid Margin="20" ColumnDefinitions="18*,18*,8*,18*,18*,18*">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*" MinHeight="30" />
+                <RowDefinition Height="5*" MinHeight="30"/>
+                <RowDefinition Height="85*" />
+                <RowDefinition Height="5*" MinHeight="30" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Margin="5 0">Playlist:</Label>
+            <Label Grid.Row="0" Grid.Column="1" VerticalAlignment="Bottom" Margin="5 0">Stream:</Label>
+            <Label Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="5 0">Angle:</Label>
+            <Label Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom" Margin="5 0">Chart Type:</Label>
+
+            <ComboBox Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5 0"
+                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+                <ComboBox.Items>
+                    <Binding Path="Playlists"/>
+                </ComboBox.Items>
+                <ComboBox.SelectedItem>
+                    <Binding Path="SelectedPlaylist"/>
+                </ComboBox.SelectedItem>
+                <ComboBox.SelectedIndex>
+                    <Binding Path="SelectedPlaylistIndex"/>
+                </ComboBox.SelectedIndex>
+            </ComboBox>
+            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5 0"
+                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+                <ComboBox.Items>
+                    <Binding Path="VideoStreams"/>
+                </ComboBox.Items>
+                <ComboBox.SelectedItem>
+                    <Binding Path="SelectedVideoStream" />
+                </ComboBox.SelectedItem>
+                <ComboBox.SelectedIndex>
+                    <Binding Path="SelectedVideoStreamIndex"/>
+                </ComboBox.SelectedIndex>
+            </ComboBox>
+            <ComboBox Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="5 0"
+                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+                <ComboBox.Items>
+                    <Binding Path="AngleList"/>
+                </ComboBox.Items>
+                <ComboBox.SelectedItem>
+                    <Binding Path="SelectedAngle" />
+                </ComboBox.SelectedItem>
+                <ComboBox.SelectedIndex>
+                    <Binding Path="SelectedAngleIndex"/>
+                </ComboBox.SelectedIndex>
+            </ComboBox>
+            <ComboBox Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" Margin="5 0"
+                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+                <ComboBoxItem>Video Bitrate: 1-Second Window</ComboBoxItem>
+                <ComboBoxItem>Video Bitrate: 5-Second Window</ComboBoxItem>
+                <ComboBoxItem>Video Bitrate: 10-Second Window</ComboBoxItem>
+                <ComboBoxItem>Video Frame Size (Min / Max)</ComboBoxItem>
+                <ComboBoxItem>Video Frame Type Counts</ComboBoxItem>
+                <ComboBoxItem>Video Frame Type Sizes</ComboBoxItem>
+                <ComboBox.SelectedIndex>
+                    <Binding Path="ChartTypeIndex"/>
+                </ComboBox.SelectedIndex>
+            </ComboBox>
+            <Button Grid.Row="1" Grid.Column="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="5 0">
+                <Button.Content>Generate Chart...</Button.Content>
+                <Button.Command>
+                    <Binding Path="OpenChartWindow" />
+                </Button.Command>
+            </Button>
+
+            <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" Margin="5" IsReadOnly="True" 
+                      ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.AllowAutoHide="True">
+                <TextBox.FontFamily>DejaVu Sans Mono,Menlo,Ubuntu mono,Consolas</TextBox.FontFamily>
+                <TextBox.Text>
+                    <Binding Path="ReportText" Mode="OneWay" />
+                </TextBox.Text>
+            </TextBox>
+
+            <Panel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="6"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Button MinWidth="300" HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+                        VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5 0">
+                    <Button.Content>Copy to Clipboard</Button.Content>
+                    <Button.Command>
+                        <Binding Path="CopyReportToClipboard"/>
+                    </Button.Command>
+                </Button>
+            </Panel>
+        </Grid>
+
+    </Panel>
+</Window>

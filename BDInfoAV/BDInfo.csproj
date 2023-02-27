@@ -1,0 +1,110 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+        <TrimMode>copyused</TrimMode>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <StartupObject>BDInfo.Program</StartupObject>
+        <RootNamespace>BDInfo</RootNamespace>
+        <PublishSingleFile>true</PublishSingleFile>
+
+        <!-- App Identifier -->
+        <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
+        <ApplicationIdGuid>a8ed36f5-c90b-4c9a-ab81-0e6e89035c00</ApplicationIdGuid>
+
+        <!-- Display name -->
+        <ApplicationTitle>BDInfo</ApplicationTitle>
+        <Title>BDInfo</Title>
+        <AssemblyName>BDInfo</AssemblyName>
+        <FileVersion>0.8.0.0</FileVersion>
+        <AssemblyVersion>0.8.0.0</AssemblyVersion>
+        <Description>Blu-ray Video and Audio Specifications Collection Tool</Description>
+        <Company>Cinema Squid &amp; UniqProject</Company>
+        <Authors>Cinema Squid &amp; UniqProject</Authors>
+        <Copyright>Copyright © Cinema Squid 2011 &amp; UniqProject 2017-2023</Copyright>
+        <NeutralLanguage>en</NeutralLanguage>
+
+        <ApplicationIcon>Assets\toma4025-rumax-bluray-disc.ico</ApplicationIcon>
+        <Configurations>Debug;Release;Beta</Configurations>
+        <Platforms>AnyCPU;ARM64;x64</Platforms>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+        <PackageProjectUrl>https://github.com/UniqProject/BDInfo</PackageProjectUrl>
+        <PackageIcon>toma4025-rumax-bluray-disc.ico</PackageIcon>
+        <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|ARM64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x64'">
+        <WarningLevel>7</WarningLevel>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="Models\" />
+        <AvaloniaResource Include="Assets\**" />
+        <None Remove=".gitignore" />
+        <None Remove="Assets\toma4025-rumax-bluray-disc.ico" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Assets\toma4025-rumax-bluray-disc.ico" />
+    </ItemGroup>
+    <ItemGroup>
+        <!--This helps with theme dll-s trimming.
+	If you will publish your application in self-contained mode with p:PublishTrimmed=true and it will use Fluent theme Default theme will be trimmed from the output and vice versa.
+	https://github.com/AvaloniaUI/Avalonia/issues/5593 -->
+        <TrimmableAssembly Include="Avalonia.Themes.Fluent" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.0.0-preview5" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview5" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview5" />
+
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
+        <PackageReference Condition="'$(Configuration)' == 'Beta'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
+
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview5" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview5" />
+        <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
+        <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev5" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+        <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-av11-preview5" />
+        <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\BDInfo\BDInfoLib.csproj" />
+    </ItemGroup>
+</Project>

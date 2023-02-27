@@ -1,0 +1,489 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:BDInfo.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+        MinWidth="1280" MinHeight="720"
+        x:Class="BDInfo.Views.MainWindow"
+        Icon="/Assets/toma4025-rumax-bluray-disc.ico"
+        Title="BDInfo"
+        WindowStartupLocation="Manual"
+        WindowState="{Binding WindowState}"
+        Width="{Binding WindowSize.Width}"
+        Height="{Binding WindowSize.Height}"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        PositionChanged="OnPositionChanged"
+        SizeChanged="OnSizeChanged">
+
+    <Window.Styles>
+        <Style Selector="DataGridCell.RightAligned">
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+        </Style>
+    </Window.Styles>
+
+    <Design.DataContext>
+        <viewModels:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <Grid Margin="20" ColumnDefinitions="10*,10*,10*,10*,10*,10*,10*,10*,10*,10*">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="120" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
+
+
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" VerticalContentAlignment="Center">
+                <Label.Content>Select the source BD-ROM:</Label.Content>
+            </Label>
+
+            <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" Margin="3"
+                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"
+                     BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" IsReadOnly="True">
+                <TextBox.Watermark>Path to BD ROM</TextBox.Watermark>
+                <TextBox.Text>
+                    <Binding Path="Folder" FallbackValue=" " />
+                </TextBox.Text>
+            </TextBox>
+            <Button Grid.Row="1" Grid.Column="7" Margin="3"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>Browse</Button.Content>
+                <Button.IsEnabled>
+                    <Binding Path="!IsPopupVisible" />
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="SelectFolder" />
+                </Button.Command>
+            </Button>
+            <Button Grid.Row="1" Grid.Column="8" Margin="3"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>ISO</Button.Content>
+                <Button.IsEnabled>
+                    <Binding Path="!IsPopupVisible" />
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="SelectIso" />
+                </Button.Command>
+            </Button>
+            <Button Grid.Row="1" Grid.Column="9" Margin="3"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>Rescan</Button.Content>
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="Folder.Length" />
+                    </MultiBinding>
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="Rescan" />
+                </Button.Command>
+            </Button>
+
+            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalContentAlignment="Center">
+                <Label.Content>Select Playlist(s):</Label.Content>
+            </Label>
+            <Button Grid.Row="2" Grid.Column="2" Margin="3" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>Select All</Button.Content>
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="SelectAllPlaylists" />
+                </Button.Command>
+            </Button>
+            <Button Grid.Row="2" Grid.Column="3" Margin="3" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>Select None</Button.Content>
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="UnselectPlaylists" />
+                </Button.Command>
+            </Button>
+            <Button Grid.Row="2" Grid.Column="4" Margin="3" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Content>Custom ...</Button.Content>
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </Button.IsEnabled>
+            </Button>
+
+            <DataGrid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False" >
+                <DataGrid.SelectedIndex>
+                    <Binding Path="SelectedPlaylistIndex" />
+                </DataGrid.SelectedIndex>
+                <DataGrid.SelectedItem>
+                    <Binding Path="SelectedPlaylist" />
+                </DataGrid.SelectedItem>
+                <DataGrid.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </DataGrid.IsEnabled>
+                <DataGrid.Items>
+                    <Binding Path="PlaylistFiles" />
+                </DataGrid.Items>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="30*">
+                        <DataGridTemplateColumn.Header>Playlist</DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch" Margin="5 0">
+                                    <CheckBox IsThreeState="False" VerticalAlignment="Center">
+                                        <CheckBox.IsChecked>
+                                            <Binding Path="IsChecked"/>
+                                        </CheckBox.IsChecked>
+                                    </CheckBox>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">
+                                        <TextBlock.Text>
+                                            <Binding Path="PlayListName" />
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5 0">
+                                        <TextBlock.IsVisible>
+                                            <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                                                <Binding Path="DataContext.DisplayChapterCount"
+                                                         RelativeSource="{RelativeSource FindAncestor, AncestorType=Window}"
+                                                         FallbackValue="True"/>
+                                                <Binding Path="Chapters"></Binding>
+                                            </MultiBinding>
+                                        </TextBlock.IsVisible>
+                                        <TextBlock.Text>
+                                            <Binding Path="Chapters">
+                                                <Binding.StringFormat>[{0:D2} Chapters]</Binding.StringFormat>
+                                            </Binding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Width="10*" Binding="{Binding Path=Group}">
+                        <DataGridTextColumn.Header>Group</DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Length</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Length" Mode="OneWay"
+                                     Converter="{StaticResource TimeSpanConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Estimated Size</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="EstimatedSize" Mode="OneWay"
+                                     Converter="{StaticResource FileSizeConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Measured Size</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="TotalSize" Mode="OneWay"
+                                     Converter="{StaticResource FileSizeConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <GridSplitter Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="10" Background="LightGray"
+                          ResizeDirection="Rows">
+                <GridSplitter.IsEnabled>
+                    <Binding Path="!IsPopupVisible" />
+                </GridSplitter.IsEnabled>
+            </GridSplitter>
+
+            <DataGrid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False">
+                <DataGrid.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </DataGrid.IsEnabled>
+                <DataGrid.Items>
+                    <Binding Path="StreamFiles" />
+                </DataGrid.Items>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="30*">
+                        <DataGridTextColumn.Header>Stream File</DataGridTextColumn.Header>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="ClipName" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="10*">
+                        <DataGridTextColumn.Header>Index</DataGridTextColumn.Header>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Index" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Length</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Length" Mode="OneWay"
+                                     Converter="{StaticResource TimeSpanConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Estimated Size</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="EstimatedSize" Mode="OneWay"
+                                     Converter="{StaticResource FileSizeConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="30*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Measured Size</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="TotalSize" Mode="OneWay"
+                                     Converter="{StaticResource FileSizeConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <GridSplitter Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="10" Background="LightGray"
+                          ResizeDirection="Rows">
+                <GridSplitter.IsEnabled>
+                    <Binding Path="!IsPopupVisible" />
+                </GridSplitter.IsEnabled>
+            </GridSplitter>
+
+            <DataGrid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
+                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False">
+                <DataGrid.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </DataGrid.IsEnabled>
+                <DataGrid.Items>
+                    <Binding Path="Streams" />
+                </DataGrid.Items>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="20*">
+                        <DataGridTextColumn.Header>Codec</DataGridTextColumn.Header>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Codec" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="10*">
+                        <DataGridTextColumn.Header>Language</DataGridTextColumn.Header>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Language" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="10*" CellStyleClasses="RightAligned">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Right">Bit Rate</TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="BitRate" Mode="OneWay"
+                                     Converter="{StaticResource BitrateConverter}" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Width="60*">
+                        <DataGridTextColumn.Header>Description</DataGridTextColumn.Header>
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="Description" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="10" BorderThickness="1"
+                     BorderBrush="DimGray" CornerRadius="3" IsReadOnly="True"
+                     FontFamily="Segoe UI, Verdana, Arial"
+                     HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
+                <TextBox.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </TextBox.IsEnabled>
+                <TextBox.Text>
+                    <Binding Path="DiscSummary" />
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="5"
+                   VerticalContentAlignment="Center" HorizontalContentAlignment="Left">
+                <Label.Content>
+                    <Binding Path="ProcessedFile" />
+                </Label.Content>
+            </Label>
+            <Label Grid.Row="9" Grid.Column="6" Grid.ColumnSpan="2"
+                   HorizontalContentAlignment="Right" VerticalContentAlignment="Center">
+                <Label.Content>Time Remaining / Elapsed:</Label.Content>
+            </Label>
+            <StackPanel Grid.Row="9" Grid.Column="7" Grid.ColumnSpan="3"
+                        Orientation="Horizontal" HorizontalAlignment="Right">
+                <Label HorizontalContentAlignment="Right" VerticalContentAlignment="Center">
+                    <Label.Content>
+                        <Binding Path="RemainingTime"
+                                 Converter="{StaticResource TimeSpanConverter}" />
+                    </Label.Content>
+                </Label>
+                <Label HorizontalContentAlignment="Right" VerticalContentAlignment="Center">
+                    <Label.Content> / </Label.Content>
+                </Label>
+                <Label HorizontalContentAlignment="Right" VerticalContentAlignment="Center">
+                    <Label.Content>
+                        <Binding Path="ElapsedTime"
+                                 Converter="{StaticResource TimeSpanConverter}" />
+                    </Label.Content>
+                </Label>
+            </StackPanel>
+
+
+            <ProgressBar Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="10" Margin="5"
+                         MinHeight="30" ShowProgressText="True">
+                <ProgressBar.Value>
+                    <Binding Path="ScanProgress" />
+                </ProgressBar.Value>
+                <ProgressBar.IsIndeterminate>
+                    <Binding Path="IsPopupVisible" />
+                </ProgressBar.IsIndeterminate>
+                <ProgressBar.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </ProgressBar.IsEnabled>
+            </ProgressBar>
+
+            <ToggleButton Grid.Row="11" Grid.Column="6" Margin="3" IsThreeState="False"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                          VerticalContentAlignment="Center">
+                <ToggleButton.Command>
+                    <Binding Path="StartScan" />
+                </ToggleButton.Command>
+                <ToggleButton.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </ToggleButton.IsEnabled>
+                <ToggleButton.IsChecked>
+                    <Binding Path="IsScanRunning" />
+                </ToggleButton.IsChecked>
+                <ToggleButton.Styles>
+                    <Style Selector="ToggleButton[IsChecked=False]">
+                        <Setter Property="Content" Value="Scan Bitrates">
+                        </Setter>
+                    </Style>
+                    <Style Selector="ToggleButton[IsChecked=True]">
+                        <Setter Property="Content" Value="Cancel Scan">
+                        </Setter>
+                    </Style>
+                </ToggleButton.Styles>
+            </ToggleButton>
+            <Button Grid.Row="11" Grid.Column="7" Margin="3"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center">
+                <Button.Content>View Report...</Button.Content>
+                <Button.IsEnabled>
+                    <MultiBinding Converter="{StaticResource IsEnabledConverter}">
+                        <Binding Path="!IsPopupVisible" />
+                        <Binding Path="PlaylistFiles.Count"></Binding>
+                    </MultiBinding>
+                </Button.IsEnabled>
+                <Button.Command>
+                    <Binding Path="OpenReportWindow" />
+                </Button.Command>
+            </Button>
+            <ToggleButton Grid.Row="11" Grid.Column="9" Margin="3" IsThreeState="False"
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                          VerticalContentAlignment="Center">
+                <ToggleButton.Content>Settings...</ToggleButton.Content>
+                <ToggleButton.IsChecked>
+                    <Binding Path="ShowConfig" />
+                </ToggleButton.IsChecked>
+                <ToggleButton.IsEnabled>
+                    <Binding Path="!IsPopupVisible" />
+                </ToggleButton.IsEnabled>
+            </ToggleButton>
+        </Grid>
+
+        <Border Background="#60000000">
+            <Border.IsVisible>
+                <Binding Path="IsPopupVisible" />
+            </Border.IsVisible>
+            <views:ScanOverlay Width="300" Height="100" />
+        </Border>
+
+        <Border Background="#A0000000">
+            <Border.IsVisible>
+                <Binding Path="ShowConfig" />
+            </Border.IsVisible>
+            <views:Settings Width="400" Height="480" />
+        </Border>
+    </Panel>
+
+</Window>
