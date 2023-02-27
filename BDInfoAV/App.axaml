@@ -2,9 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:BDInfo.Converters"
              xmlns:bdInfo="clr-namespace:BDInfo"
-             x:Class="BDInfo.App"
-             RequestedThemeVariant="Dark">
+             x:Class="BDInfo.App">
 
+
+    <!-- 
+    TODO Avalonia 11 preview 5
+    <Application.RequestedThemeVariant>Dark</Application.RequestedThemeVariant>
+    -->
     <Application.Resources>
         <converters:TimeSpanConverter x:Key="TimeSpanConverter"/>
         <converters:FileSizeConverter x:Key="FileSizeConverter"/>
@@ -19,7 +23,14 @@
     </Application.DataTemplates>
 
     <Application.Styles>
+        <!-- TODO Avalonia 11 preview 5 -->
+        <!-- Avalonia 11 preview 4 -->
+        <FluentTheme Mode="Dark"/>
+
+        <!-- Avalonia 11 preview 5 
         <FluentTheme />
+        -->
+
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
         <!-- Add the line below to get OxyPlot UI theme applied. -->
         <StyleInclude Source="avares://OxyPlot.Avalonia/Themes/Default.xaml"/>

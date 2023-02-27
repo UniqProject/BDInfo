@@ -25,10 +25,8 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
-using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Platform.Storage;
-using Avalonia.Platform.Storage.FileIO;
 using BDInfo.DataTypes;
 using BDInfo.Views;
 using BDInfoLib;
@@ -341,7 +339,17 @@ public class MainWindowViewModel : ViewModelBase
         if (!(path.Count > 0)) return;
 
         IsImage = false;
-        SetPath(path.First().Path.LocalPath);
+
+        // TODO > Avalonia 11 preview 5 
+        //
+        // from Avalonia 11 preview 5 on this will be the correct way of getting file path
+        //
+        //var localPath = path.First().Path.LocalPath;
+        //SetPath(localPath);
+
+        // working up until Avalonia 11 preview 4
+        if (path.First().TryGetUri(out Uri localPath))
+            SetPath(localPath.LocalPath);
     }
 
     public async void SelectIso()
@@ -361,7 +369,17 @@ public class MainWindowViewModel : ViewModelBase
         if (!(path.Count > 0)) return;
 
         IsImage = true;
-        SetPath(path.First().Path.LocalPath);
+
+        // TODO > Avalonia 11 preview 5
+        //
+        // from Avalonia 11 preview 5 on this will be the correct way of getting file path
+        //
+        //var localPath = path.First().Path.LocalPath;
+        //SetPath(localPath);
+
+        // working up until Avalonia 11 preview 4
+        if (path.First().TryGetUri(out Uri localPath))
+            SetPath(localPath.LocalPath);
     }
 
     public void Rescan()

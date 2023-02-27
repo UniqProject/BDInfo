@@ -26,7 +26,10 @@ namespace BDInfo;
 
 public class ViewLocator : IDataTemplate
 {
-    public Control Build(object data)
+    // TODO Avalonia 11 preview 5
+    // for Avalonia 11 preview 5 change to
+    // public Control Build(object data)
+    public IControl Build(object data)
     {
         var name = data.GetType().FullName!.Replace("ViewModel", "View");
         var type = Type.GetType(name);

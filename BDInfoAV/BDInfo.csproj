@@ -7,8 +7,7 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <StartupObject>BDInfo.Program</StartupObject>
         <RootNamespace>BDInfo</RootNamespace>
-        <PublishSingleFile>true</PublishSingleFile>
-
+        
         <!-- App Identifier -->
         <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
         <ApplicationIdGuid>a8ed36f5-c90b-4c9a-ab81-0e6e89035c00</ApplicationIdGuid>
@@ -88,20 +87,20 @@
         <TrimmableAssembly Include="Avalonia.Themes.Fluent" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.0-preview5" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview5" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview5" />
+        <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
-        <PackageReference Condition="'$(Configuration)' == 'Beta'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
+        <PackageReference Condition="'$(Configuration)' == 'Beta'" Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
 
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview5" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview5" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
         <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
-        <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev5" />
+        <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
-        <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-av11-preview5" />
+        <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-av11-preview4" />
         <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
     </ItemGroup>
     <ItemGroup>
