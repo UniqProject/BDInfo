@@ -16,7 +16,8 @@
         PositionChanged="OnPositionChanged"
         SizeChanged="OnSizeChanged"
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-        UseLayoutRounding="True">
+        UseLayoutRounding="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome">
         <!--
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"

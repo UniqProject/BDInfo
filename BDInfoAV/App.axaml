@@ -16,6 +16,7 @@
         <converters:BitrateConverter x:Key="BitrateConverter"/>
         <converters:IsEnabledConverter x:Key="IsEnabledConverter" />
         <x:Double x:Key="ControlContentThemeFontSize">11</x:Double>
+        <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI,$Default</FontFamily>
 
         <ControlTheme x:Key="{x:Type DataGridCell}" TargetType="DataGridCell">
             <Setter Property="Background" Value="{DynamicResource DataGridCellBackgroundBrush}" />
