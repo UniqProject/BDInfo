@@ -18,6 +18,9 @@
 //=============================================================================
 
 using Avalonia.Controls;
+using Avalonia.Input;
+using System.Linq;
+using BDInfo.ViewModels;
 
 namespace BDInfo.Views;
 
@@ -29,6 +32,32 @@ public partial class MainWindow : Window
         InitializeComponent();
         Instance = this;
         this.Position = BDInfoSettings.WindowLocation;
+
+        AddHandler(DragDrop.DropEvent, DropHandler);
+        AddHandler(DragDrop.DragOverEvent, DragOverHandler);
+    }
+
+    private void DragOverHandler(object sender, DragEventArgs e)
+    {
+        // Only allow Copy or Link as Drop Operations.
+        e.DragEffects = e.DragEffects & (DragDropEffects.Copy | DragDropEffects.Link);
+
+        // Only allow if the dragged data contains text or filenames.
+        if (!e.Data.Contains(DataFormats.FileNames))
+            e.DragEffects = DragDropEffects.None;
+    }
+
+    private void DropHandler(object sender, DragEventArgs e)
+    {
+        if (e.Data.Contains(DataFormats.FileNames))
+        {
+            if (DataContext is MainWindowViewModel dataContext)
+            {
+                dataContext.Folder = e.Data.GetFileNames()!.First();
+                dataContext.Rescan();
+            }
+        }
+
     }
 
     private void OnPositionChanged(object sender, PixelPointEventArgs e)

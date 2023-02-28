@@ -17,7 +17,8 @@
         SizeChanged="OnSizeChanged"
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
         UseLayoutRounding="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome">
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        DragDrop.AllowDrop="True">
         <!--
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
