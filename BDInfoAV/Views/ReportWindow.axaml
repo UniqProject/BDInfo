@@ -12,20 +12,21 @@
         WindowStartupLocation="Manual"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+        UseLayoutRounding="True">
+        <!--
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
-        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-        UseLayoutRounding="False">
-
+        -->
     <Design.DataContext>
         <viewModels:ReportWindowViewModel />
     </Design.DataContext>
 
     <Panel>
-        <Grid Margin="20" ColumnDefinitions="12*,12*,8*,21*,15*">
+        <Grid Margin="20 10" ColumnDefinitions="12*,12*,8*,21*,15*">
             <Grid.RowDefinitions>
-                <RowDefinition Height="5*" MinHeight="30" />
-                <RowDefinition Height="5*" MinHeight="30"/>
+                <RowDefinition Height="5*" MinHeight="20" />
+                <RowDefinition Height="5*" MinHeight="20"/>
                 <RowDefinition Height="85*" />
                 <RowDefinition Height="5*" MinHeight="30" />
             </Grid.RowDefinitions>
@@ -35,8 +36,11 @@
             <Label Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="5 0">Angle:</Label>
             <Label Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom" Margin="5 0">Chart Type:</Label>
 
-            <ComboBox Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5 0"
-                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+            
+
+            <ComboBox Grid.Row="1" Grid.Column="0" Margin="5 0" MinHeight="20" 
+                      HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Center" VerticalAlignment="Center">
                 <ComboBox.Items>
                     <Binding Path="Playlists"/>
                 </ComboBox.Items>
@@ -46,9 +50,11 @@
                 <ComboBox.SelectedIndex>
                     <Binding Path="SelectedPlaylistIndex"/>
                 </ComboBox.SelectedIndex>
+                
             </ComboBox>
-            <ComboBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5 0"
-                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+            <ComboBox Grid.Row="1" Grid.Column="1" Margin="5 0" MinHeight="20"
+                      HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Center" VerticalAlignment="Center">
                 <ComboBox.Items>
                     <Binding Path="VideoStreams"/>
                 </ComboBox.Items>
@@ -59,8 +65,9 @@
                     <Binding Path="SelectedVideoStreamIndex"/>
                 </ComboBox.SelectedIndex>
             </ComboBox>
-            <ComboBox Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="5 0"
-                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+            <ComboBox Grid.Row="1" Grid.Column="2" Margin="5 0" MinHeight="20"
+                      HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Center" VerticalAlignment="Center">
                 <ComboBox.Items>
                     <Binding Path="AngleList"/>
                 </ComboBox.Items>
@@ -71,8 +78,9 @@
                     <Binding Path="SelectedAngleIndex"/>
                 </ComboBox.SelectedIndex>
             </ComboBox>
-            <ComboBox Grid.Row="1" Grid.Column="3" VerticalAlignment="Center" Margin="5 0"
-                      VerticalContentAlignment="Center" HorizontalAlignment="Stretch" >
+            <ComboBox Grid.Row="1" Grid.Column="3" Margin="5 0" MinHeight="20"
+                      HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Center" VerticalAlignment="Center">
                 <ComboBoxItem>Video Bitrate: 1-Second Window</ComboBoxItem>
                 <ComboBoxItem>Video Bitrate: 5-Second Window</ComboBoxItem>
                 <ComboBoxItem>Video Bitrate: 10-Second Window</ComboBoxItem>

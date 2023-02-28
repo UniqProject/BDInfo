@@ -5,24 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxyplot="http://oxyplot.org/avalonia"
         xmlns:viewModels="clr-namespace:BDInfo.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="780" d:DesignHeight="600"
+        MinWidth="780" MinHeight="600"
         x:Class="BDInfo.Views.ChartWindow"
         Title="ChartWindow"
         WindowStartupLocation="Manual"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
         UseLayoutRounding="False"
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-
+        <!--
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        -->
     <Design.DataContext>
         <viewModels:ChartWindowViewModel />
     </Design.DataContext>
 
     <Panel>
         <oxyplot:PlotView 
-            Margin="20 50" 
+            Margin="20 20" 
             Model="{Binding PlotViewModel}" 
             HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"
             BorderBrush="Black" BorderThickness="2">

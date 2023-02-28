@@ -183,8 +183,8 @@ public class ChartWindowViewModel : ViewModelBase
         PlotViewModel.Legends.Add(new Legend()
         {
             LegendPlacement = LegendPlacement.Outside,
-            LegendPosition = LegendPosition.RightTop,
-            LegendOrientation = LegendOrientation.Vertical
+            LegendPosition = LegendPosition.TopLeft,
+            LegendOrientation = LegendOrientation.Horizontal
         });
 
         PlotViewModel.Axes.Add(new OxyPlot.Axes.TimeSpanAxis
@@ -206,22 +206,15 @@ public class ChartWindowViewModel : ViewModelBase
             DataFieldY = "Value", Color = OxyColors.Gray,
         };
 
-        OxyPlot.Series.LineSeries min = new OxyPlot.Series.LineSeries
+        OxyPlot.Series.AreaSeries max = new OxyPlot.Series.AreaSeries
         {
-            Title = "Min", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Minimum", Color = OxyColor.FromAColor(100, OxyColors.LightGray), 
-            LineStyle = LineStyle.Solid, MarkerFill = OxyColors.White,
-        };
-
-        OxyPlot.Series.LineSeries max = new OxyPlot.Series.LineSeries
-        {
-            Title = "Max", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Maximum", Color = OxyColor.FromAColor(100, OxyColors.LightGray),
+            Title = "Max / Min", ItemsSource = dataPoints, DataFieldX = "Time",
+            DataFieldX2 = "Time", DataFieldY = "Maximum", DataFieldY2 = "Minimum",
+            Color = OxyColor.FromAColor(100, OxyColors.LightGray),
             LineStyle = LineStyle.Solid, MarkerFill = OxyColors.LightGray,
+            LineJoin = LineJoin.Round
         };
 
-        
-        PlotViewModel.Series.Add(min);
         PlotViewModel.Series.Add(max);
         PlotViewModel.Series.Add(avg);
     }
@@ -302,8 +295,8 @@ public class ChartWindowViewModel : ViewModelBase
         PlotViewModel.Legends.Add(new Legend()
         {
             LegendPlacement = LegendPlacement.Outside,
-            LegendPosition = LegendPosition.RightTop,
-            LegendOrientation = LegendOrientation.Vertical
+            LegendPosition = LegendPosition.TopLeft,
+            LegendOrientation = LegendOrientation.Horizontal
         });
 
         PlotViewModel.Axes.Add(new OxyPlot.Axes.TimeSpanAxis
@@ -323,22 +316,16 @@ public class ChartWindowViewModel : ViewModelBase
             DataFieldY = "Value", Color = OxyColors.Gray,
         };
 
-        OxyPlot.Series.LineSeries min = new OxyPlot.Series.LineSeries
+        OxyPlot.Series.AreaSeries maxMin = new OxyPlot.Series.AreaSeries
         {
-            Title = "Min", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Minimum", Color = OxyColor.FromAColor(100, OxyColors.LightGray),
+            Title = "Max / Min", ItemsSource = dataPoints, 
+            DataFieldX = "Time", DataFieldY = "Maximum",
+            DataFieldX2 = "Time", DataFieldY2 = "Minimum",
+            Color = OxyColor.FromAColor(100, OxyColors.LightGray),
             LineStyle = LineStyle.Solid, MarkerFill = OxyColors.White,
         };
 
-        OxyPlot.Series.LineSeries max = new OxyPlot.Series.LineSeries
-        {
-            Title = "Max", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Maximum", Color = OxyColor.FromAColor(100, OxyColors.LightGray),
-            LineStyle = LineStyle.Solid, MarkerFill = OxyColors.LightGray,
-        };
-
-        PlotViewModel.Series.Add(min);
-        PlotViewModel.Series.Add(max);
+        PlotViewModel.Series.Add(maxMin);
         PlotViewModel.Series.Add(avg);
     }
 

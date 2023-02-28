@@ -102,7 +102,7 @@
             <Setter Property="SeparatorBrush" Value="{DynamicResource DataGridGridLinesBrush}" />
             <Setter Property="Padding" Value="5,5,5,5" />
             <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
-            <Setter Property="MinHeight" Value="25" />
+            <Setter Property="MinHeight" Value="20" />
             <Setter Property="Template">
                 <ControlTemplate>
                     <Border x:Name="HeaderBorder"
@@ -185,6 +185,14 @@
         <!-- Add the line below to get OxyPlot UI theme applied. -->
         <StyleInclude Source="avares://OxyPlot.Avalonia/Themes/Default.xaml"/>
 
+        <Style Selector="DataGrid">
+            <Setter Property="UseLayoutRounding" Value="False"/>
+            <Setter Property="RowHeight" Value="20"></Setter>
+            <Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
         <Style Selector="DataGridCell.RightAligned">
             <Setter Property="HorizontalContentAlignment" Value="Right" />
         </Style>
@@ -208,6 +216,5 @@
         <Style Selector="TextBox">
             <Setter Property="Padding" Value="5 3 5 3"/>
         </Style>
-
     </Application.Styles>
 </Application>

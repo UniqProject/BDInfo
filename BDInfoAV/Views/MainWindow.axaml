@@ -13,20 +13,21 @@
         WindowState="{Binding WindowState}"
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
         PositionChanged="OnPositionChanged"
         SizeChanged="OnSizeChanged"
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-        UseLayoutRounding="False">
-
+        UseLayoutRounding="True">
+        <!--
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        -->
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
 
 
     <Panel>
-        <Grid Margin="20" ColumnDefinitions="5*,5*,10*,10*,10*,5*,10*,10*,10*,10*">
+        <Grid Margin="20 10" ColumnDefinitions="5*,5*,10*,10*,10*,5*,10*,10*,10*,10*">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
@@ -131,9 +132,7 @@
 
             <DataGrid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
                       BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
-                      GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False" 
-                      CanUserResizeColumns="True" RowHeight="20" >
+                      CanUserResizeColumns="True" >
                 <DataGrid.SelectedIndex>
                     <Binding Path="SelectedPlaylistIndex" />
                 </DataGrid.SelectedIndex>
@@ -231,8 +230,7 @@
             </GridSplitter>
 
             <DataGrid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False"
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
                       CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
@@ -300,8 +298,7 @@
             </GridSplitter>
 
             <DataGrid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" GridLinesVisibility="All"
-                      SelectionMode="Single" IsReadOnly="True" AutoGenerateColumns="False"
+                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
                       CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
