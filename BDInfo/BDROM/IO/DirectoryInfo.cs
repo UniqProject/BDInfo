@@ -60,8 +60,16 @@ public class DirectoryInfo : IDirectoryInfo
 
     public string GetVolumeLabel()
     {
-        var driveInfo = new DriveInfo(_impl.FullName);
-        return _impl.Root.FullName == _impl.FullName ? driveInfo.VolumeLabel : Name;
+        try
+        {
+            var driveInfo = new DriveInfo(_impl.FullName);
+            return _impl.Root.FullName == _impl.FullName ? driveInfo.VolumeLabel : Name;
+        }
+        catch (Exception)
+        {
+            return Name;
+        }
+        
     }
 
     public static IDirectoryInfo FromDirectoryName(string path)
