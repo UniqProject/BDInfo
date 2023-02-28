@@ -36,7 +36,7 @@
                 <RowDefinition Height="10*" MinHeight="100" />
                 <RowDefinition Height="2" />
                 <RowDefinition Height="10*" MinHeight="100" />
-                <RowDefinition Height="70" MinHeight="70" />
+                <RowDefinition Height="75" MinHeight="75" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
