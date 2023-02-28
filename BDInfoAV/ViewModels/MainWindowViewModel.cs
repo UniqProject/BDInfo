@@ -64,6 +64,12 @@ public class MainWindowViewModel : ViewModelBase
         OpenReportWindow = ReactiveCommand.CreateFromObservable(OpenReportWindowImpl);
     }
 
+    public MainWindowViewModel(string[] args) : this()
+    {
+        Folder = args.First();
+        Rescan();
+    }
+
     public ReactiveCommand<Unit, Unit> OpenReportWindow { get; }
 
     private BDROM _bdRom;

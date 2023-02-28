@@ -49,7 +49,9 @@ public partial class App : Application
 
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = desktop.Args is { Length: > 0 }
+                    ? new MainWindowViewModel(desktop.Args)
+                    : new MainWindowViewModel()
             };
         }
 
