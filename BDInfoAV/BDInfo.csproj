@@ -7,6 +7,8 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <StartupObject>BDInfo.Program</StartupObject>
         <RootNamespace>BDInfo</RootNamespace>
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishSingleFile>true</PublishSingleFile>
 
         <!-- App Identifier -->
         <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
@@ -16,8 +18,8 @@
         <ApplicationTitle>BDInfo</ApplicationTitle>
         <Title>BDInfo</Title>
         <AssemblyName>BDInfo</AssemblyName>
-        <FileVersion>0.8.0.0</FileVersion>
-        <AssemblyVersion>0.8.0.0</AssemblyVersion>
+        <FileVersion>0.8.0.1</FileVersion>
+        <AssemblyVersion>0.8.0.1</AssemblyVersion>
         <Description>Blu-ray Video and Audio Specifications Collection Tool</Description>
         <Company>Cinema Squid &amp; UniqProject</Company>
         <Authors>Cinema Squid &amp; UniqProject</Authors>
