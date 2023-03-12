@@ -521,7 +521,7 @@ namespace BDInfo
                         }
 
                         string streamBitrate = string.Format(CultureInfo.InvariantCulture,
-                                                            "{0:N0}",
+                                                            "{0:D}",
                                                             (int)Math.Round((double)stream.BitRate / 1000));
                         if (stream.AngleIndex > 0)
                         {
