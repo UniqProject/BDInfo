@@ -9,7 +9,7 @@
         <RootNamespace>BDInfo</RootNamespace>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
-
+        
         <!-- App Identifier -->
         <ApplicationId>com.uniqproject.bdinfo</ApplicationId>
         <ApplicationIdGuid>a8ed36f5-c90b-4c9a-ab81-0e6e89035c00</ApplicationIdGuid>
@@ -28,7 +28,7 @@
 
         <ApplicationIcon>Assets\toma4025-rumax-bluray-disc.ico</ApplicationIcon>
         <Configurations>Debug;Release;Beta</Configurations>
-        <Platforms>AnyCPU;ARM64;x64</Platforms>
+        <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
         <PackageProjectUrl>https://github.com/UniqProject/BDInfo</PackageProjectUrl>
@@ -36,7 +36,7 @@
         <RepositoryUrl>https://github.com/UniqProject/BDInfo</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
-    <PropertyGroup  Condition="'$(TargetFramework)' == 'net6.0-maccatalyst' and '$(Configuration)' == 'Release'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-maccatalyst' and '$(Configuration)' == 'Release'">
         <!-- for Mac Catalyst -->
         <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
     </PropertyGroup>
@@ -44,13 +44,25 @@
         <WarningLevel>7</WarningLevel>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <WarningLevel>7</WarningLevel>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
         <WarningLevel>7</WarningLevel>
         <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
         <WarningLevel>7</WarningLevel>

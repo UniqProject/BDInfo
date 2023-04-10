@@ -6,7 +6,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <Configurations>Debug;Release;Beta</Configurations>
-        <Platforms>AnyCPU;x64;ARM64</Platforms>
+        <Platforms>AnyCPU;x64;ARM64;x86</Platforms>
         <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
@@ -14,6 +14,12 @@
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <Optimize>true</Optimize>
         <OutputPath>bin\Beta\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x86'">
+      <DefineConstants>DEBUG;TRACE</DefineConstants>
+      <Optimize>true</Optimize>
+      <OutputPath>bin\Beta\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|ARM64'">
@@ -32,6 +38,10 @@
         <OutputPath>bin\Debug\</OutputPath>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+      <OutputPath>bin\Debug\</OutputPath>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
         <OutputPath>bin\Debug\</OutputPath>
     </PropertyGroup>
@@ -42,6 +52,10 @@
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <OutputPath>bin\Release\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+      <OutputPath>bin\Release\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
