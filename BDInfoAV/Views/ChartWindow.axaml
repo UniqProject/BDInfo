@@ -41,6 +41,13 @@
                     </oxyplot:TrackerControl>
                 </ControlTemplate>
             </oxyplot:PlotView.DefaultTrackerTemplate>
+            <oxyplot:PlotView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy to clipboard" Command="{Binding CopyImageToClipboard}"/>
+                    <MenuItem Header="Save as PNG" Command="{Binding SaveAsPng}"/>
+                    <MenuItem Header="Save as SVG" Command="{Binding SaveAsSvg}"/>
+                </ContextMenu>
+            </oxyplot:PlotView.ContextMenu>
         </oxyplot:PlotView>
     </Panel>
 </Window>

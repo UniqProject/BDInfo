@@ -23,14 +23,16 @@ using ReactiveUI;
 using System.Collections.Generic;
 using System.Linq;
 using BDInfo.DataTypes;
+using OxyPlot.Avalonia;
 using OxyPlot.Legends;
+using System.IO;
 
 namespace BDInfo.ViewModels;
 
 public class ChartWindowViewModel : ViewModelBase
 {
     private PlotModel _plotViewModel;
-
+    private string _defaultFileName;
     public PlotModel PlotViewModel
     {
         get => _plotViewModel;
@@ -46,25 +48,35 @@ public class ChartWindowViewModel : ViewModelBase
 
     public ChartWindowViewModel(int chartType, TSPlaylistFile playlist, ushort pid, int angleIndex)
     {
+        _defaultFileName = BDInfoSettings.UseImagePrefix
+            ? BDInfoSettings.UseImagePrefixValue
+            : $"{ToolBox.FixVolumeLabel(playlist.BDROM.VolumeLabel)}-{Path.GetFileNameWithoutExtension(playlist.Name)}-";
+
         switch (chartType)
         {
             case 0:
                 GenerateWindowChart(playlist, pid, angleIndex, 1);
+                _defaultFileName += "bitrate-01s";
                 break;
             case 1:
                 GenerateWindowChart(playlist, pid, angleIndex, 5);
+                _defaultFileName += "bitrate-05s";
                 break;
             case 2:
                 GenerateWindowChart(playlist, pid, angleIndex, 10);
+                _defaultFileName += "bitrate-10s";
                 break;
             case 3:
                 GenerateFrameSizeChart(playlist, pid, angleIndex);
+                _defaultFileName += "frame-size";
                 break;
             case 4:
                 GenerateFrameTypeChart(playlist, pid, angleIndex, false);
+                _defaultFileName += "frame-type-count";
                 break;
             case 5:
                 GenerateFrameTypeChart(playlist, pid, angleIndex, true);
+                _defaultFileName += "frame-type-size";
                 break;
         }
     }
@@ -446,5 +458,25 @@ public class ChartWindowViewModel : ViewModelBase
             PlotViewModel.Series.Add(pieSeries);
         }
         
+    }
+
+    public void CopyImageToClipboard()
+    {
+        var pngExport = new PngExporter { Width = 1280, Height = 720, Background = OxyColors.White };
+        var bitmap = pngExport.ExportToBitmap(PlotViewModel);
+        // TODO: Clipboard without WindowsForms
+    }
+
+    public void SaveAsPng()
+    {
+        var pngExport = PngExporter.ExportToBitmap(PlotViewModel, 1280, 720, OxyColors.White);
+        pngExport.Save(_defaultFileName + ".png");
+    }
+        
+    public void SaveAsSvg()
+    {
+        using var stream = File.Create(_defaultFileName + ".svg");
+
+        OxyPlot.SvgExporter.Export(PlotViewModel, stream, 1280, 720, true);
     }
 }
