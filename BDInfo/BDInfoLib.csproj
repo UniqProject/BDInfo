@@ -19,7 +19,7 @@
         <Copyright>Copyright © Cinema Squid 2011 &amp; UniqProject 2017-2023</Copyright>
         <NeutralLanguage>en</NeutralLanguage>
         <AssemblyName>BDInfoLib</AssemblyName>
-        <Platforms>x64;ARM64;AnyCPU</Platforms>
+        <Platforms>x64;ARM64;AnyCPU;x86</Platforms>
         <GenerateDocumentationFile>False</GenerateDocumentationFile>
         <IncludeSymbols>True</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -72,14 +72,29 @@
         <DebugType>embedded</DebugType>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <WarningLevel>7</WarningLevel>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|AnyCPU'">
         <WarningLevel>7</WarningLevel>
         <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x86'">
+      <WarningLevel>7</WarningLevel>
+      <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>
