@@ -25,6 +25,12 @@ namespace BDInfo;
 
 internal class ToolBox
 {
+    public static string FixVolumeLabel(string label)
+    {
+        // TODO: Other Volume Label Tweaks?
+        return label.Replace(" ", "_");
+    }
+
     public static string FormatFileSize(double fSize, bool formatHR = false)
     {
         if (fSize <= 0) return "0";
