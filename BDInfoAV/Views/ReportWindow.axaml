@@ -13,11 +13,9 @@
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-        UseLayoutRounding="True">
-        <!--
+        UseLayoutRounding="True"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        -->
+        ExtendClientAreaChromeHints="PreferSystemChrome">
     <Design.DataContext>
         <viewModels:ReportWindowViewModel />
     </Design.DataContext>
@@ -25,7 +23,7 @@
     <Panel>
         <Grid Margin="20 10" ColumnDefinitions="12*,12*,8*,21*,15*">
             <Grid.RowDefinitions>
-                <RowDefinition Height="5*" MinHeight="20" />
+                <RowDefinition Height="*" MinHeight="20" />
                 <RowDefinition Height="5*" MinHeight="20"/>
                 <RowDefinition Height="85*" />
                 <RowDefinition Height="5*" MinHeight="30" />
