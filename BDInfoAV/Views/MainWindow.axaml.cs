@@ -40,7 +40,7 @@ public partial class MainWindow : Window
     private void DragOverHandler(object sender, DragEventArgs e)
     {
         // Only allow Copy or Link as Drop Operations.
-        e.DragEffects = e.DragEffects & (DragDropEffects.Copy | DragDropEffects.Link);
+        e.DragEffects &= (DragDropEffects.Copy | DragDropEffects.Link);
 
         // Only allow if the dragged data contains text or filenames.
         if (!e.Data.Contains(DataFormats.FileNames))
@@ -49,14 +49,11 @@ public partial class MainWindow : Window
 
     private void DropHandler(object sender, DragEventArgs e)
     {
-        if (e.Data.Contains(DataFormats.FileNames))
-        {
-            if (DataContext is MainWindowViewModel dataContext)
-            {
-                dataContext.Folder = e.Data.GetFileNames()!.First();
-                dataContext.Rescan();
-            }
-        }
+        if (!e.Data.Contains(DataFormats.FileNames)) return;
+        if (DataContext is not MainWindowViewModel dataContext) return;
+
+        dataContext.Folder = e.Data.GetFileNames()!.First();
+        dataContext.Rescan();
 
     }
 

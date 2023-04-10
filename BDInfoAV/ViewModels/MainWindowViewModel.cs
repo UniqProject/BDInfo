@@ -56,20 +56,6 @@ public class ScanBDROMResult
 
 public class MainWindowViewModel : ViewModelBase
 {
-    public MainWindowViewModel()
-    {
-        this.WhenPropertyChanged(model => model.SelectedPlaylist, notifyOnInitialValue: false)
-            .Subscribe(model => { UpdatePlaylist(); });
-
-        OpenReportWindow = ReactiveCommand.CreateFromObservable(OpenReportWindowImpl);
-    }
-
-    public MainWindowViewModel(string[] args) : this()
-    {
-        Folder = args.First();
-        Rescan();
-    }
-
     public ReactiveCommand<Unit, Unit> OpenReportWindow { get; }
 
     private BDROM _bdRom;
@@ -99,6 +85,8 @@ public class MainWindowViewModel : ViewModelBase
     private AvaloniaList<PlayListFileItem> _playlistFiles = new();
     private AvaloniaList<StreamClipItem> _streamFiles = new();
     private AvaloniaList<StreamFileItem> _streams = new();
+
+    public string WindowTitle => $"BDInfo {ToolBox.GetApplicationVersion()}";
 
     public Avalonia.Controls.WindowState WindowState
     {
@@ -343,6 +331,26 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _showConfig, value);
     }
 
+    public MainWindowViewModel()
+    {
+        this.WhenPropertyChanged(model => model.SelectedPlaylist, notifyOnInitialValue: false)
+            .Subscribe(model => { UpdatePlaylist(); });
+
+        OpenReportWindow = ReactiveCommand.CreateFromObservable(OpenReportWindowImpl);
+    }
+
+    public MainWindowViewModel(string[] args) : this()
+    {
+        Folder = args.First();
+        Rescan();
+    }
+
+    public async void ShowAboutAvaloniaDialog()
+    {
+        var aboutDialog = new Avalonia.Dialogs.AboutAvaloniaDialog();
+        await aboutDialog.ShowDialog(MainWindow.Instance);
+    }
+
     public async void SelectFolder()
     {
         var path = await MainWindow.Instance.StorageProvider.OpenFolderPickerAsync(
@@ -455,9 +463,10 @@ public class MainWindowViewModel : ViewModelBase
         var result = MessageBoxManager.GetMessageBoxStandardWindow(
             title: "BDInfo Scan Error",
             text: $"An error occurred while scanning the playlist file {playlistFile.Name}.\r\n" +
-                  $"The disc may be copy-protected or damaged.\r\n" +
-                  $"Do you want to continue scanning the playlist files?",
-            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner).Show();
+                  "The disc may be copy-protected or damaged.\r\n" +
+                  "Do you want to continue scanning the playlist files?",
+            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+            .ShowDialog(MainWindow.Instance);
         return result.Result == ButtonResult.Yes;
     }
 
@@ -466,9 +475,10 @@ public class MainWindowViewModel : ViewModelBase
         var result = MessageBoxManager.GetMessageBoxStandardWindow(
             title: "BDInfo Scan Error",
             text: $"An error occurred while scanning the stream file {streamFile.Name}.\r\n" +
-                  $"The disc may be copy-protected or damaged.\r\n" +
-                  $"Do you want to continue scanning the stream files?", 
-            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner).Show();
+                  "The disc may be copy-protected or damaged.\r\n" +
+                  "Do you want to continue scanning the stream files?", 
+            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+            .ShowDialog(MainWindow.Instance);
         return result.Result == ButtonResult.Yes;
     }
 
@@ -477,9 +487,10 @@ public class MainWindowViewModel : ViewModelBase
         var result = MessageBoxManager.GetMessageBoxStandardWindow(
             title: "BDInfo Scan Error", 
             text: $"An error occurred while scanning the stream clip file {streamClipFile.Name}.\r\n" +
-                  $"The disc may be copy-protected or damaged.\r\n" +
-                  $"Do you want to continue scanning the stream clip files?", 
-            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner).Show();
+                  "The disc may be copy-protected or damaged.\r\n" +
+                  "Do you want to continue scanning the stream clip files?", 
+            ButtonEnum.YesNo, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+            .ShowDialog(MainWindow.Instance);
         return result.Result == ButtonResult.Yes;
     }
 
@@ -500,7 +511,7 @@ public class MainWindowViewModel : ViewModelBase
                     title: "BDInfo Error",
                     text: msg,
                     ButtonEnum.Ok, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner)
-                .Show();
+                .ShowDialog(MainWindow.Instance);
             return;
         }
 
@@ -802,7 +813,7 @@ public class MainWindowViewModel : ViewModelBase
                 }
             }
 
-            timer = new Timer(ScanBDROMEvent, scanState, 1000, 1000);
+            timer = new Timer(ScanBDROMEvent, scanState, 500, 100);
 
             foreach (var streamFile in streamFiles)
             {
@@ -810,11 +821,8 @@ public class MainWindowViewModel : ViewModelBase
 
                 var thread = new Thread(ScanBDROMThread);
                 thread.Start(scanState);
+                thread.Join();
 
-                while (thread.IsAlive)
-                {
-                    Thread.Sleep(500);
-                }
                 if (streamFile.FileInfo != null)
                     scanState.FinishedBytes += streamFile.FileInfo.Length;
                 if (scanState.Exception != null)
@@ -822,10 +830,11 @@ public class MainWindowViewModel : ViewModelBase
                     _scanResult.FileExceptions[streamFile.Name] = scanState.Exception;
                 }
 
-                if (!_abortScan) continue;
-
-                _scanResult.ScanException = new Exception("Scan was cancelled.");
-                return;
+                if (_abortScan)
+                {
+                    _scanResult.ScanException = new Exception("Scan was cancelled.");
+                    return;
+                }
             }
             _scanResult.ScanException = null;
         }
@@ -931,8 +940,8 @@ public class MainWindowViewModel : ViewModelBase
             var msg = $"{_scanResult.ScanException.Message}";
             MessageBoxManager
                 .GetMessageBoxStandardWindow("BDInfo Error", msg, 
-                    ButtonEnum.Ok, Icon.Error)
-                .Show();
+                    ButtonEnum.Ok, Icon.Error, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+                .ShowDialog(MainWindow.Instance);
         }
         else
         {
@@ -944,15 +953,15 @@ public class MainWindowViewModel : ViewModelBase
             {
                 MessageBoxManager
                     .GetMessageBoxStandardWindow("BDInfo Scan", "Scan completed with errors (see report).",
-                        ButtonEnum.Ok, Icon.Warning)
-                    .Show();
+                        ButtonEnum.Ok, Icon.Warning, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+                    .ShowDialog(MainWindow.Instance);
             }
             else
             {
                 MessageBoxManager
                     .GetMessageBoxStandardWindow("BDInfo Scan", "Scan completed successfully.",
-                        ButtonEnum.Ok, Icon.Info)
-                    .Show();
+                        ButtonEnum.Ok, Icon.Info, Avalonia.Controls.WindowStartupLocation.CenterOwner)
+                    .ShowDialog(MainWindow.Instance);
             }
         }
 

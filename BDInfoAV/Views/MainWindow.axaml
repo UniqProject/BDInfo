@@ -8,7 +8,7 @@
         MinWidth="780" MinHeight="600"
         x:Class="BDInfo.Views.MainWindow"
         Icon="/Assets/toma4025-rumax-bluray-disc.ico"
-        Title="BDInfo"
+        Title="{Binding WindowTitle}"
         WindowStartupLocation="Manual"
         WindowState="{Binding WindowState}"
         Width="{Binding WindowSize.Width}"
@@ -18,11 +18,9 @@
         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
         UseLayoutRounding="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
-        DragDrop.AllowDrop="True">
-        <!--
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        -->
+        DragDrop.AllowDrop="True"
+        ExtendClientAreaToDecorationsHint="True">
+
     <Design.DataContext>
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
@@ -31,28 +29,50 @@
     <Panel>
         <Grid Margin="20 10" ColumnDefinitions="5*,5*,10*,10*,10*,5*,10*,10*,10*,10*">
             <Grid.RowDefinitions>
+                <RowDefinition Height="20" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="*" MinHeight="100" />
                 <RowDefinition Height="2" />
-                <RowDefinition Height="10*" MinHeight="100" />
+                <RowDefinition Height="*" MinHeight="100" />
                 <RowDefinition Height="2" />
-                <RowDefinition Height="10*" MinHeight="100" />
-                <RowDefinition Height="75" MinHeight="75" />
+                <RowDefinition Height="*" MinHeight="100" />
+                <RowDefinition Height="75" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
 
-
-            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10" VerticalContentAlignment="Center">
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" VerticalContentAlignment="Center">
                 <Label.Content>Select the source BD-ROM:</Label.Content>
+            </Label>
+
+            <Image Grid.Row="0" Grid.Column="6" HorizontalAlignment="Right" 
+                   Source="/Assets/toma4025-rumax-bluray-disc.ico">
+                <Image.IsVisible>
+                    <Binding Path="IsExtendedIntoWindowDecorations">
+                        <Binding.RelativeSource>
+                            <RelativeSource AncestorType="{x:Type Window}" Mode="FindAncestor" />
+                        </Binding.RelativeSource>
+                    </Binding>
+                </Image.IsVisible>
+            </Image>
+
+            <Label Grid.Row="0" Grid.Column="7" 
+                   VerticalContentAlignment="Center" HorizontalContentAlignment="Left"
+                   Content="{Binding WindowTitle}">
+                <Label.IsVisible>
+                    <Binding Path="IsExtendedIntoWindowDecorations">
+                        <Binding.RelativeSource>
+                            <RelativeSource AncestorType="{x:Type Window}" Mode="FindAncestor" />
+                        </Binding.RelativeSource>
+                    </Binding>
+                </Label.IsVisible>
             </Label>
 
             <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" Margin="3"
                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"
-                     BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" IsReadOnly="True">
+                     BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" CornerRadius="3" IsReadOnly="True">
                 <TextBox.Watermark>Path to BD ROM</TextBox.Watermark>
                 <TextBox.Text>
                     <Binding Path="Folder" FallbackValue=" " />
@@ -133,8 +153,8 @@
             </Button>
 
             <DataGrid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
-                      CanUserResizeColumns="True" >
+                      BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" CornerRadius="3"
+                      CanUserResizeColumns="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <DataGrid.SelectedIndex>
                     <Binding Path="SelectedPlaylistIndex" />
                 </DataGrid.SelectedIndex>
@@ -186,7 +206,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Width="10*" Binding="{Binding Path=Group}" 
+                    <DataGridTextColumn Width="10*" Binding="{Binding Path=Group}"
                                         Header="Group" />
                     <DataGridTextColumn Width="12*" CellStyleClasses="RightAligned">
                         <DataGridTextColumn.HeaderTemplate>
@@ -224,16 +244,21 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <GridSplitter Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="10" Background="LightGray"
-                          ResizeDirection="Rows">
+
+            <GridSplitter Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="10"
+                          Background="{DynamicResource SystemBaseMediumLowColor}"
+                          ResizeDirection="Rows"
+                          MaxHeight="2" Height="2">
                 <GridSplitter.IsEnabled>
                     <Binding Path="!IsPopupVisible" />
                 </GridSplitter.IsEnabled>
             </GridSplitter>
 
+
             <DataGrid Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
-                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
+                      BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" CornerRadius="3"
+                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
                         <Binding Path="!IsPopupVisible" />
@@ -292,16 +317,18 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <GridSplitter Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="10" Background="LightGray"
-                          ResizeDirection="Rows">
+            <GridSplitter Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="10" Background="{DynamicResource SystemBaseMediumLowColor}"
+                          ResizeDirection="Rows"
+                          MaxHeight="2" Height="2">
                 <GridSplitter.IsEnabled>
                     <Binding Path="!IsPopupVisible" />
                 </GridSplitter.IsEnabled>
             </GridSplitter>
 
             <DataGrid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="10" Margin="0 3 0 3"
-                      BorderThickness="1" BorderBrush="DimGray" CornerRadius="3" 
-                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True">
+                      BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" CornerRadius="3"
+                      CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="True"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <DataGrid.IsEnabled>
                     <MultiBinding Converter="{StaticResource IsEnabledConverter}">
                         <Binding Path="!IsPopupVisible" />
@@ -345,7 +372,8 @@
             </DataGrid>
 
             <TextBox Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="10" BorderThickness="1"
-                     BorderBrush="DimGray" CornerRadius="3" IsReadOnly="True"
+                     BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+                     CornerRadius="3" IsReadOnly="True"
                      FontFamily="Segoe UI, Verdana, Arial"
                      HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
                 <TextBox.IsEnabled>
@@ -404,6 +432,10 @@
                     </MultiBinding>
                 </ProgressBar.IsEnabled>
             </ProgressBar>
+
+            <Button Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2"
+                    HorizontalContentAlignment="Center" HorizontalAlignment="Stretch"
+                    Content="About Avalonia UI" Command="{Binding ShowAboutAvaloniaDialog}" />
 
             <ToggleButton Grid.Row="11" Grid.Column="6" Margin="3" IsThreeState="False"
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
