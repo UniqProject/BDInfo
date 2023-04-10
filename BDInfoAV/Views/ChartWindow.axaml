@@ -13,18 +13,17 @@
         Width="{Binding WindowSize.Width}"
         Height="{Binding WindowSize.Height}"
         UseLayoutRounding="False"
-        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-        <!--
+        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        -->
+        ExtendClientAreaChromeHints="PreferSystemChrome">
+
     <Design.DataContext>
         <viewModels:ChartWindowViewModel />
     </Design.DataContext>
 
     <Panel>
         <oxyplot:PlotView 
-            Margin="20 20" 
+            Margin="20 30 20 20" 
             Model="{Binding PlotViewModel}" 
             HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"
             BorderBrush="Black" BorderThickness="2">

@@ -192,7 +192,7 @@ public class ChartWindowViewModel : ViewModelBase
             }
         }
 
-        PlotViewModel.Legends.Add(new Legend()
+        PlotViewModel.Legends.Add(new OxyPlot.Legends.Legend
         {
             LegendPlacement = LegendPlacement.Outside,
             LegendPosition = LegendPosition.TopLeft,
@@ -204,7 +204,7 @@ public class ChartWindowViewModel : ViewModelBase
             Title = "Time", Key = "X", Position = OxyPlot.Axes.AxisPosition.Bottom, 
             Angle = -45, Selectable = true,
             IsZoomEnabled = true,
-            SelectionMode = SelectionMode.All
+            SelectionMode = OxyPlot.SelectionMode.All
         });
         PlotViewModel.Axes.Add(new OxyPlot.Axes.LinearAxis
         {
@@ -212,19 +212,19 @@ public class ChartWindowViewModel : ViewModelBase
             IsZoomEnabled = false,
         });
 
-        OxyPlot.Series.LineSeries avg = new OxyPlot.Series.LineSeries
+        var avg = new OxyPlot.Series.LineSeries
         {
             Title = "Average", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Value", Color = OxyColors.Gray,
+            DataFieldY = "Value", Color = OxyColors.Gray, StrokeThickness = 1,
         };
 
-        OxyPlot.Series.AreaSeries max = new OxyPlot.Series.AreaSeries
+        var max = new OxyPlot.Series.AreaSeries
         {
             Title = "Max / Min", ItemsSource = dataPoints, DataFieldX = "Time",
             DataFieldX2 = "Time", DataFieldY = "Maximum", DataFieldY2 = "Minimum",
-            Color = OxyColor.FromAColor(100, OxyColors.LightGray),
+            Color = OxyColor.FromAColor(125, OxyColors.LightGray),
             LineStyle = LineStyle.Solid, MarkerFill = OxyColors.LightGray,
-            LineJoin = LineJoin.Round
+            LineJoin = LineJoin.Round,
         };
 
         PlotViewModel.Series.Add(max);
@@ -304,7 +304,7 @@ public class ChartWindowViewModel : ViewModelBase
             }
         }
 
-        PlotViewModel.Legends.Add(new Legend()
+        PlotViewModel.Legends.Add(new OxyPlot.Legends.Legend
         {
             LegendPlacement = LegendPlacement.Outside,
             LegendPosition = LegendPosition.TopLeft,
@@ -315,25 +315,25 @@ public class ChartWindowViewModel : ViewModelBase
         {
             Title = "Time", Key = "X", Position = OxyPlot.Axes.AxisPosition.Bottom,
             Angle = -45, Selectable = true, IsZoomEnabled = true,
-            SelectionMode = SelectionMode.All
+            SelectionMode = OxyPlot.SelectionMode.All
         });
         PlotViewModel.Axes.Add(new OxyPlot.Axes.LinearAxis
         {
             Title = "Size (KB)", Key = "Y", Position = OxyPlot.Axes.AxisPosition.Left
         });
 
-        OxyPlot.Series.LineSeries avg = new OxyPlot.Series.LineSeries
+        var avg = new OxyPlot.Series.LineSeries
         {
             Title = "Average", ItemsSource = dataPoints, DataFieldX = "Time",
-            DataFieldY = "Value", Color = OxyColors.Gray,
+            DataFieldY = "Value", Color = OxyColors.Gray, StrokeThickness = 1,
         };
 
-        OxyPlot.Series.AreaSeries maxMin = new OxyPlot.Series.AreaSeries
+        var maxMin = new OxyPlot.Series.AreaSeries
         {
             Title = "Max / Min", ItemsSource = dataPoints, 
             DataFieldX = "Time", DataFieldY = "Maximum",
             DataFieldX2 = "Time", DataFieldY2 = "Minimum",
-            Color = OxyColor.FromAColor(100, OxyColors.LightGray),
+            Color = OxyColor.FromAColor(125, OxyColors.LightGray),
             LineStyle = LineStyle.Solid, MarkerFill = OxyColors.White,
         };
 
@@ -407,23 +407,23 @@ public class ChartWindowViewModel : ViewModelBase
         {
             PlotViewModel = new PlotModel
             {
-                Title = $"Video Frame Type Sizes",
+                Title = "Video Frame Type Sizes",
                 PlotType = PlotType.XY,
                 PlotAreaBorderColor = OxyColors.Black
             };
 
-            PlotViewModel.Legends.Add(new Legend()
+            PlotViewModel.Legends.Add(new OxyPlot.Legends.Legend
             {
                 LegendPlacement = LegendPlacement.Outside,
                 LegendPosition = LegendPosition.RightTop,
                 LegendOrientation = LegendOrientation.Vertical
             });
 
-            PlotViewModel.Axes.Add(new OxyPlot.Axes.CategoryAxis() { Position = OxyPlot.Axes.AxisPosition.Left, ItemsSource = items, LabelField = "Label" });
+            PlotViewModel.Axes.Add(new OxyPlot.Axes.CategoryAxis { Position = OxyPlot.Axes.AxisPosition.Left, ItemsSource = items, LabelField = "Label" });
             PlotViewModel.Axes.Add(new OxyPlot.Axes.LinearAxis { Position = OxyPlot.Axes.AxisPosition.Bottom, MinimumPadding = 0, AbsoluteMinimum = 0 });
 
-            var averageBar = new OxyPlot.Series.BarSeries() { Title = "Average", ItemsSource = items, ValueField = "Value" };
-            var peakBar = new OxyPlot.Series.BarSeries() { Title = "Peak", ItemsSource = items, ValueField = "Peak" };
+            var averageBar = new OxyPlot.Series.BarSeries { Title = "Average", ItemsSource = items, ValueField = "Value" };
+            var peakBar = new OxyPlot.Series.BarSeries { Title = "Peak", ItemsSource = items, ValueField = "Peak" };
 
             PlotViewModel.Series.Add(averageBar);
             PlotViewModel.Series.Add(peakBar);
@@ -432,7 +432,7 @@ public class ChartWindowViewModel : ViewModelBase
         {
             PlotViewModel = new PlotModel
             {
-                Title = $"Video Frame Type Counts",
+                Title = "Video Frame Type Counts",
                 PlotType = PlotType.XY,
                 PlotAreaBorderColor = OxyColors.Black
             };
@@ -472,7 +472,7 @@ public class ChartWindowViewModel : ViewModelBase
         var pngExport = PngExporter.ExportToBitmap(PlotViewModel, 1280, 720, OxyColors.White);
         pngExport.Save(_defaultFileName + ".png");
     }
-        
+
     public void SaveAsSvg()
     {
         using var stream = File.Create(_defaultFileName + ".svg");
